@@ -1,0 +1,29 @@
+{
+  "name": "VLat.Tests.Edit",
+  "rootNamespace": "VLat.Tests.Edit",
+  "references": [
+    "VLat.Core",
+    "VLat.Runtime",
+    "VLat.Editor",
+    "VRM10",
+    "UniHumanoid"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Newtonsoft.Json.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "vlat": {
+    "version": "0.1.0",
+    "generator": "VLat Tests 0.1",
+    "targetAvatar": {
+      "name": "AllModifiersAvatar",
+      "vrmVersion": "1.0",
+      "meshBindings": [
+        {
+          "hierarchyPath": "Face/Hair_Front",
+          "meshName": "Hair_Front",
+          "vertexCount": 4820,
+          "positionHash": "xxh64:9f2ab1234567890a",
+          "materials": [
+            {
+              "slot": 0,
+              "materialName": "MAT_Hair",
+              "shader": "VRM10/MToon10"
+            },
+            {
+              "slot": 1,
+              "materialName": "MAT_HairHighlight",
+              "shader": "VRM10/MToon10"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "buffers": [
+    {
+      "uri": "valid-all-modifiers.vlat.bin",
+      "byteLength": 64
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 8
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 8,
+      "byteLength": 24
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 32,
+      "byteLength": 24
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 56,
+      "byteLength": 8
+    }
+  ],
+  "textures": [
+    {
+      "name": "HairHighlightExternal",
+      "uri": "hair-highlight.png",
+      "mimeType": "image/png"
+    },
+    {
+      "name": "HairHighlightEmbedded",
+      "bufferView": 3,
+      "mimeType": "image/png"
+    }
+  ],
+  "angleBands": [
+    {
+      "id": "band_profile_left",
+      "name": "左横顔",
+      "yaw": {
+        "min": 60,
+        "max": 120
+      },
+      "pitch": {
+        "min": -30,
+        "max": 30
+      },
+      "feather": {
+        "yaw": 15,
+        "pitch": 10
+      },
+      "hysteresis": 2
+    },
+    {
+      "id": "band_rear",
+      "name": "背面跨ぎ",
+      "yaw": {
+        "min": 170,
+        "max": -170
+      },
+      "pitch": {
+        "min": -20,
+        "max": 20
+      },
+      "feather": {
+        "yaw": 5,
+        "pitch": 5
+      }
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer_vertex_delta",
+      "name": "前髪形状補正",
+      "tag": "bangs",
+      "enabled": true,
+      "priority": 0,
+      "bandId": "band_profile_left",
+      "modifiers": [
+        {
+          "type": "vertexDelta",
+          "meshBinding": 0,
+          "indices": {
+            "bufferView": 0,
+            "componentType": "UINT32"
+          },
+          "positions": {
+            "bufferView": 1,
+            "componentType": "FLOAT32"
+          },
+          "normals": {
+            "bufferView": 2,
+            "componentType": "FLOAT32"
+          }
+        }
+      ]
+    },
+    {
+      "id": "layer_non_shape",
+      "name": "前髪表示と材質補正",
+      "tag": "hairHighlight",
+      "enabled": true,
+      "priority": 10,
+      "bandId": "band_profile_left",
+      "modifiers": [
+        {
+          "type": "visibility",
+          "meshBinding": 0,
+          "subMesh": 0,
+          "visibleInBand": false
+        },
+        {
+          "type": "opacity",
+          "meshBinding": 0,
+          "materialSlot": 0,
+          "value": 0.35
+        },
+        {
+          "type": "materialProperty",
+          "meshBinding": 0,
+          "materialSlot": 0,
+          "property": "_Cutoff",
+          "valueType": "float",
+          "bandValue": 0.4,
+          "interpolate": true
+        },
+        {
+          "type": "materialProperty",
+          "meshBinding": 0,
+          "materialSlot": 0,
+          "property": "_ShadeColor",
+          "valueType": "color",
+          "bandValue": [
+            0.9,
+            0.85,
+            1.0,
+            1.0
+          ],
+          "interpolate": true
+        },
+        {
+          "type": "materialProperty",
+          "meshBinding": 0,
+          "materialSlot": 0,
+          "property": "_UvAnimMaskTexture_ST",
+          "valueType": "vector",
+          "bandValue": [
+            1.0,
+            1.0,
+            0.1,
+            0.0
+          ],
+          "interpolate": false
+        },
+        {
+          "type": "materialProperty",
+          "meshBinding": 0,
+          "materialSlot": 1,
+          "property": "_MainTex",
+          "valueType": "textureIndex",
+          "bandValue": 1,
+          "interpolate": false
+        },
+        {
+          "type": "renderQueue",
+          "meshBinding": 0,
+          "materialSlot": 0,
+          "offset": 10
+        }
+      ]
+    }
+  ]
+}

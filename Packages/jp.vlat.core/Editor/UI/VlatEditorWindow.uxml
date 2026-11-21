@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <!--
+      レイアウト: 上部ツールバーと作業手順、左=ドキュメント、中央=3視点Preview、右=選択項目の設定、
+      下部=検証結果とステータス。要素nameはController/試験の契約なので変更しない。
+    -->
+    <ui:VisualElement class="vlat-root">
+        <ui:VisualElement name="toolbar" class="vlat-toolbar">
+            <ui:Button name="new-button" text="新規" tooltip="新しいVLatドキュメントを作成します。未保存の変更がある場合は確認します。" />
+            <ui:Button name="open-button" text="開く…" tooltip="既存の .vlat.json を開きます。" />
+            <ui:Button name="save-button" text="保存" tooltip="現在のファイルへ保存します。" />
+            <ui:Button name="save-as-button" text="別名で保存…" tooltip="保存先を選んで保存します。" />
+            <ui:VisualElement class="vlat-toolbar-separator" />
+            <ui:Button name="undo-button" text="元に戻す" tooltip="Undo (Ctrl+Z)。1回のドラッグは1回で戻ります。" />
+            <ui:Button name="redo-button" text="やり直し" tooltip="Redo (Ctrl+Y)" />
+            <ui:VisualElement class="vlat-toolbar-spacer" />
+            <ui:Label name="document-title-label" class="vlat-document-title" />
+            <ui:Label name="dirty-label" class="vlat-dirty-label" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="workflow-guide" class="vlat-workflow">
+            <ui:VisualElement name="workflow-steps" class="vlat-workflow-steps">
+                <ui:Label name="workflow-step-vrm" text="1 VRM" class="vlat-step" tooltip="プレビュー用のVRM 1.0を開きます（原本は変更しません）。" />
+                <ui:Label name="workflow-step-group" text="2 グループ" class="vlat-step" tooltip="空のドキュメントでYaw Keyformグループを作成します。" />
+                <ui:Label name="workflow-step-target" text="3 対象Mesh" class="vlat-step" tooltip="シーン上のアバターRootとRendererを対象に設定します。" />
+                <ui:Label name="workflow-step-key" text="4 キー" class="vlat-step" tooltip="編集するYawキーを選びます。" />
+                <ui:Label name="workflow-step-select" text="5 頂点選択" class="vlat-step" tooltip="Mainビューで動かす頂点を選びます。" />
+                <ui:Label name="workflow-step-drag" text="6 ドラッグ" class="vlat-step" tooltip="2Dドラッグをオンにして、Mainビューで形を直接動かします。" />
+            </ui:VisualElement>
+            <ui:Label name="workflow-hint" class="vlat-workflow-hint" />
+        </ui:VisualElement>
+
+        <ui:TwoPaneSplitView name="main-split" fixed-pane-index="0" fixed-pane-initial-dimension="250" orientation="Horizontal">
+            <ui:ScrollView name="hierarchy-pane" class="vlat-hierarchy">
+                <ui:Button name="document-button" text="ドキュメント設定" class="vlat-document-button" tooltip="Avatar名・バージョン・Binding一覧を表示します。" />
+
+                <ui:Foldout name="keyform-section" text="Yaw Keyform (v0.2)" value="true" class="vlat-section">
+                    <ui:VisualElement class="vlat-section-header">
+                        <ui:Label text="グループ" class="vlat-section-title" />
+                        <ui:Button name="add-keyform-group-button" text="+" tooltip="Keyformグループを作成（空のドキュメントのみ）" />
+                        <ui:Button name="remove-keyform-group-button" text="−" tooltip="選択グループを削除" />
+                    </ui:VisualElement>
+                    <ui:ListView name="keyform-group-list" fixed-item-height="22" selection-type="Single" />
+                    <ui:VisualElement class="vlat-section-header">
+                        <ui:Label text="Yawキー" class="vlat-section-title" />
+                        <ui:Button name="add-keyform-button" text="+" tooltip="空いている角度にキーを追加" />
+                        <ui:Button name="remove-keyform-button" text="−" tooltip="選択キーを削除" />
+                    </ui:VisualElement>
+                    <ui:ListView name="keyform-list" fixed-item-height="22" selection-type="Single" />
+                </ui:Foldout>
+
+                <ui:Foldout name="legacy-section" text="Layer編集 (v0.1互換)" value="false" class="vlat-section">
+                    <ui:VisualElement class="vlat-section-header">
+                        <ui:Label text="Angle Band" class="vlat-section-title" />
+                        <ui:Button name="add-band-button" text="+" tooltip="Bandを追加" />
+                        <ui:Button name="remove-band-button" text="−" tooltip="選択Bandを削除" />
+                        <ui:Button name="band-up-button" text="↑" tooltip="上へ" />
+                        <ui:Button name="band-down-button" text="↓" tooltip="下へ" />
+                    </ui:VisualElement>
+                    <ui:ListView name="band-list" fixed-item-height="22" selection-type="Single" />
+
+                    <ui:VisualElement class="vlat-section-header">
+                        <ui:Label text="Layer" class="vlat-section-title" />
+                        <ui:Button name="add-layer-button" text="+" tooltip="Layerを追加" />
+                        <ui:Button name="remove-layer-button" text="−" tooltip="選択Layerを削除" />
+                        <ui:Button name="layer-up-button" text="↑" tooltip="上へ" />
+                        <ui:Button name="layer-down-button" text="↓" tooltip="下へ" />
+                    </ui:VisualElement>
+                    <ui:ListView name="layer-list" fixed-item-height="22" selection-type="Single" />
+
+                    <ui:VisualElement class="vlat-section-header">
+                        <ui:Label text="Modifier" class="vlat-section-title" />
+                        <ui:Button name="add-modifier-button" text="+" tooltip="Modifierを追加" />
+                        <ui:Button name="remove-modifier-button" text="−" tooltip="選択Modifierを削除" />
+                        <ui:Button name="modifier-up-button" text="↑" tooltip="上へ" />
+                        <ui:Button name="modifier-down-button" text="↓" tooltip="下へ" />
+                    </ui:VisualElement>
+                    <ui:ListView name="modifier-list" fixed-item-height="22" selection-type="Single" />
+                </ui:Foldout>
+            </ui:ScrollView>
+
+            <ui:TwoPaneSplitView name="content-split" fixed-pane-index="1" fixed-pane-initial-dimension="340" orientation="Horizontal">
+                <ui:VisualElement name="preview-pane" class="vlat-preview">
+                    <ui:VisualElement class="vlat-preview-toolbar">
+                        <ui:Button name="select-vrm-button" text="VRMを開く…" tooltip="プレビュー用のVRM 1.0を読み込みます。元ファイル・元アセットは変更しません。" />
+                        <ui:Button name="clear-vrm-button" text="閉じる" tooltip="プレビュー用VRMを解放します。" />
+                        <ui:Label name="preview-avatar-label" text="VRM未読込" class="vlat-preview-avatar-label" />
+                        <ui:VisualElement class="vlat-toolbar-spacer" />
+                        <ui:Label text="編集モード" class="vlat-mode-caption" />
+                        <ui:Toggle name="geometry-selection-toggle" text="頂点選択" class="vlat-mode-toggle" tooltip="Mainビューで頂点を選択します。表情とAfterは中立に固定されます。" />
+                        <ui:Toggle name="keyform-drag-toggle" text="2Dドラッグ" class="vlat-mode-toggle" tooltip="選択頂点をMainビューで直接動かします（頂点選択とキー選択が必要）。" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="vlat-preview-views">
+                        <ui:VisualElement class="vlat-preview-view vlat-preview-view-main">
+                            <ui:VisualElement class="vlat-preview-view-header">
+                                <ui:Label text="Main（編集）" tooltip="頂点選択とドラッグはこのビューで行います。" />
+                                <ui:Button name="reset-main-view-button" text="リセット" tooltip="Main視点を初期位置へ戻します。" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="vlat-preview-image-stack">
+                                <ui:Image name="preview-main" class="vlat-preview-image" />
+                                <ui:Image name="selection-overlay" picking-mode="Ignore" class="vlat-selection-overlay" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="vlat-preview-side">
+                            <ui:VisualElement class="vlat-preview-view">
+                                <ui:VisualElement class="vlat-preview-view-header">
+                                    <ui:Label text="Sub A (45°)" tooltip="確定済みの補間結果。ドラッグ中はMouseUpで更新します。" />
+                                    <ui:Button name="reset-sub-a-button" text="リセット" />
+                                </ui:VisualElement>
+                                <ui:Image name="preview-sub-a" class="vlat-preview-image" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="vlat-preview-view">
+                                <ui:VisualElement class="vlat-preview-view-header">
+                                    <ui:Label text="Sub B (90°)" tooltip="確定済みの補間結果。ドラッグ中はMouseUpで更新します。" />
+                                    <ui:Button name="reset-sub-b-button" text="リセット" />
+                                </ui:VisualElement>
+                                <ui:Image name="preview-sub-b" class="vlat-preview-image" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:Label name="preview-help-label" text="左ドラッグ: 回転 / 中ドラッグ: 移動 / ホイール: ズーム" class="vlat-preview-help" />
+                    <ui:ScrollView name="preview-controls-scroll" class="vlat-preview-controls-scroll">
+                        <ui:VisualElement name="preview-messages" class="vlat-preview-messages">
+                            <ui:Label name="keyform-drag-status" class="vlat-message vlat-message-active" />
+                            <ui:Label name="vertex-selection-diagnostic" class="vlat-message vlat-message-warning" />
+                            <ui:Label name="preview-diagnostic-label" class="vlat-message vlat-message-info" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement name="preview-control-groups" class="vlat-control-groups">
+                            <ui:VisualElement name="view-control-group" class="vlat-control-group">
+                                <ui:Label text="Main視点・補正" class="vlat-control-group-title" />
+                                <ui:Slider name="preview-yaw" label="Yaw" low-value="-180" high-value="180" show-input-field="true" />
+                                <ui:Slider name="preview-pitch" label="Pitch" low-value="-89" high-value="89" show-input-field="true" />
+                                <ui:Toggle name="preview-after-toggle" label="補正を表示" value="true" tooltip="オフにすると表情を保ったまま補正だけを外します（Before/After比較）。" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="expression-control-group" class="vlat-control-group">
+                                <ui:Label text="表情" class="vlat-control-group-title" />
+                                <ui:DropdownField name="expression-dropdown" label="表情" />
+                                <ui:Slider name="expression-weight" label="強さ" low-value="0" high-value="1" show-input-field="true" />
+                                <ui:Button name="reset-expressions-button" text="表情をリセット" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="selection-control-group" class="vlat-control-group">
+                                <ui:Label text="頂点選択" class="vlat-control-group-title" />
+                                <ui:DropdownField name="vertex-target-dropdown" label="対象" />
+                                <ui:DropdownField name="vertex-tool-dropdown" label="ツール" />
+                                <ui:DropdownField name="vertex-visibility-dropdown" label="選択範囲" />
+                                <ui:Slider name="vertex-brush-radius" label="ブラシ px" low-value="2" high-value="100" value="18" show-input-field="true" />
+                                <ui:Slider name="vertex-soft-radius" label="ソフト半径" low-value="0.0001" high-value="1" value="0.08" show-input-field="true" />
+                                <ui:DropdownField name="vertex-falloff-dropdown" label="減衰" />
+                                <ui:VisualElement class="vlat-control-row">
+                                    <ui:Button name="clear-vertex-selection-button" text="選択を解除" />
+                                    <ui:Button name="cancel-keyform-drag-button" text="ドラッグを中止 (Esc)" />
+                                </ui:VisualElement>
+                                <ui:Label name="vertex-selection-status" class="vlat-selection-status" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:Foldout name="preview-details" text="詳細情報（性能・リソース）" value="false" class="vlat-preview-details">
+                            <ui:Label name="vertex-selection-performance" class="vlat-preview-instrumentation" />
+                            <ui:Label name="preview-performance-label" class="vlat-preview-instrumentation" />
+                            <ui:Label name="preview-resource-label" class="vlat-preview-instrumentation" />
+                        </ui:Foldout>
+                    </ui:ScrollView>
+                </ui:VisualElement>
+
+                <ui:ScrollView name="inspector-pane" class="vlat-inspector" />
+            </ui:TwoPaneSplitView>
+        </ui:TwoPaneSplitView>
+
+        <ui:VisualElement name="validation-pane" class="vlat-validation">
+            <ui:VisualElement class="vlat-validation-header">
+                <ui:Label text="検証結果" class="vlat-section-title" />
+                <ui:Label name="validation-summary" class="vlat-validation-summary" />
+            </ui:VisualElement>
+            <ui:ListView name="diagnostic-list" fixed-item-height="22" selection-type="Single" />
+        </ui:VisualElement>
+        <ui:Label name="status-label" class="vlat-status" />
+    </ui:VisualElement>
+</ui:UXML>

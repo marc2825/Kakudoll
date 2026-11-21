@@ -1,0 +1,21 @@
+{
+  "vlat": {
+    "version": "0.1.0",
+    "generator": "VLat Schema Fixture",
+    "targetAvatar": {
+      "name": "InvalidNumberOverflow",
+      "vrmVersion": "1.0",
+      "meshBindings": []
+    }
+  },
+  "angleBands": [
+    {
+      "id": "overflow",
+      "name": "Overflow",
+      "yaw": { "min": -10, "max": 10 },
+      "pitch": { "min": -10, "max": 10 },
+      "feather": { "yaw": 1e400, "pitch": 0 }
+    }
+  ],
+  "layers": []
+}

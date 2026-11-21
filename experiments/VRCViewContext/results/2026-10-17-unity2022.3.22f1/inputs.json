@@ -1,0 +1,7 @@
+{
+  "base_commit": "4eec47d",
+  "experiment": "P0-S2",
+  "sdk_sample_sha256": "01add6bb54d65793a8bcec43c884f31b4b62db58362033599dd831b91a7716bd",
+  "live_client": "NOT RUN",
+  "simulation": "explicit injected shader; no VRChat globals overwritten"
+}

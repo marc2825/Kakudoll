@@ -1,0 +1,44 @@
+[Licensing::Client] Error: Code 10 while verifying Licensing Client signature (process Id: 44372, path: "C:/Program Files/Unity 2022.3.22f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] Error: LicensingClient has failed validation; ignoring
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Error: Code 500 while processing request (status: Unable to update licenses. Errors: No ULF license found.,Token not found in cache)
+[Licensing::Client] Error: Code 500 while updating license in client (status: Unable to update licenses. Errors: No ULF license found.,Token not found in cache)
+[Licensing::Client] Successfully resolved entitlements
+[Licensing::Client] Successfully resolved entitlements
+Initialize engine version: 2022.3.22f1 (887be4894c44)
+    Renderer: NVIDIA GeForce RTX 3060 Ti (ID=0x2489)
+[Licensing::Client] Successfully resolved entitlements
+[Licensing::Client] Successfully resolved entitlements
+[ScriptCompilation] Requested script compilation because: Define symbols changed
+Shader 'VRChat/Mobile/Bumped Mapped Specular': fallback shader 'VRChat/Mobile/Diffuse' not found
+Shader 'VRChat/Mobile/MatCap Lit': fallback shader 'VRChat/Mobile/Diffuse' not found
+Shader 'VRChat/Mobile/Toon Lit': fallback shader 'VRChat/Mobile/Diffuse' not found
+Shader 'VRChat/Mobile/Standard Lite': fallback shader 'VRChat/Mobile/Diffuse' not found
+Shader 'VRChat/Mobile/Toon Standard (Outline)': fallback shader 'VRChat/Mobile/Diffuse' not found
+Shader 'VRChat/Mobile/Bumped Diffuse': fallback shader 'VRChat/Mobile/Diffuse' not found
+Shader 'VRChat/Mobile/Toon Standard': fallback shader 'VRChat/Mobile/Diffuse' not found
+[Licensing::Client] Successfully resolved entitlements
+Reloading assemblies after script compilation.
+[ScriptCompilation] Requested script compilation because: API Compatibility level changed
+[ScriptCompilation] Requested script compilation because: Define symbols changed
+Reloading assemblies after forced synchronous recompile.
+[Licensing::Client] Successfully resolved entitlements
+SDK Head Frame EditMode Unity axes=0 completed.
+SDK Head Frame EditMode Unity axes=1 completed.
+SDK Head Frame EditMode VrcDirect axes=0 completed.
+SDK Head Frame EditMode VrcDirect axes=1 completed.
+SDK Head Frame EditMode VrcConverted axes=0 completed.
+SDK Head Frame EditMode VrcConverted axes=1 completed.
+SDK Head Frame EditMode VrcDisabled axes=0 completed.
+SDK Head Frame EditMode VrcDisabled axes=1 completed.
+SDK Head Frame EditMode measurement completed.
+Reloading assemblies after forced synchronous recompile.
+SDK Head Frame PlayMode Unity axes=0 completed.
+SDK Head Frame PlayMode Unity axes=1 completed.
+SDK Head Frame PlayMode VrcDirect axes=0 completed.
+SDK Head Frame PlayMode VrcDirect axes=1 completed.
+SDK Head Frame PlayMode VrcConverted axes=0 completed.
+SDK Head Frame PlayMode VrcConverted axes=1 completed.
+SDK Head Frame PlayMode VrcDisabled axes=0 completed.
+SDK Head Frame PlayMode VrcDisabled axes=1 completed.
+SDK Head Frame PlayMode measurement completed.

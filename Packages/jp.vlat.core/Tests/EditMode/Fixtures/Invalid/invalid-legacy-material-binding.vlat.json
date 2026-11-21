@@ -1,0 +1,46 @@
+{
+  "vlat": {
+    "version": "0.1.0",
+    "generator": "VLat Tests 0.1",
+    "targetAvatar": {
+      "name": "InvalidAvatar",
+      "vrmVersion": "1.0",
+      "meshBindings": []
+    }
+  },
+  "angleBands": [
+    {
+      "id": "band",
+      "name": "Band",
+      "yaw": {
+        "min": -45,
+        "max": 45
+      },
+      "pitch": {
+        "min": -30,
+        "max": 30
+      },
+      "feather": {
+        "yaw": 10,
+        "pitch": 10
+      }
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer",
+      "name": "Layer",
+      "tag": "other",
+      "enabled": true,
+      "priority": 0,
+      "bandId": "band",
+      "modifiers": [
+        {
+          "type": "opacity",
+          "materialBinding": 0,
+          "value": 0.5
+        }
+      ]
+    }
+  ]
+}

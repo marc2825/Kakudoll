@@ -1,0 +1,19 @@
+{
+    "utc":  "2026-10-17T00:05:01.3591371Z",
+    "source":  "ReadOnlyWindowsAudit",
+    "clientInstalled":  true,
+    "clientExeFileVersion":  "6000.0.67.12655311",
+    "interactive":  true,
+    "runtimeProcesses":  [
+
+                         ],
+    "gpu":  [
+                {
+                    "Name":  "NVIDIA GeForce RTX 3060 Ti",
+                    "DriverVersion":  "32.0.15.9595"
+                }
+            ],
+    "matchingHmdDevices":  [
+
+                           ]
+}

@@ -1,0 +1,149 @@
+{
+  "evidence_kind": "ActualVRChatClient",
+  "overall": "NO-GO",
+  "reason": "Human operator unavailable; no client session operated. No login/upload performed.",
+  "tests": [
+    {
+      "id": "V1",
+      "condition": "Desktop",
+      "status": "NOT RUN",
+      "checks": {
+        "desktop_sign": null,
+        "head_rotation": null,
+        "proxy_child_vs_constraint": null,
+        "effect_off": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V2",
+      "condition": "Desktop Mirror",
+      "status": "NOT RUN",
+      "checks": {
+        "mirror_position": null,
+        "different_from_main": null,
+        "asymmetric_sign": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V3",
+      "condition": "VR both eyes",
+      "status": "NOT RUN",
+      "checks": {
+        "left_eye": null,
+        "right_eye": null,
+        "same_frame": null,
+        "shared_center": null,
+        "vertex_weight_equal": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V4",
+      "condition": "VR Mirror",
+      "status": "NOT RUN",
+      "checks": {
+        "left_eye": null,
+        "right_eye": null,
+        "same_frame": null,
+        "mirror_center": null,
+        "vertex_weight_equal": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V5",
+      "condition": "Handheld Camera / Screenshot",
+      "status": "NOT RUN",
+      "checks": {
+        "handheld_desktop": null,
+        "handheld_vr": null,
+        "screenshot": null,
+        "independent_from_main": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V6",
+      "condition": "Face Mirror",
+      "status": "NOT RUN",
+      "checks": {
+        "face_flag": null,
+        "distinct_from_regular_mirror": null,
+        "evaluation_policy_verified": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V7",
+      "condition": "Head Chop / first person",
+      "status": "NOT RUN",
+      "checks": {
+        "first_person": null,
+        "mirror_control": null,
+        "keep_head_off": null,
+        "keep_head_on": null,
+        "proxy_tracking": null,
+        "effect_off": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V8",
+      "condition": "Two observers",
+      "status": "NOT RUN",
+      "checks": {
+        "observer_a": null,
+        "observer_b": null,
+        "same_avatar": null,
+        "same_time": null,
+        "independent_angles": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V9",
+      "condition": "Actual path without stereo arrays",
+      "status": "NOT RUN",
+      "checks": {
+        "actual_path_without_arrays": null,
+        "explicit_invalid_status": null,
+        "no_silent_fallback": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    },
+    {
+      "id": "V10",
+      "condition": "Head / body / avatar scale",
+      "status": "NOT RUN",
+      "checks": {
+        "head_rotation": null,
+        "body_rotation": null,
+        "avatar_scale": null,
+        "proxy_tracking": null
+      },
+      "provenance": null,
+      "evidence": [],
+      "notes": "Copy this template to a new evidence folder before filling. NOT RUN is not FAIL."
+    }
+  ]
+}

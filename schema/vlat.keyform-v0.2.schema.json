@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VLat Keyform v0.2 initial single-group profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["vlat", "angleBands", "layers", "keyformGroups"],
+  "properties": {
+    "vlat": {
+      "allOf": [
+        {"$ref": "vlat.schema.json#/$defs/vlatMetadata"},
+        {"properties": {"version": {"const": "0.2.0"}}}
+      ]
+    },
+    "buffers": {"type": "array", "items": {"$ref": "vlat.schema.json#/$defs/buffer"}},
+    "bufferViews": {"type": "array", "items": {"$ref": "vlat.schema.json#/$defs/bufferView"}},
+    "textures": {"type": "array", "maxItems": 0},
+    "angleBands": {"type": "array", "maxItems": 0},
+    "layers": {"type": "array", "maxItems": 0},
+    "keyformGroups": {
+      "type": "array", "minItems": 1, "maxItems": 1,
+      "items": {"$ref": "#/$defs/keyformGroup"}
+    }
+  },
+  "$defs": {
+    "keyformGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "meshBinding", "topologyHash", "coordinateSpace", "interpolation", "supportStart", "supportEnd", "keys"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "meshBinding": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "topologyHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "coordinateSpace": {"const": "bind-mesh-local"},
+        "interpolation": {"const": "yaw-smoothstep"},
+        "supportStart": {"type": "number", "minimum": -180, "exclusiveMaximum": 180},
+        "supportEnd": {"type": "number", "exclusiveMinimum": -180, "exclusiveMaximum": 540},
+        "keys": {
+          "type": "array", "minItems": 1, "maxItems": 16,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["yaw", "delta"],
+            "properties": {
+              "yaw": {"type": "number", "exclusiveMinimum": -180, "exclusiveMaximum": 540},
+              "delta": {
+                "anyOf": [
+                  {"type": "null"},
+                  {
+                    "allOf": [
+                      {"$ref": "vlat.schema.json#/$defs/vertexDeltaModifier"},
+                      {"not": {"required": ["normals"]}}
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

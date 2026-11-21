@@ -1,0 +1,732 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VLat document",
+  "description": "VLat view-dependent avatar layer document format v0.1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "vlat",
+    "angleBands",
+    "layers"
+  ],
+  "properties": {
+    "vlat": {
+      "$ref": "#/$defs/vlatMetadata"
+    },
+    "buffers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/buffer"
+      }
+    },
+    "bufferViews": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/bufferView"
+      }
+    },
+    "textures": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/texture"
+      }
+    },
+    "angleBands": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/angleBand"
+      }
+    },
+    "layers": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/layer"
+      }
+    }
+  },
+  "$defs": {
+    "vlatMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "generator",
+        "targetAvatar"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "generator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "targetAvatar": {
+          "$ref": "#/$defs/targetAvatar"
+        }
+      }
+    },
+    "targetAvatar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "vrmVersion",
+        "meshBindings"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vrmVersion": {
+          "type": "string",
+          "enum": [
+            "0.x",
+            "1.0"
+          ]
+        },
+        "meshBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/meshBinding"
+          }
+        }
+      }
+    },
+    "meshBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hierarchyPath",
+        "meshName",
+        "vertexCount",
+        "positionHash",
+        "materials"
+      ],
+      "properties": {
+        "hierarchyPath": {
+          "type": "string"
+        },
+        "meshName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vertexCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "positionHash": {
+          "type": "string",
+          "pattern": "^xxh64:[0-9A-Fa-f]{16}$"
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/materialSlot"
+          }
+        }
+      }
+    },
+    "materialSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "materialName",
+        "shader"
+      ],
+      "properties": {
+        "slot": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "materialName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shader": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "buffer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uri",
+        "byteLength"
+      ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      }
+    },
+    "bufferView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "buffer",
+        "byteOffset",
+        "byteLength"
+      ],
+      "properties": {
+        "buffer": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "byteOffset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      }
+    },
+    "texture": {
+      "description": "Texture source. Exactly one of uri and bufferView is permitted.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "uri"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uri": {
+              "type": "string",
+              "minLength": 1
+            },
+            "mimeType": {
+              "$ref": "#/$defs/imageMimeType"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bufferView",
+            "mimeType"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bufferView": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "mimeType": {
+              "$ref": "#/$defs/imageMimeType"
+            }
+          }
+        }
+      ]
+    },
+    "imageMimeType": {
+      "type": "string",
+      "pattern": "^image/[A-Za-z0-9][A-Za-z0-9.+-]*$"
+    },
+    "angleBand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "yaw",
+        "pitch",
+        "feather"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonEmptyId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "yaw": {
+          "$ref": "#/$defs/yawRange"
+        },
+        "pitch": {
+          "$ref": "#/$defs/pitchRange"
+        },
+        "feather": {
+          "$ref": "#/$defs/feather"
+        },
+        "hysteresis": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.7976931348623157e308,
+          "default": 0
+        }
+      }
+    },
+    "yawRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "max": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        }
+      }
+    },
+    "pitchRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "max": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        }
+      }
+    },
+    "feather": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "yaw",
+        "pitch"
+      ],
+      "properties": {
+        "yaw": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.7976931348623157e308
+        },
+        "pitch": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.7976931348623157e308
+        }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "tag",
+        "enabled",
+        "priority",
+        "bandId",
+        "modifiers"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonEmptyId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string",
+          "enum": [
+            "bangs",
+            "sideHair",
+            "hairHighlight",
+            "eyeHighlight",
+            "faceLine",
+            "other"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        },
+        "bandId": {
+          "$ref": "#/$defs/nonEmptyId"
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/modifier"
+          }
+        }
+      }
+    },
+    "modifier": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vertexDeltaModifier"
+        },
+        {
+          "$ref": "#/$defs/visibilityModifier"
+        },
+        {
+          "$ref": "#/$defs/opacityModifier"
+        },
+        {
+          "$ref": "#/$defs/materialPropertyFloatModifier"
+        },
+        {
+          "$ref": "#/$defs/materialPropertyColorModifier"
+        },
+        {
+          "$ref": "#/$defs/materialPropertyVectorModifier"
+        },
+        {
+          "$ref": "#/$defs/materialPropertyTextureModifier"
+        },
+        {
+          "$ref": "#/$defs/renderQueueModifier"
+        }
+      ]
+    },
+    "vertexDeltaModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "indices",
+        "positions"
+      ],
+      "properties": {
+        "type": {
+          "const": "vertexDelta"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "indices": {
+          "$ref": "#/$defs/uint32Accessor"
+        },
+        "positions": {
+          "$ref": "#/$defs/float32Accessor"
+        },
+        "normals": {
+          "$ref": "#/$defs/float32Accessor"
+        }
+      }
+    },
+    "visibilityModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "subMesh",
+        "visibleInBand"
+      ],
+      "properties": {
+        "type": {
+          "const": "visibility"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "subMesh": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "visibleInBand": {
+          "type": "boolean"
+        }
+      }
+    },
+    "opacityModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "materialSlot",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "opacity"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "materialSlot": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "materialPropertyFloatModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "materialSlot",
+        "property",
+        "valueType",
+        "bandValue",
+        "interpolate"
+      ],
+      "properties": {
+        "type": {
+          "const": "materialProperty"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "materialSlot": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "property": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueType": {
+          "const": "float"
+        },
+        "bandValue": {
+          "type": "number",
+          "minimum": -1.7976931348623157e308,
+          "maximum": 1.7976931348623157e308
+        },
+        "interpolate": {
+          "type": "boolean"
+        }
+      }
+    },
+    "materialPropertyColorModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "materialSlot",
+        "property",
+        "valueType",
+        "bandValue",
+        "interpolate"
+      ],
+      "properties": {
+        "type": {
+          "const": "materialProperty"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "materialSlot": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "property": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueType": {
+          "const": "color"
+        },
+        "bandValue": {
+          "$ref": "#/$defs/vector4"
+        },
+        "interpolate": {
+          "type": "boolean"
+        }
+      }
+    },
+    "materialPropertyVectorModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "materialSlot",
+        "property",
+        "valueType",
+        "bandValue",
+        "interpolate"
+      ],
+      "properties": {
+        "type": {
+          "const": "materialProperty"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "materialSlot": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "property": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueType": {
+          "const": "vector"
+        },
+        "bandValue": {
+          "$ref": "#/$defs/vector4"
+        },
+        "interpolate": {
+          "type": "boolean"
+        }
+      }
+    },
+    "materialPropertyTextureModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "materialSlot",
+        "property",
+        "valueType",
+        "bandValue",
+        "interpolate"
+      ],
+      "properties": {
+        "type": {
+          "const": "materialProperty"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "materialSlot": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "property": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueType": {
+          "const": "textureIndex"
+        },
+        "bandValue": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "interpolate": {
+          "const": false
+        }
+      }
+    },
+    "renderQueueModifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "meshBinding",
+        "materialSlot",
+        "offset"
+      ],
+      "properties": {
+        "type": {
+          "const": "renderQueue"
+        },
+        "meshBinding": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "materialSlot": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        }
+      }
+    },
+    "uint32Accessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bufferView",
+        "componentType"
+      ],
+      "properties": {
+        "bufferView": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "componentType": {
+          "const": "UINT32"
+        }
+      }
+    },
+    "float32Accessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bufferView",
+        "componentType"
+      ],
+      "properties": {
+        "bufferView": {
+          "$ref": "#/$defs/nonNegativeIndex"
+        },
+        "componentType": {
+          "const": "FLOAT32"
+        }
+      }
+    },
+    "vector4": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "number",
+        "minimum": -1.7976931348623157e308,
+        "maximum": 1.7976931348623157e308
+      }
+    },
+    "nonNegativeIndex": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "nonEmptyId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

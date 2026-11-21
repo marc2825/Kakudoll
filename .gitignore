@@ -1,0 +1,63 @@
+# Unity generated files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# IDE and operating-system files
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.DS_Store
+Thumbs.db
+
+# Test and coverage output
+artifacts/
+TestResults/
+CodeCoverage/
+
+# Python tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local credentials and private artifacts (prevent future accidental additions)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.ulf
+*.secret
+*.secrets
+private-preview/
+private-images/
+
+# Third-party avatar data (never commit models, textures or source files of avatars)
+*.vrm
+*.fbx
+*.glb
+*.blend
+*.blend1
+*.psd
+*.unitypackage
+
+# Public export output (build it outside the repository)
+public-export/

@@ -1,0 +1,758 @@
+[
+  {
+    "file": "images/NativeMain-yaw-45-eye0.png",
+    "scenario": "NativeMain",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw-45-eye0-mode.png",
+    "scenario": "NativeMain",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw-45-eye1.png",
+    "scenario": "NativeMain",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw-45-eye1-mode.png",
+    "scenario": "NativeMain",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw-45-eye0.png",
+    "scenario": "NativeObserverB",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw-45-eye0-mode.png",
+    "scenario": "NativeObserverB",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw-45-eye1.png",
+    "scenario": "NativeObserverB",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw-45-eye1-mode.png",
+    "scenario": "NativeObserverB",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw-45-eye0.png",
+    "scenario": "InjectedStereo",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw-45-eye0-mode.png",
+    "scenario": "InjectedStereo",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw-45-eye1.png",
+    "scenario": "InjectedStereo",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw-45-eye1-mode.png",
+    "scenario": "InjectedStereo",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw-45-eye0.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw-45-eye0-mode.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw-45-eye1.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw-45-eye1-mode.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw-45-eye0.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw-45-eye0-mode.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw-45-eye1.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw-45-eye1-mode.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw-45-eye0.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw-45-eye0-mode.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw-45-eye1.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw-45-eye1-mode.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw-45-eye0.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw-45-eye0-mode.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 0,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw-45-eye1.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw-45-eye1-mode.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 1,
+    "worldYaw": -45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw0-eye0.png",
+    "scenario": "NativeMain",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw0-eye0-mode.png",
+    "scenario": "NativeMain",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw0-eye1.png",
+    "scenario": "NativeMain",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw0-eye1-mode.png",
+    "scenario": "NativeMain",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw0-eye0.png",
+    "scenario": "NativeObserverB",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw0-eye0-mode.png",
+    "scenario": "NativeObserverB",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw0-eye1.png",
+    "scenario": "NativeObserverB",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw0-eye1-mode.png",
+    "scenario": "NativeObserverB",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw0-eye0.png",
+    "scenario": "InjectedStereo",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw0-eye0-mode.png",
+    "scenario": "InjectedStereo",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw0-eye1.png",
+    "scenario": "InjectedStereo",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw0-eye1-mode.png",
+    "scenario": "InjectedStereo",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw0-eye0.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw0-eye0-mode.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw0-eye1.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw0-eye1-mode.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw0-eye0.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw0-eye0-mode.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw0-eye1.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw0-eye1-mode.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw0-eye0.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw0-eye0-mode.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw0-eye1.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw0-eye1-mode.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw0-eye0.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw0-eye0-mode.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 0,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw0-eye1.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw0-eye1-mode.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 1,
+    "worldYaw": 0.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw45-eye0.png",
+    "scenario": "NativeMain",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw45-eye0-mode.png",
+    "scenario": "NativeMain",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw45-eye1.png",
+    "scenario": "NativeMain",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeMain-yaw45-eye1-mode.png",
+    "scenario": "NativeMain",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw45-eye0.png",
+    "scenario": "NativeObserverB",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw45-eye0-mode.png",
+    "scenario": "NativeObserverB",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw45-eye1.png",
+    "scenario": "NativeObserverB",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NativeObserverB-yaw45-eye1-mode.png",
+    "scenario": "NativeObserverB",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "UnityCamera",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw45-eye0.png",
+    "scenario": "InjectedStereo",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw45-eye0-mode.png",
+    "scenario": "InjectedStereo",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw45-eye1.png",
+    "scenario": "InjectedStereo",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedStereo-yaw45-eye1-mode.png",
+    "scenario": "InjectedStereo",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw45-eye0.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw45-eye0-mode.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw45-eye1.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedMirrorVR-yaw45-eye1-mode.png",
+    "scenario": "InjectedMirrorVR",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw45-eye0.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw45-eye0-mode.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw45-eye1.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedHandheldVR-yaw45-eye1-mode.png",
+    "scenario": "InjectedHandheldVR",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw45-eye0.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw45-eye0-mode.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw45-eye1.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/InjectedFaceUndefined-yaw45-eye1-mode.png",
+    "scenario": "InjectedFaceUndefined",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw45-eye0.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw45-eye0-mode.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 0,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw45-eye1.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "view color",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  },
+  {
+    "file": "images/NegativeMirrorSign-yaw45-eye1-mode.png",
+    "scenario": "NegativeMirrorSign",
+    "eye": 1,
+    "worldYaw": 45.0,
+    "evidence": "Injected",
+    "mode": "context palette",
+    "displacement": "right-side only; positive-yaw weight; 0.04 m toy probe"
+  }
+]

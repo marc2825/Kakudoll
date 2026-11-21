@@ -1,0 +1,12 @@
+{
+  "experiment": "P0-S2-R1",
+  "base_commit": "6023a9e7d0194d6ad9771334462643cd123def15",
+  "base_branch": "spike/vrc-s1-image-fail-investigation",
+  "branch": "spike/vrc-s2-client-validation",
+  "sdk": "3.10.5",
+  "unity": "2022.3.22f1",
+  "source_avatar": "generated synthetic humanoid; no FBX or private avatar",
+  "client_results": "NOT RUN",
+  "authentication": "human only",
+  "upload": "not authorized"
+}

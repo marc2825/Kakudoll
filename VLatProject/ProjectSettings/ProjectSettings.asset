@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 26
+  productGUID: 9e963604e3dd4a1ebd7845987b423c15
+  companyName: VLat
+  productName: VLat Development
+  defaultScreenWidth: 1280
+  defaultScreenHeight: 720
+  defaultScreenWidthWeb: 960
+  defaultScreenHeightWeb: 600
+  m_ActiveColorSpace: 1
+  m_MTRendering: 1
+  runInBackground: 1
+  gpuSkinning: 1
+  bundleVersion: 0.1.0
+  applicationIdentifier:
+    Standalone: jp.vlat.development
+  scriptingDefineSymbols: {}
+  additionalCompilerArguments: {}
+  scriptingBackend: {}
+  il2cppCompilerConfiguration: {}
+  managedStrippingLevel: {}
+  allowUnsafeCode: 0
+  useDeterministicCompilation: 1
+  scriptingRuntimeVersion: 1
+  gcIncremental: 1
+  apiCompatibilityLevelPerPlatform: {}
+  apiCompatibilityLevel: 6
+  activeInputHandler: 0
+  legacyClampBlendShapeWeights: 1

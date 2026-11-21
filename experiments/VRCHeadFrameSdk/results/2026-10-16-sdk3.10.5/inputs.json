@@ -1,0 +1,33 @@
+{
+  "sdk_versions": {
+    "com.vrchat.base": "3.10.5",
+    "com.vrchat.avatars": "3.10.5"
+  },
+  "sdk_files_sha256": {
+    "com.vrchat.base/Runtime/VRCSDK/Plugins/VRC.SDK3.Dynamics.Constraint.dll": "435c2bb7f3f990caafad5dd7dfdff2cd3f709a832b6086f2285d695f899a3e97",
+    "com.vrchat.base/Runtime/VRCSDK/Plugins/VRC.Dynamics.dll": "672093e0c2a52a035979f1ff66478389949f42ffcf7daba5edd8b8da718629a3",
+    "com.vrchat.avatars/Editor/VRCSDK/SDK3A/AvatarDynamicsSetup.cs": "8ff82d284f1563a37e9702ea36c09e18ce62b2a2e36ae744382fe1c33c91aeb1"
+  },
+  "registry_versions": {
+    "com.unity.burst": "1.8.12",
+    "com.unity.collections": "2.1.4",
+    "com.unity.ext.nunit": "1.0.6",
+    "com.unity.mathematics": "1.2.6",
+    "com.unity.nuget.mono-cecil": "1.11.4",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.postprocessing": "3.4.0",
+    "com.unity.test-framework": "1.1.29",
+    "com.unity.textmeshpro": "2.1.6",
+    "com.unity.timeline": "1.7.6",
+    "com.unity.xr.legacyinputhelpers": "2.1.10",
+    "com.unity.xr.management": "4.4.0",
+    "com.unity.xr.oculus": "4.2.0",
+    "com.unity.ugui": "1.0.0"
+  },
+  "baseline_sources_sha256": {
+    "HeadFrameFixture.cs": "fd07f01078c5a44613b7c55eea5a470f3d4985fbd8190eb8a1dcd4da3712b2b1",
+    "HeadFrameCapture.cs": "1498f1cce8a337e81036e9c21c2e126cc9d3f05e85f22744daee064579441a79",
+    "HeadFrameMath.cs": "9a5a06387904f6c700650bae1559529e18aa6070f44190138664236bc1776861",
+    "HeadFrameSweep.cs": "b0cc82ad8c551d999a3650d83732cab5376c6ff5d2eb3f5390586af27b388b66"
+  }
+}

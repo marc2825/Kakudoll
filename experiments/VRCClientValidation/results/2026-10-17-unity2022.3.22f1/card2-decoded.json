@@ -1,0 +1,145 @@
+{
+  "mirror_mode": 0.0,
+  "camera_mode": 0.0,
+  "face_mode": 0.0,
+  "context": 0.0,
+  "source": 1.0,
+  "status": 5.0,
+  "warnings": 1.0,
+  "shared_stereo": 0.0,
+  "weight": 0.0,
+  "yaw": 0.0,
+  "pitch": 0.0,
+  "vertex_weight": 0.0,
+  "vertex_status": 5.0,
+  "card_id": 2,
+  "stereo_available": 0,
+  "eye": 2,
+  "selected_position": [
+    -0.5799999833106995,
+    1.1299999952316284,
+    2.2200000286102295
+  ],
+  "draw_position": [
+    -0.5799999833106995,
+    1.1299999952316284,
+    2.2200000286102295
+  ],
+  "mirror_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "screen_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "photo_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "left_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "right_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "orthographic": 0.0,
+  "effect": 0.0,
+  "require_stereo": 1.0,
+  "frame_origin": [
+    0.0,
+    1.6699999570846558,
+    0.0
+  ],
+  "frame_x": [
+    1.0,
+    0.0,
+    0.0
+  ],
+  "frame_y": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "frame_z": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "shader_time": 0.0,
+  "orientation": {
+    "quarter_turns": 0,
+    "reflected": false
+  },
+  "png_sha256": "7a22ac171b2c9812519aef2b54a100d0f15b139f33dca92cd13b4cab771308bb",
+  "words": [
+    1447838513,
+    1,
+    2,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    1065353216,
+    1084227584,
+    1065353216,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1084227584,
+    3205790433,
+    1066443735,
+    1074664571,
+    3205790433,
+    1066443735,
+    1074664571,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1065353216,
+    0,
+    1070973583,
+    0,
+    1065353216,
+    0,
+    0,
+    0,
+    1065353216,
+    0,
+    0,
+    0,
+    1065353216,
+    0,
+    644634484
+  ],
+  "nonfinite_float_word_indices": [],
+  "vertex_fragment_weight_error": 0.0,
+  "acceptance_status": "UNASSESSED: decode and checksum only; human provenance and mode evidence required",
+  "evidence_source": "UnityEditorPreflight",
+  "input_png": "card2.png"
+}

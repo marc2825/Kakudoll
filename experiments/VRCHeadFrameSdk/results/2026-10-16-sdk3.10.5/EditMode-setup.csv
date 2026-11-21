@@ -1,0 +1,9 @@
+phase,backend,axes,unity_constraint_remaining,vrc_constraint_count,conversion_issues,is_active,global_weight,locked,solve_local,source_count
+EditMode,Unity,0,1,0,False,True,1,True,False,1
+EditMode,Unity,1,1,0,False,True,1,True,False,1
+EditMode,VrcDirect,0,0,1,False,True,1,True,False,1
+EditMode,VrcDirect,1,0,1,False,True,1,True,False,1
+EditMode,VrcConverted,0,0,1,False,True,1,True,False,1
+EditMode,VrcConverted,1,0,1,False,True,1,True,False,1
+EditMode,VrcDisabled,0,0,1,False,False,1,True,False,1
+EditMode,VrcDisabled,1,0,1,False,False,1,True,False,1

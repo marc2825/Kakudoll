@@ -1,0 +1,39 @@
+[Licensing::Client] Error: Code 10 while verifying Licensing Client signature (process Id: 4480, path: "C:/Program Files/Unity 2022.3.22f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Client] Error: Code 500 while processing request (status: Unable to update licenses. Errors: No ULF license found.,Token not found in cache)
+[Licensing::Client] Error: Code 500 while updating license in client (status: Unable to update licenses. Errors: No ULF license found.,Token not found in cache)
+[Licensing::Client] Successfully resolved entitlements
+[Licensing::Client] Successfully resolved entitlements
+Initialize engine version: 2022.3.22f1 (887be4894c44)
+Direct3D:
+    Renderer: NVIDIA GeForce RTX 3060 Ti (ID=0x2489)
+[Licensing::Client] Successfully resolved entitlements
+[Licensing::Client] Successfully resolved entitlements
+[Licensing::Client] Successfully resolved entitlements
+View Context EditMode axes=0 pose=Rest completed.
+View Context EditMode axes=0 pose=HeadYaw completed.
+View Context EditMode axes=0 pose=BodyYaw completed.
+View Context EditMode axes=0 pose=NeckHead completed.
+View Context EditMode axes=1 pose=Rest completed.
+View Context EditMode axes=1 pose=HeadYaw completed.
+View Context EditMode axes=1 pose=BodyYaw completed.
+View Context EditMode axes=1 pose=NeckHead completed.
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextDiagnostic
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextInjected
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextStereoCompile
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextInstancedCompile
+View Context EditMode measurement completed.
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+View Context PlayMode axes=0 pose=Rest completed.
+View Context PlayMode axes=0 pose=HeadYaw completed.
+View Context PlayMode axes=0 pose=BodyYaw completed.
+View Context PlayMode axes=0 pose=NeckHead completed.
+View Context PlayMode axes=1 pose=Rest completed.
+View Context PlayMode axes=1 pose=HeadYaw completed.
+View Context PlayMode axes=1 pose=BodyYaw completed.
+View Context PlayMode axes=1 pose=NeckHead completed.
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextDiagnostic
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextInjected
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextStereoCompile
+S2 Shader warmup completed (compile only): VLat/Experiments/ViewContextInstancedCompile
+View Context PlayMode measurement completed.

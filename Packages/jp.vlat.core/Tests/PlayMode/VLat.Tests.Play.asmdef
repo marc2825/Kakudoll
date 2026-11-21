@@ -1,0 +1,26 @@
+{
+  "name": "VLat.Tests.Play",
+  "rootNamespace": "VLat.Tests.Play",
+  "references": [
+    "VLat.Core",
+    "VLat.Runtime",
+    "VRM10",
+    "Unity.PerformanceTesting"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Newtonsoft.Json.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

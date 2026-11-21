@@ -1,0 +1,67 @@
+{
+  "evidence_kind": "ActualVRChatClient",
+  "overall": "NOT RUN",
+  "tests": [
+    {
+      "condition": "Desktop",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "VR left/right",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "VR Mirror",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Desktop Mirror",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Handheld VR",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Handheld Desktop",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Screenshot",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Face Mirror VR",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Face Mirror Desktop",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Two observers",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Head Chop first/third person",
+      "status": "NOT RUN",
+      "evidence": null
+    },
+    {
+      "condition": "Actual XR stereo constant-buffer/texture-array binding",
+      "status": "NOT RUN",
+      "evidence": null
+    }
+  ],
+  "reason": "No instrumented VRChat client session, HMD eye capture, two-observer session or uploaded diagnostic avatar was operated in this task. No login or upload performed."
+}

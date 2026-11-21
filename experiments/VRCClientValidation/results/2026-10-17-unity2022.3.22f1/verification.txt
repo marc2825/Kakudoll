@@ -1,0 +1,70 @@
+$ python3 -m unittest discover -s experiments/VRCClientValidation -p test_evidence_tools.py -v
+
+test_bad_png_crc_rejected (test_evidence_tools.EvidenceToolsTests.test_bad_png_crc_rejected) ... ok
+test_invalid_raw_global_preserved (test_evidence_tools.EvidenceToolsTests.test_invalid_raw_global_preserved) ... ok
+test_local_avatar_cannot_pass_two_observers (test_evidence_tools.EvidenceToolsTests.test_local_avatar_cannot_pass_two_observers) ... ok
+test_mirror_orientation (test_evidence_tools.EvidenceToolsTests.test_mirror_orientation) ... ok
+test_missing_evidence_cannot_pass (test_evidence_tools.EvidenceToolsTests.test_missing_evidence_cannot_pass) ... ok
+test_payload_bit_corruption_rejected (test_evidence_tools.EvidenceToolsTests.test_payload_bit_corruption_rejected) ... ok
+test_pending_record (test_evidence_tools.EvidenceToolsTests.test_pending_record) ... ok
+test_projective_corner_math (test_evidence_tools.EvidenceToolsTests.test_projective_corner_math) ... ok
+test_simulation_cannot_be_client_pass (test_evidence_tools.EvidenceToolsTests.test_simulation_cannot_be_client_pass) ... ok
+test_valid_payload_remains_unassessed (test_evidence_tools.EvidenceToolsTests.test_valid_payload_remains_unassessed) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.345s
+
+OK
+
+exit=0
+$ python3 experiments/VRCClientValidation/check_client_evidence.py experiments/VRCClientValidation/results/2026-10-17-unity2022.3.22f1/client-results.json
+{"integrity": "PASS", "results": {"NOT RUN": 10}, "scope": "record integrity only; human evidence still requires review"}
+
+
+exit=0
+$ python3 scripts/check_view_context_results.py experiments/VRCClientValidation/results/2026-10-17-unity2022.3.22f1/regression-s2
+EditMode 5824 cases {'PASS': 5376, 'FAIL': 448} 672 shared-eye pairs
+PlayMode 5824 cases {'PASS': 5376, 'FAIL': 448} 672 shared-eye pairs
+PASS result integrity / CPU reference / shared pairs / invariance / negative controls; {('UnityCamera', 'PASS'): 2688, ('Injected', 'PASS'): 8064, ('Injected', 'FAIL'): 896}
+max angle(deg)= 0.003887254095 position(m)= 1.4142135625707708e-06 weight= 1.6200000000021753e-05 shared-eye delta= 1.0000000005838672e-07
+Actual VRChat client / XR stereo binding / Mirror / Camera / Head Chop: NOT RUN
+
+
+exit=0
+$ python3 scripts/check_image_difference_results.py experiments/VRCClientValidation/results/2026-10-17-unity2022.3.22f1/regression-s1-r1
+PASS integrity: original 20 FAIL reproduced; thresholds/records preserved
+bad-pixel observations: {'D3D_SUBPIXEL_SNAP_INTERPOLATION': 28}
+max(m): original 0.000563860638 probe 0.000563860638 same primitive 0.000563860638 CPU LBS 7.278058e-07
+matched barycentric all-covered max(m): 4.799326366804906e-07
+diagnostic variants: {('BaselineRepeat', 'PASS'): 20, ('ProbeVsOriginalBaseline', 'PASS'): 20, ('ProbeVsOriginalCandidate', 'PASS'): 20, ('WorldClip', 'FAIL'): 20, ('CullBack', 'FAIL'): 20, ('ZAlways', 'FAIL'): 14, ('BakedStatic', 'PASS'): 16, ('Resolution128', 'PASS'): 20, ('Resolution256', 'PASS'): 20, ('HeadOnly', 'FAIL'): 20, ('NegativeMeshShift1mm', 'FAIL'): 20, ('BakedStatic', 'FAIL'): 4, ('BlinkOff', 'FAIL'): 2, ('ZAlways', 'PASS'): 6}
+No automatic surface FAIL reclassification. Actual VRChat / actual Player: NOT RUN
+
+
+exit=0
+Previously frozen S1/S2/S1-R1 SHA256: 249/249 PASS
+$ python3 scripts/check_head_frame_results.py experiments/VRCHeadFrame/results/2026-10-16-unity2022.3.22f1
+PASS: 1960 angle cases / 280 matrix records; {'PASS': 1232, 'FAIL': 336, 'INCONCLUSIVE': 392}
+PASS: 5 Head frame candidates, CPU skin reference, GPU shape preservation, negative controls
+VRChat client / actual player GPU skinning / real avatars: NOT RUN
+
+
+exit=0
+$ python3 scripts/check_head_frame_sdk_results.py experiments/VRCHeadFrameSdk/results/2026-10-16-sdk3.10.5
+EditMode: 1344 measured cases, {'PASS': 1148, 'FAIL': 196}
+PlayMode: 1344 measured cases, {'PASS': 1148, 'FAIL': 196}
+PASS: direct/converted VRC constraints, child proxy control, geometry, negative controls
+VRChat client / standalone Player / Stereo / Mirror / Head Chop: NOT RUN
+
+
+exit=0
+$ python3 scripts/check_head_frame_avatar_results.py experiments/VRCRealAvatars/results/2026-10-16-unity2022.3.22f1
+EditMode: 1008 cases, {'PASS': 746, 'FAIL': 262}
+EditMode: 144 all-vertex GPU probes, {'PASS': 144}
+PlayMode: 1008 cases, {'PASS': 746, 'FAIL': 262}
+PlayMode: 144 all-vertex GPU probes, {'PASS': 144}
+PASS: Head frame angles/matrices, all-vertex GPU positions, VRC proxy, negative controls
+Strict triangle surface-image comparison: 20 positive-candidate FAIL retained (0.1 mm / 2 pixel thresholds unchanged)
+Original product Prefabs / PhysBone / VRChat client / Head Chop / Stereo / Mirror: NOT RUN
+
+
+exit=0

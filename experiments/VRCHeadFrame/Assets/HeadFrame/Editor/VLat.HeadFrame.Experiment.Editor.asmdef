@@ -1,0 +1,8 @@
+{
+  "name": "VLat.HeadFrame.Experiment.Editor",
+  "rootNamespace": "VLat.HeadFrameExperiment",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false,
+  "noEngineReferences": false
+}

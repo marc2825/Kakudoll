@@ -1,0 +1,530 @@
+/*
+  VLat Editor Window
+  色はUnity Editorのテーマ変数を使い、Personal(ライト)/Pro(ダーク)の両方で読めるようにする。
+  強調色だけは .vlat-light でライトテーマ用に上書きする。
+*/
+
+.vlat-root {
+    flex-grow: 1;
+    min-width: 760px;
+    background-color: var(--unity-colors-window-background, rgb(56, 56, 56));
+}
+
+/* ---------- Toolbar ---------- */
+
+.vlat-toolbar {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 30px;
+    padding: 3px 6px;
+    background-color: var(--unity-colors-toolbar-background, rgb(60, 60, 60));
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-toolbar-border, rgb(35, 35, 35));
+}
+
+.vlat-toolbar > Button {
+    min-width: 56px;
+    height: 22px;
+    margin-left: 0;
+    margin-right: 3px;
+}
+
+.vlat-toolbar-separator {
+    width: 1px;
+    height: 18px;
+    margin-left: 5px;
+    margin-right: 8px;
+    background-color: var(--unity-colors-toolbar-border, rgb(35, 35, 35));
+}
+
+.vlat-toolbar-spacer {
+    flex-grow: 1;
+}
+
+.vlat-document-title {
+    -unity-font-style: bold;
+    margin-right: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 420px;
+}
+
+.vlat-dirty-label {
+    padding: 2px 8px;
+    border-radius: 9px;
+    margin-right: 2px;
+    -unity-font-style: bold;
+    font-size: 11px;
+    color: var(--unity-colors-label-text, rgb(196, 196, 196));
+    background-color: rgba(128, 128, 128, 0.18);
+}
+
+.vlat-dirty-label.vlat-dirty-modified {
+    color: rgb(255, 255, 255);
+    background-color: rgb(196, 120, 40);
+}
+
+/* ---------- Workflow guide ---------- */
+
+.vlat-workflow {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    padding: 4px 6px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-workflow-steps {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.vlat-step {
+    padding: 2px 8px;
+    margin-right: 4px;
+    border-radius: 9px;
+    font-size: 11px;
+    color: var(--unity-colors-label-text, rgb(196, 196, 196));
+    opacity: 0.55;
+    border-width: 1px;
+    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-step.vlat-step-done {
+    opacity: 1;
+    background-color: rgba(76, 160, 90, 0.30);
+    border-color: rgba(76, 160, 90, 0.75);
+}
+
+.vlat-step.vlat-step-current {
+    opacity: 1;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(58, 121, 187);
+    border-color: rgb(58, 121, 187);
+}
+
+.vlat-workflow-hint {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+/* ---------- Main split / document pane ---------- */
+
+#main-split,
+#content-split {
+    flex-grow: 1;
+    min-height: 320px;
+}
+
+.vlat-hierarchy {
+    padding: 6px;
+    border-right-width: 1px;
+    border-right-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-document-button {
+    height: 24px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 4px;
+    -unity-text-align: middle-left;
+}
+
+.vlat-section {
+    margin-top: 4px;
+}
+
+.vlat-section > Toggle {
+    -unity-font-style: bold;
+}
+
+.vlat-section-header {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+.vlat-section-title {
+    flex-grow: 1;
+    -unity-font-style: bold;
+}
+
+.vlat-section-header > Button {
+    width: 24px;
+    min-width: 24px;
+    height: 20px;
+    margin-left: 2px;
+    margin-right: 0;
+}
+
+.vlat-section ListView {
+    border-width: 1px;
+    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+#keyform-group-list { height: 48px; }
+#keyform-list { height: 132px; }
+#band-list { height: 96px; }
+#layer-list { height: 110px; }
+#modifier-list { height: 110px; }
+
+.vlat-list-label {
+    padding-left: 5px;
+    -unity-text-align: middle-left;
+}
+
+/* ---------- Inspector ---------- */
+
+.vlat-inspector {
+    padding: 8px 10px;
+    border-left-width: 1px;
+    border-left-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-inspector-heading {
+    font-size: 14px;
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+}
+
+.vlat-inspector-section {
+    margin-top: 12px;
+    margin-bottom: 3px;
+    padding-bottom: 2px;
+    -unity-font-style: bold;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-inspector-note {
+    white-space: normal;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    font-size: 11px;
+    color: var(--unity-colors-label-text, rgb(196, 196, 196));
+    opacity: 0.75;
+}
+
+.vlat-inspector-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.vlat-inspector-row > Label {
+    margin-right: 4px;
+}
+
+.vlat-inspector-row > Button {
+    margin-left: 0;
+    margin-right: 3px;
+}
+
+.vlat-inspector-primary {
+    height: 24px;
+    margin-top: 4px;
+    -unity-font-style: bold;
+}
+
+.vlat-keyform-warning {
+    white-space: normal;
+    margin-top: 10px;
+}
+
+/* ---------- Preview ---------- */
+
+.vlat-preview {
+    flex-grow: 1;
+    padding: 4px 6px;
+}
+
+.vlat-preview-toolbar,
+.vlat-preview-views,
+.vlat-preview-view-header,
+.vlat-control-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.vlat-preview-toolbar {
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.vlat-preview-toolbar > Button {
+    margin-left: 0;
+    margin-right: 3px;
+}
+
+.vlat-preview-avatar-label {
+    margin-left: 4px;
+    -unity-font-style: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 260px;
+}
+
+.vlat-mode-caption {
+    margin-right: 4px;
+    opacity: 0.75;
+}
+
+.vlat-mode-toggle {
+    margin-right: 8px;
+}
+
+.vlat-preview-views {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 240px;
+    align-items: stretch;
+}
+
+.vlat-preview-side {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 140px;
+}
+
+.vlat-preview-view {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 140px;
+    min-height: 100px;
+    margin: 0 4px 4px 0;
+    border-width: 1px;
+    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-preview-view-main {
+    flex-grow: 2;
+    border-color: rgb(58, 121, 187);
+}
+
+.vlat-preview-view-header {
+    height: 22px;
+    flex-shrink: 0;
+    padding-left: 5px;
+    padding-right: 2px;
+    background-color: rgba(128, 128, 128, 0.12);
+}
+
+.vlat-preview-view-header > Label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    -unity-font-style: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.vlat-preview-view-header > Button {
+    flex-shrink: 0;
+    height: 18px;
+    font-size: 10px;
+    margin: 0;
+}
+
+.vlat-preview-image {
+    flex-grow: 1;
+    background-color: rgb(30, 30, 30);
+}
+
+.vlat-preview-image-stack {
+    position: relative;
+    flex-grow: 1;
+}
+
+.vlat-selection-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.vlat-preview-help {
+    flex-shrink: 0;
+    font-size: 10px;
+    opacity: 0.7;
+    margin-bottom: 2px;
+}
+
+/* 操作群とメッセージは専用scroll領域へ置き、小さいWindowでも3視点の描画面積を確保する。 */
+.vlat-preview-controls-scroll {
+    flex-grow: 0;
+    flex-shrink: 1;
+    max-height: 48%;
+    margin-top: 2px;
+}
+
+.vlat-preview-messages {
+    flex-shrink: 0;
+}
+
+.vlat-message {
+    white-space: normal;
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-bottom: 2px;
+    border-left-width: 3px;
+}
+
+.vlat-message-active {
+    border-left-color: rgb(58, 121, 187);
+    background-color: rgba(58, 121, 187, 0.12);
+}
+
+.vlat-message-info {
+    border-left-color: var(--unity-colors-default-border, rgb(110, 110, 110));
+    background-color: rgba(128, 128, 128, 0.10);
+}
+
+.vlat-message-warning {
+    color: rgb(230, 196, 100);
+    border-left-color: rgb(210, 160, 40);
+    background-color: rgba(210, 160, 40, 0.10);
+}
+
+.vlat-light .vlat-message-warning {
+    color: rgb(120, 80, 0);
+}
+
+.vlat-control-groups {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    align-items: flex-start;
+}
+
+.vlat-control-group {
+    flex-grow: 1;
+    flex-basis: 260px;
+    min-width: 240px;
+    max-width: 420px;
+    padding: 4px 6px 6px 6px;
+    margin: 0 4px 4px 0;
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+    background-color: rgba(128, 128, 128, 0.06);
+}
+
+.vlat-control-group-title {
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.vlat-control-group .unity-base-field__label {
+    min-width: 72px;
+    width: 72px;
+}
+
+.vlat-control-row > Button {
+    margin-left: 0;
+    margin-right: 3px;
+}
+
+.vlat-selection-status {
+    white-space: normal;
+    font-size: 11px;
+    margin-top: 2px;
+    color: rgb(150, 200, 235);
+}
+
+.vlat-light .vlat-selection-status {
+    color: rgb(20, 90, 150);
+}
+
+.vlat-preview-details {
+    flex-shrink: 0;
+}
+
+.vlat-preview-instrumentation {
+    white-space: normal;
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+/* ---------- Validation / status ---------- */
+
+.vlat-validation {
+    flex-shrink: 0;
+    height: 112px;
+    padding: 4px 8px;
+    border-top-width: 1px;
+    border-top-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-validation-header {
+    flex-direction: row;
+    align-items: center;
+}
+
+.vlat-validation-summary {
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 8px;
+    background-color: rgba(76, 160, 90, 0.30);
+}
+
+.vlat-validation-summary.vlat-validation-warning {
+    background-color: rgba(210, 160, 40, 0.35);
+}
+
+.vlat-validation-summary.vlat-validation-error {
+    color: rgb(255, 255, 255);
+    background-color: rgb(190, 60, 60);
+}
+
+#diagnostic-list {
+    flex-grow: 1;
+    margin-top: 3px;
+}
+
+.vlat-diagnostic-label {
+    padding-left: 4px;
+    -unity-text-align: middle-left;
+}
+
+.vlat-diagnostic-error {
+    color: rgb(240, 110, 110);
+}
+
+.vlat-diagnostic-warning {
+    color: rgb(230, 196, 100);
+}
+
+.vlat-diagnostic-info {
+    opacity: 0.85;
+}
+
+.vlat-light .vlat-diagnostic-error {
+    color: rgb(170, 30, 30);
+}
+
+.vlat-light .vlat-diagnostic-warning {
+    color: rgb(120, 80, 0);
+}
+
+.vlat-status {
+    flex-shrink: 0;
+    min-height: 22px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: var(--unity-colors-toolbar-background, rgb(60, 60, 60));
+    border-top-width: 1px;
+    border-top-color: var(--unity-colors-toolbar-border, rgb(35, 35, 35));
+}

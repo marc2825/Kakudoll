@@ -1,0 +1,44 @@
+{
+  "sources": {
+    "client-results-template.json": "d82dbfea27477e1264952d5ba1e3f0341c09a79450529988bb9ab5ce7e273f56",
+    "decode_card.py": "36ce32e067a57ae8ff0ed849e2d4fa31a38721298df16a4e07e9bba4e1a1ff24",
+    "prepare_client_project.py": "362efb44de0f865fea63f53a4767bbd18a46d7bbaad6578f0abb918bc6bd8455",
+    "test_evidence_tools.py": "63d7674b8c0a906ed4787ce5e00576bf6d90d223115277a5f442ac2ea9188878",
+    "collect_evidence.py": "2ae07caa913cd6eaa3927515cd12ceaaaf3edaeea0ebdec90ca54481abd5209e",
+    "check_client_evidence.py": "a087351e3887a0535d623f778f0b9047cf405b3eec0535d01038dcd25b487a61",
+    "README.md": "7d3c1b96d525294b6ea85f97318ab162b297850cafeb3497943238504f0ffe23",
+    "Overlay/ClientDiagnostic.cginc": "60321d5ec5da8859d69d005b0c4c32bb643803fee4ddccc386ebb9bb574a0d0e",
+    "Overlay/ClientNoStereoArrays.shader": "f386f25ded006f742aaffef2049843f3e635752404ea30f37861c4332d57e70f",
+    "Overlay/ClientSolid.shader": "9615fa27243fad92c5c07b55f2f4ed321e14779260e968a28abbe052f809fdd0",
+    "Overlay/ClientDiagnostic.shader": "955b6b4535d8f8a54124f49f91b0f3aceb2d7899685a9312a40a9d30de755f77",
+    "Overlay/Editor/ClientBuildMenu.cs": "0beec7bdad3499d89b14e950369aee7f8c7fc5e3f31e5af7ebde15f7a465c803",
+    "Overlay/Editor/ClientAvatarAssets.cs": "5522758d28eea5ea8601e038f95902599d3e1c36be5982de206dbd3bcf09737d",
+    "Overlay/Editor/ClientValidationSetup.cs": "15ee13d8dead0c8c6cbacc2fe88ff1810a9692433e01bbf1a9f480549220301d",
+    "shared/ViewContextDiagnostic.cginc": "38f251683b7cd4b607bddb960ffc53c0c659bd5af06a79de862d26845ea207ff",
+    "shared/ViewContextStereoCompile.shader": "692cdfa994a88c2a7a16120ed13021f569ff93d7c0440f7f10f2db1d7c19be5e",
+    "shared/ViewContextInstancedCompile.shader": "707150d1126e9ea720d6123d1fac96a768f9b3bac611137f52946b03d41b2747",
+    "shared/ViewContextCore.cginc": "3d56ed8f06c4ad239db006c3b639e145b9e6847a40d0f5397328b5c910709564",
+    "shared/ViewContextInjected.shader": "0bf7c98a74a744aa9706cd8ab3ab04e2dc468b2939614ccb22592f67e1301c7a",
+    "shared/ViewContextLive.cginc": "6c78bccc1575baa47c316809de5a485c50df5ce1be3db64b3402721d74b37522",
+    "shared/ViewContextDiagnostic.shader": "8d1fa77fbb06b802bf7bf4692774936b89717a94ef0736c7d93f584aa18b96ae",
+    "shared/ViewContextCases.cs": "04ae6acbf806264b7a156d0219ba00f4c3e4798496599171f86864a226f08c3e",
+    "shared/ViewContextSweep.cs": "a3b7dd17bcc2b9de4897e391d4bb5b446e831cafd4000ecc89b6233f95a20bf2"
+  },
+  "full_logs": {
+    "preflight": {
+      "sha256": "34a2c7df42f8c3e572ed438347717bb525f6c7119a740063713be8546a765aa8",
+      "retained_in_local_temp": true
+    },
+    "s2-regression": {
+      "sha256": "6bbf7d8f7b5ee8a87d8146d03f11836d33762932b56ebab3cd61f6d59ab21bd1",
+      "retained_in_local_temp": true
+    },
+    "s1-r1-regression": {
+      "sha256": "099702a3213d9c37bc96bd079887401aba4ab582bfac5e9def9e44d998c7d0d4",
+      "retained_in_local_temp": true
+    }
+  },
+  "client_capture_count": 0,
+  "actual_sdk_build_and_test": "NOT RUN",
+  "unity_assetbundle_sha256": "987a396e9cbc10352d0d23d388205c0575cd4c459dddc046b04f8fabfac0f0c2"
+}

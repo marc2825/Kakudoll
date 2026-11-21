@@ -1,0 +1,5 @@
+UTC=2026-10-16T06:07:22.9967284Z
+Unity=2022.3.22f1
+GPU=NVIDIA GeForce RTX 3060 Ti / Direct3D11
+PlayerSettings.gpuSkinning=False
+VRChat client / actual Player / Stereo / Mirror / Head Chop=NOT RUN

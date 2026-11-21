@@ -1,0 +1,227 @@
+name: CI
+
+# Unityライセンス不要の検証(license-free)は常に実行する。
+# Unity EditMode/PlayModeはライセンスSecretがある場合だけ実行し、ない場合はNOT RUNとして
+# job summaryと警告annotationに明示する(skippedはPASSではない)。
+# リポジトリ変数 VLAT_REQUIRE_UNITY_TESTS=true のときは、ライセンス未設定をCI失敗にする。
+# 設定手順: docs/CI_SETUP.md
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  license-free:
+    name: License-free checks (Schema / Core .NET / evidence)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install schema validator
+        run: python -m pip install --disable-pip-version-check "jsonschema>=4.10,<5"
+
+      - name: Run license-free checks
+        run: python scripts/run_license_free_checks.py --log artifacts/license-free-checks.log
+
+      - name: Upload license-free results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: license-free-results
+          path: |
+            artifacts/license-free-checks.log
+            artifacts/core/
+          if-no-files-found: warn
+
+  unity-license:
+    name: Unity license preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      available: ${{ steps.check.outputs.available }}
+    steps:
+      - name: Check Unity license configuration (values are never printed)
+        id: check
+        env:
+          HAS_LICENSE: ${{ secrets.UNITY_LICENSE != '' }}
+          HAS_SERIAL: ${{ secrets.UNITY_SERIAL != '' }}
+          HAS_EMAIL: ${{ secrets.UNITY_EMAIL != '' }}
+          HAS_PASSWORD: ${{ secrets.UNITY_PASSWORD != '' }}
+          HAS_SERVER: ${{ secrets.UNITY_LICENSING_SERVER != '' }}
+          REQUIRE_UNITY: ${{ vars.VLAT_REQUIRE_UNITY_TESTS == 'true' }}
+        run: |
+          # game-ci/unity-test-runner v4.3.2 の受理条件と同じ:
+          #   EMAIL + PASSWORD + (SERIAL または LICENSE)、または LICENSING_SERVER
+          available=false
+          if [ "$HAS_SERVER" = "true" ]; then
+            available=true
+          elif [ "$HAS_EMAIL" = "true" ] && [ "$HAS_PASSWORD" = "true" ] && \
+               { [ "$HAS_SERIAL" = "true" ] || [ "$HAS_LICENSE" = "true" ]; }; then
+            available=true
+          fi
+          echo "available=$available" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Unity license preflight"
+            echo ""
+            echo "| Secret | Configured |"
+            echo "|---|---|"
+            echo "| UNITY_EMAIL | $HAS_EMAIL |"
+            echo "| UNITY_PASSWORD | $HAS_PASSWORD |"
+            echo "| UNITY_LICENSE (.ulf) | $HAS_LICENSE |"
+            echo "| UNITY_SERIAL | $HAS_SERIAL |"
+            echo "| UNITY_LICENSING_SERVER | $HAS_SERVER |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$available" = "true" ]; then
+            echo "Unity EditMode/PlayMode jobs will run." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          message="Unity EditMode/PlayMode: NOT RUN - Unity license secrets are not configured (or unavailable to this event, e.g. fork PR). See docs/CI_SETUP.md. This is not a test PASS."
+          echo "**$message**" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$REQUIRE_UNITY" = "true" ]; then
+            echo "::error title=Unity tests NOT RUN::$message"
+            exit 1
+          fi
+          echo "::warning title=Unity tests NOT RUN::$message"
+
+  editmode:
+    name: Unity EditMode
+    needs: unity-license
+    if: needs.unity-license.outputs.available == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Cache Unity Library
+        uses: actions/cache@v6
+        with:
+          path: VLatProject/Library
+          key: unity-2022.3.62f3-${{ runner.os }}-${{ hashFiles('Packages/**', 'VLatProject/Packages/**', 'VLatProject/ProjectSettings/**') }}
+          restore-keys: |
+            unity-2022.3.62f3-${{ runner.os }}-
+
+      - name: Run EditMode tests
+        id: tests
+        # v4.3.2 (stable architecture, node24). Pinned by commit for supply-chain safety.
+        uses: game-ci/unity-test-runner@fa6ced25861c16ef56187828c43f76d00df43a23
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSING_SERVER: ${{ secrets.UNITY_LICENSING_SERVER }}
+        with:
+          projectPath: VLatProject
+          unityVersion: 2022.3.62f3
+          testMode: editmode
+          artifactsPath: artifacts/editmode
+          coverageOptions: generateAdditionalReports;generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+VLat.Core
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      # テストが起動しなかった場合、step outputは空になる。空pathでのupload二次エラーを避ける。
+      - name: Upload test results
+        if: always() && steps.tests.outputs.artifactsPath != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: editmode-results
+          path: ${{ steps.tests.outputs.artifactsPath }}
+          if-no-files-found: warn
+
+      - name: Upload coverage
+        if: always() && steps.tests.outputs.coveragePath != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: editmode-coverage
+          path: ${{ steps.tests.outputs.coveragePath }}
+          if-no-files-found: warn
+
+      - name: Enforce Core line coverage
+        if: steps.tests.outcome == 'success'
+        run: >-
+          python scripts/check_coverage.py
+          "${{ steps.tests.outputs.coveragePath }}"
+          --assembly VLat.Core
+          --minimum 0.80
+
+  playmode:
+    name: Unity PlayMode
+    needs: unity-license
+    if: needs.unity-license.outputs.available == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Cache Unity Library
+        uses: actions/cache@v6
+        with:
+          path: VLatProject/Library
+          key: unity-2022.3.62f3-${{ runner.os }}-${{ hashFiles('Packages/**', 'VLatProject/Packages/**', 'VLatProject/ProjectSettings/**') }}
+          restore-keys: |
+            unity-2022.3.62f3-${{ runner.os }}-
+
+      - name: Run PlayMode and performance tests
+        id: tests
+        uses: game-ci/unity-test-runner@fa6ced25861c16ef56187828c43f76d00df43a23
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSING_SERVER: ${{ secrets.UNITY_LICENSING_SERVER }}
+        with:
+          projectPath: VLatProject
+          unityVersion: 2022.3.62f3
+          testMode: playmode
+          artifactsPath: artifacts/playmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload PlayMode and performance results
+        if: always() && steps.tests.outputs.artifactsPath != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: playmode-results
+          path: ${{ steps.tests.outputs.artifactsPath }}
+          if-no-files-found: warn

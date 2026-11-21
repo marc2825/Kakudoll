@@ -1,0 +1,149 @@
+{
+  "mirror_mode": 0.0,
+  "camera_mode": 0.0,
+  "face_mode": 0.0,
+  "context": 0.0,
+  "source": 1.0,
+  "status": 0.0,
+  "warnings": 1.0,
+  "shared_stereo": 0.0,
+  "weight": 0.0,
+  "yaw": -4.3588972091674805,
+  "pitch": -12.111100196838379,
+  "vertex_weight": 0.0,
+  "vertex_status": 0.0,
+  "card_id": 0,
+  "stereo_available": 0,
+  "eye": 2,
+  "selected_position": [
+    -0.17000000178813934,
+    1.190000057220459,
+    2.2300000190734863
+  ],
+  "draw_position": [
+    -0.17000000178813934,
+    1.190000057220459,
+    2.2300000190734863
+  ],
+  "mirror_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "screen_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "photo_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "left_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "right_position": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "orthographic": 0.0,
+  "effect": 0.0,
+  "require_stereo": 0.0,
+  "frame_origin": [
+    0.0,
+    1.6699999570846558,
+    0.0
+  ],
+  "frame_x": [
+    1.0,
+    0.0,
+    0.0
+  ],
+  "frame_y": [
+    0.0,
+    1.0,
+    0.0
+  ],
+  "frame_z": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "shader_time": 0.0,
+  "orientation": {
+    "quarter_turns": 0,
+    "reflected": false
+  },
+  "png_sha256": "3f8b17a333d3e31eba23f9d0556f4f806fc1d74e78c4dea7be695ca4a689606d",
+  "words": [
+    1447838513,
+    1,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    1065353216,
+    0,
+    1065353216,
+    0,
+    0,
+    3230366742,
+    3242313489,
+    0,
+    0,
+    3190690939,
+    1066947052,
+    1074706514,
+    3190690939,
+    1066947052,
+    1074706514,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1070973583,
+    0,
+    1065353216,
+    0,
+    0,
+    0,
+    1065353216,
+    0,
+    0,
+    0,
+    1065353216,
+    0,
+    1215572917
+  ],
+  "nonfinite_float_word_indices": [],
+  "vertex_fragment_weight_error": 0.0,
+  "reported_frame_cpu_yaw": -4.359407852879482,
+  "reported_frame_cpu_pitch": -12.113279009767329,
+  "reported_frame_angle_error_deg": 0.002178812928949725,
+  "reference_scope": "same reported shader frame; NOT independent actual Head bone evidence",
+  "acceptance_status": "UNASSESSED: decode and checksum only; human provenance and mode evidence required",
+  "evidence_source": "UnityEditorPreflight",
+  "input_png": "card0.png"
+}

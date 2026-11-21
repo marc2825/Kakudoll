@@ -1,0 +1,20 @@
+{
+  "overlay_sha256": {
+    "Overlay/ViewContextDiagnostic.cginc": "38f251683b7cd4b607bddb960ffc53c0c659bd5af06a79de862d26845ea207ff",
+    "Overlay/ViewContextStereoCompile.shader": "692cdfa994a88c2a7a16120ed13021f569ff93d7c0440f7f10f2db1d7c19be5e",
+    "Overlay/ViewContextInstancedCompile.shader": "707150d1126e9ea720d6123d1fac96a768f9b3bac611137f52946b03d41b2747",
+    "Overlay/ViewContextCore.cginc": "3d56ed8f06c4ad239db006c3b639e145b9e6847a40d0f5397328b5c910709564",
+    "Overlay/ViewContextInjected.shader": "0bf7c98a74a744aa9706cd8ab3ab04e2dc468b2939614ccb22592f67e1301c7a",
+    "Overlay/ViewContextLive.cginc": "6c78bccc1575baa47c316809de5a485c50df5ce1be3db64b3402721d74b37522",
+    "Overlay/ViewContextDiagnostic.shader": "8d1fa77fbb06b802bf7bf4692774936b89717a94ef0736c7d93f584aa18b96ae",
+    "Overlay/Editor/ViewContextCases.cs": "04ae6acbf806264b7a156d0219ba00f4c3e4798496599171f86864a226f08c3e",
+    "Overlay/Editor/ViewContextSweep.cs": "a3b7dd17bcc2b9de4897e391d4bb5b446e831cafd4000ecc89b6233f95a20bf2"
+  },
+  "external_read_only_sha256": {
+    "UnityShaderVariables.cginc": "0e298f8d48f57dc39725753092eb36dda1e26e11db86267b974668c7758723ac",
+    "HLSLSupport.cginc": "e8f0b5eca9cbc528bc157bd50b298976dd043f0a5b27ce655a53532e5afb3549",
+    "SDK_ToonStandard_Helpers.cginc": "01add6bb54d65793a8bcec43c884f31b4b62db58362033599dd831b91a7716bd"
+  },
+  "actual_xr_binding": "NOT RUN",
+  "compile_probe": "selected UNITY_SINGLE_PASS_STEREO / STEREO_INSTANCING_ON variants, guarded native branch, warmup, no numeric rendering"
+}

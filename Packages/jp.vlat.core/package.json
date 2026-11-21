@@ -1,0 +1,20 @@
+{
+  "name": "jp.vlat.core",
+  "version": "0.1.0",
+  "displayName": "VLat",
+  "description": "Non-destructive view-dependent layers for VRM avatars.",
+  "unity": "2022.3",
+  "license": "MIT",
+  "author": {
+    "name": "VLat Contributors"
+  },
+  "keywords": [
+    "avatar",
+    "vrm",
+    "view-dependent"
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.vrmc.vrm": "0.128.3"
+  }
+}

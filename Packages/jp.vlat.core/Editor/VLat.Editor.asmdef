@@ -1,0 +1,21 @@
+{
+  "name": "VLat.Editor",
+  "rootNamespace": "VLat.Editor",
+  "references": [
+    "VLat.Core",
+    "VLat.Runtime",
+    "VRM10",
+    "UniGLTF"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

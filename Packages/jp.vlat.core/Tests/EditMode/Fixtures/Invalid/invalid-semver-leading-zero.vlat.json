@@ -1,0 +1,13 @@
+{
+  "vlat": {
+    "version": "0.1.0-alpha.01",
+    "generator": "VLat Tests 0.1",
+    "targetAvatar": {
+      "name": "InvalidSemVerAvatar",
+      "vrmVersion": "1.0",
+      "meshBindings": []
+    }
+  },
+  "angleBands": [],
+  "layers": []
+}

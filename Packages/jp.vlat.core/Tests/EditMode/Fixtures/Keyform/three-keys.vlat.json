@@ -1,0 +1,97 @@
+{
+  "vlat": {
+    "version": "0.2.0",
+    "generator": "VLat Keyform Builder",
+    "targetAvatar": {
+      "name": "Keyform Avatar",
+      "vrmVersion": "1.0",
+      "meshBindings": [
+        {
+          "hierarchyPath": "Face",
+          "meshName": "Face",
+          "vertexCount": 3,
+          "positionHash": "xxh64:0000000000000000",
+          "materials": []
+        }
+      ]
+    }
+  },
+  "buffers": [
+    {
+      "uri": "three-keys.vlat.bin",
+      "byteLength": 32
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 4
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 4,
+      "byteLength": 12
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 16,
+      "byteLength": 4
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 20,
+      "byteLength": 12
+    }
+  ],
+  "textures": [],
+  "angleBands": [],
+  "layers": [],
+  "keyformGroups": [
+    {
+      "id": "shape-keys",
+      "meshBinding": 0,
+      "topologyHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "coordinateSpace": "bind-mesh-local",
+      "interpolation": "yaw-smoothstep",
+      "supportStart": -90,
+      "supportEnd": 120,
+      "keys": [
+        {
+          "yaw": -45,
+          "delta": {
+            "type": "vertexDelta",
+            "meshBinding": 0,
+            "indices": {
+              "bufferView": 0,
+              "componentType": "UINT32"
+            },
+            "positions": {
+              "bufferView": 1,
+              "componentType": "FLOAT32"
+            }
+          }
+        },
+        {
+          "yaw": 0,
+          "delta": null
+        },
+        {
+          "yaw": 60,
+          "delta": {
+            "type": "vertexDelta",
+            "meshBinding": 0,
+            "indices": {
+              "bufferView": 2,
+              "componentType": "UINT32"
+            },
+            "positions": {
+              "bufferView": 3,
+              "componentType": "FLOAT32"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

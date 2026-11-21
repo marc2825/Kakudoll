@@ -1,0 +1,7 @@
+UTC=2026-10-16T23:54:43.3965974Z
+Unity=2022.3.22f1
+GPU=NVIDIA GeForce RTX 3060 Ti / Direct3D11
+PlayerSettings.gpuSkinning=True
+XR.enabled=False
+XR.device=
+VRChat client / actual XR stereo binding / real Mirror / Head Chop=NOT RUN
