@@ -30,7 +30,7 @@ vlat/
 ├─ schema/vlat.schema.json
 ├─ docs/ (本ドキュメント群 + フォーマット仕様公開版)
 ├─ .github/workflows/ci.yml      # EditMode/PlayModeテスト + Schema検証
-└─ LICENSE (MIT)
+└─ LICENSE (PolyForm Strict 1.0.0)
 ```
 
 ## 3. ランタイム設計

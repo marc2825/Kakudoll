@@ -4,9 +4,9 @@
   "displayName": "Kakudoll",
   "description": "Edit how a VRM avatar's shape changes with the viewing angle, without modifying the original assets. Files use the VLat format (.vlat.json).",
   "unity": "2022.3",
-  "license": "MIT",
+  "license": "PolyForm-Strict-1.0.0",
   "author": {
-    "name": "Kakudoll Contributors"
+    "name": "marc2825"
   },
   "keywords": [
     "avatar",

@@ -29,7 +29,7 @@
 | 実験のログ・CSV・JSON | `experiments/*/results/` | 実験の出力 | 要所有者確認（開発環境の情報。4章） |
 | 文書とリンク | README、`docs/`、実験の README | 自作 | 要所有者確認（モデル別の FAIL 内訳。5章） |
 | 依存ライセンス | [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) | — | PASS（6章の修正を反映済み） |
-| MIT 表示と貢献の扱い | `LICENSE`、`package.json`、`CONTRIBUTING.md` | — | PASS（推奨 1 件。7章） |
+| ライセンス表示と貢献の扱い | `LICENSE`、`package.json`、`CONTRIBUTING.md` | — | PASS（7章。2026-11-22 に PolyForm Strict 1.0.0 へ変更） |
 | Git の作者情報と ref | 3 コミット、リモートは `main` のみ | — | PASS（8章） |
 | GitHub 上の Issue・CI | Issue #1〜#8、CI 3 回分のログと成果物 | — | PASS（8章） |
 
@@ -143,7 +143,13 @@ THIRD_PARTY_NOTICES に載っていない、開発・CI だけで使うもの（
 4. VRChat SDK の行を「VRChat Materials License Agreement（リンク）。SDK のファイルは含めず、MIT License は SDK に及ばない」とする。
 5. 任意: 開発・CI 用ツールの表を足す。
 
-## 7. MIT の表示主体と貢献の扱い
+## 7. ライセンスの表示主体と貢献の扱い
+
+**2026-11-22 追記:** 所有者の判断で、開発中のライセンスを MIT から PolyForm Strict 1.0.0 に変えた（`LICENSE` と
+パッケージ内の `LICENSE.md`。条文は公式の 1.0.0 と同一）。表示主体は `marc2825`、`package.json` の `author` もそろえた。
+Pull Request のための変更は LICENSE の Additional Permission で認め、貢献は MIT で所有者に提供されるものとした（後で MIT へ戻すため）。
+それまで MIT で公開していた版は、その版については MIT のまま。以下は変更前の監査時の記録。
+
 
 - `LICENSE` の `Copyright (c) 2026 Kakudoll Contributors` と、`package.json` の `author.name`（`Kakudoll Contributors`）は一致している。
 - `CONTRIBUTING.md` の「貢献は同じ MIT License で提供される」（inbound = outbound）とも矛盾しない。CLA や DCO はない。
@@ -170,7 +176,6 @@ THIRD_PARTY_NOTICES に載っていない、開発・CI だけで使うもの（
 - [ ] 商用アバター 3 体について、モデル名・作者名・配布ページと集計値を載せることが、各モデルの利用規約に反しないと判断した。
 - [ ] Seed-san の画像と出力を公開版に含めない判断（2026-11-21）を維持する。
 - [ ] 作者メール（所有者が公開を許可したアドレス 1 件）をそのまま公開する。
-- [ ] `LICENSE` の表示主体を「Kakudoll Contributors」のままにする。所有者名を併記するなら `package.json` の `author` もそろえる。
 - [ ] 公開するときに push するのは `main` だけで、ローカルの作業用ブランチは含めない。
 - [ ] Issue #1〜#8 の本文が公開されてよい。
 

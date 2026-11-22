@@ -88,7 +88,7 @@ VRMアバターを自ら制作・改変できる一般クリエイター(Unity �
 ## 4. 制約条件 (C)
 - **C-1** Unity 2022.3.62f3 / Built-in RP / UniVRM (VRM 1.0) / UI Toolkit / C# 9。
 - **C-2** 元のVRMファイル・元アセットを一切変更しない(非破壊)。ベイクは常に別ファイルへ出力。
-- **C-3** OSS公開(MIT想定)前提。実行時の外部依存は UniVRM, UnityEngine,
+- **C-3** 公開前提（開発中は PolyForm Strict 1.0.0、完成後に MIT などへ変更する想定）。実行時の外部依存は UniVRM, UnityEngine,
   Unity公式 `com.unity.nuget.newtonsoft-json` に限定する。テストでは Unity Test
   Framework と、配布物に含めない JSON Schema 検証ツールのみを追加可とする。
 - **C-4** すべての公開APIに XML doc コメント。asmdef によるモジュール分割(→03)。

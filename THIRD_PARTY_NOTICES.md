@@ -1,6 +1,6 @@
 # 第三者素材について / Third-party notices
 
-Kakudoll のソースコードは [MIT License](LICENSE) です。ここに挙げる第三者の素材・名称には MIT License は適用されません。
+Kakudoll のソースコードは [PolyForm Strict License 1.0.0](LICENSE) です。ここに挙げる第三者の素材・名称には、Kakudoll のライセンスは適用されません。
 （2026-11-21 時点の公開情報にもとづく整理で、法的な助言ではありません。）
 
 ## このリポジトリに含めていない素材
@@ -40,7 +40,7 @@ VRChat 向けの検証実験では、正規に購入したモデルの複製を�
 | Unity Test Framework などの `com.unity.*` パッケージ | テストとエディタ | Unity Companion License |
 | `com.unity.ext.nunit` 2.0.3（Unity Test Framework の依存） | テスト | Unity Package Distribution License（同梱の NUnit 3.5 は MIT License） |
 | NUnit、NUnit3TestAdapter、Microsoft.NET.Test.Sdk | Core の .NET テスト | MIT License |
-| VRChat SDK 3.10.5 | `experiments/` の検証用プロジェクトだけで使用。同梱せず、各自が VRChat Creator Companion で導入 | [VRChat Materials License Agreement](https://hello.vrchat.com/legal/sdk)。SDK の再配布・改変を認めていないため、このリポジトリには SDK のファイルを含めていません。MIT License は SDK には及びません |
+| VRChat SDK 3.10.5 | `experiments/` の検証用プロジェクトだけで使用。同梱せず、各自が VRChat Creator Companion で導入 | [VRChat Materials License Agreement](https://hello.vrchat.com/legal/sdk)。SDK の再配布・改変を認めていないため、このリポジトリには SDK のファイルを含めていません。Kakudoll のライセンスは SDK には及びません |
 
 ### 開発・CI だけで使うツール（配布物には含まない）
 

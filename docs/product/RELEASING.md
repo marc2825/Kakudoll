@@ -14,6 +14,12 @@
   [KEYFORM_V0_2.md](KEYFORM_V0_2.md) §1）。
 - 修正は最新の版だけに行います。古い版へのバックポートはしません。
 
+## ライセンス
+
+開発中は PolyForm Strict License 1.0.0 です。完成したら MIT License などに変える予定で、そのときは CHANGELOG の
+「ライセンス」の項に書き、`LICENSE`・`Packages/jp.vlat.core/LICENSE.md`・`package.json` の `license` を同時に変えます。
+外部からの貢献は MIT で所有者に提供される条件（CONTRIBUTING.md）なので、変更のときに貢献者の同意を取り直す必要はありません。
+
 ## 互換性表
 
 新しい版を出すたびに 1 行足します。

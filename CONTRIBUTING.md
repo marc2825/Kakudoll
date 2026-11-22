@@ -45,4 +45,8 @@ fork からの Pull Request では Unity のテストが CI で動かない（NO
 
 ## ライセンス
 
-いただいた貢献は、このリポジトリと同じ [MIT License](LICENSE) で提供されるものとします。
+Kakudoll は開発中のあいだ [PolyForm Strict License 1.0.0](LICENSE) で公開しています。
+このライセンスは改変を認めていませんが、このリポジトリへ Pull Request を出すための変更は、LICENSE の Additional Permission で認めています。
+
+完成したあとに MIT License などへ変えられるよう、**いただいた貢献は MIT License で所有者（marc2825）に提供されるもの**とします。
+Pull Request を出した時点で、この条件に同意したものとみなします。

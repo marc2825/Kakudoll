@@ -180,7 +180,14 @@ Kakudoll（カクドール）は「角度（kakudo）」と「doll」を合わ�
 
 ## ライセンス
 
-MIT License です。第三者のアバターや、その画像・データは含んでいません（[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)）。
+開発中のあいだは [PolyForm Strict License 1.0.0](LICENSE) です。
+個人の趣味・学習・研究など**非商用の目的で使う**ことはできますが、**改変したものや複製を配布すること、商用で使うことはできません**。
+改善の提案（Pull Request）のための変更は認めています（[CONTRIBUTING.md](CONTRIBUTING.md)）。
+完成したら、MIT License など、より自由なライセンスに変える予定です。
+
+2026-11-22 までに MIT License で公開していた版は、その版を受け取った人にとっては MIT License のままです。
+
+第三者のアバターや、その画像・データは含んでいません（[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)）。
 
 ---
 
@@ -222,4 +229,10 @@ Files received from others may only reference files inside their own folder, and
 Unity tests on GitHub Actions are **NOT RUN** until a Unity license secret is configured.
 
 **Reporting:** bugs via [Issues](https://github.com/marc2825/Kakudoll/issues/new/choose); security issues privately as
-described in [SECURITY.md](SECURITY.md). Code is MIT licensed; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+described in [SECURITY.md](SECURITY.md).
+
+**License:** while in development, Kakudoll is under the [PolyForm Strict License 1.0.0](LICENSE): you may use it for
+noncommercial purposes, but you may not distribute it or modified versions, or use it commercially. Changes made only to
+propose a pull request are permitted. The plan is to move to a permissive license such as MIT once it is complete.
+Versions published under MIT before 2026-11-22 stay MIT for those who received them.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for third-party terms.
