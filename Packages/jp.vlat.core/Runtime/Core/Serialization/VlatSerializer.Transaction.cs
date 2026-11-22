@@ -54,6 +54,10 @@ namespace VLat.Core.Serialization
         private const string JournalFormat = "vlat-save-journal/1";
         private const string JournalSuffix = ".vlat-save-journal";
         private const long MaxJournalBytes = 1024 * 1024;
+
+        private const string BusyMessage =
+            "前回の保存が完了していないか、別の保存が進行中のため保存しません。" +
+            "Kakudoll Editorで開き直すか RecoverInterruptedSave で復旧してください。";
         private static readonly Regex SidecarName = new Regex(@"^\..+\.[0-9a-f]{32}\.(?:tmp|bak)$", RegexOptions.CultureInvariant);
 
         /// <summary>試験専用。保存の各段階で呼び出し、<see cref="SimulatedCrashException"/>で異常終了を模擬します。</summary>
@@ -220,7 +224,8 @@ namespace VLat.Core.Serialization
         {
             error = null;
             var journalPath = GetJournalPath(fullJsonPath);
-            FileStream journal;
+            var journalTemporary = journalPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            FileStream journal = null;
             try
             {
                 var jsonDirectory = Path.GetDirectoryName(fullJsonPath);
@@ -229,18 +234,42 @@ namespace VLat.Core.Serialization
                     Directory.CreateDirectory(jsonDirectory);
                 }
 
-                // CreateNewが、同じ文書への同時保存と、復旧されていない中断保存の両方を検出する。
-                journal = new FileStream(journalPath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
-            }
-            catch (IOException) when (File.Exists(journalPath))
-            {
-                error = "前回の保存が完了していないか、別の保存が進行中のため保存しません。" +
-                        "Kakudoll Editorで開き直すか RecoverInterruptedSave で復旧してください。";
-                return false;
+                if (File.Exists(journalPath))
+                {
+                    error = BusyMessage;
+                    return false;
+                }
+
+                // journalは一時名で書き切ってから名前を変える。途中で落ちても、空や書きかけのjournalは残らない。
+                // 保存が終わるまでハンドルを開いたままにし、別の処理が「中断された保存」と誤認しないようにする。
+                journal = new FileStream(
+                    journalTemporary,
+                    FileMode.CreateNew,
+                    FileAccess.ReadWrite,
+                    FileShare.Read | FileShare.Delete);
+                var bytes = new UTF8Encoding(false).GetBytes(CreateJournal(fullJsonPath, writes));
+                journal.Write(bytes, 0, bytes.Length);
+                journal.Flush(true);
+                // File.Moveは移動先があれば失敗するため、同じ文書への同時保存もここで1つに絞られる。
+                File.Move(journalTemporary, journalPath);
             }
             catch (Exception exception)
             {
-                error = "VLatファイルを保存できません: " + exception.Message;
+                if (journal != null)
+                {
+                    journal.Dispose();
+                }
+
+                try
+                {
+                    DeleteIfExists(journalTemporary);
+                }
+                catch (Exception)
+                {
+                    // 一時journalの削除に失敗しても、正式なjournalがないため次の保存には影響しない。
+                }
+
+                error = File.Exists(journalPath) ? BusyMessage : "VLatファイルを保存できません: " + exception.Message;
                 return false;
             }
 
@@ -249,9 +278,6 @@ namespace VLat.Core.Serialization
             {
                 try
                 {
-                    var bytes = new UTF8Encoding(false).GetBytes(CreateJournal(fullJsonPath, writes));
-                    journal.Write(bytes, 0, bytes.Length);
-                    journal.Flush(true);
                     InvokeHook(VlatSaveStep.JournalWritten, 0);
 
                     for (var i = 0; i < writes.Count; i++)
@@ -500,9 +526,22 @@ namespace VLat.Core.Serialization
             DeleteIfExists(entry.Temporary);
             if (File.Exists(entry.Backup))
             {
-                // backupはcommit時にだけ作られる。targetは新しい内容か、置換途中で失われている。
+                // backupはcommit時にだけ作られる。Unixの File.Replace は先に target のハードリンクとして
+                // backupを作るため、置き換え前に止まると backup と target が同じ内容（同じファイル）になる。
                 if (File.Exists(entry.Target))
                 {
+                    if (SameContent(entry.Backup, entry.Target))
+                    {
+                        File.Delete(entry.Backup);
+                        return;
+                    }
+
+                    if (!HasContent(entry.Target, entry.Length, entry.Sha256))
+                    {
+                        throw new IOException(Path.GetFileName(entry.Target) +
+                                              " が保存前とも保存後とも一致しません（保存中に別の処理が変更した可能性があります）。");
+                    }
+
                     File.Replace(entry.Backup, entry.Target, null);
                 }
                 else
@@ -528,6 +567,22 @@ namespace VLat.Core.Serialization
             if (HasContent(entry.Target, entry.Length, entry.Sha256))
             {
                 File.Delete(entry.Target);
+            }
+        }
+
+        private static bool SameContent(string first, string second)
+        {
+            var a = new FileInfo(first);
+            var b = new FileInfo(second);
+            if (!a.Exists || !b.Exists || a.Length != b.Length)
+            {
+                return false;
+            }
+
+            using (var left = new FileStream(first, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using (var right = new FileStream(second, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            {
+                return string.Equals(HashStream(left), HashStream(right), StringComparison.Ordinal);
             }
         }
 
@@ -725,14 +780,20 @@ namespace VLat.Core.Serialization
                     {
                         // File.Replaceが途中で失敗し、元ファイルがbackup名へ移っただけの場合は戻す。
                         // targetも残っているなら、どちらが元か判断できないためbackupを消さずに残す。
+                        // Unixでは backup が target のハードリンクとして先に作られる。同じ内容なら backup だけ消す。
                         if (File.Exists(TargetPath))
                         {
-                            SafeDelete(_temporaryPath);
-                            error = TargetPath + ": 置換途中の状態を判別できないため、backupを残しました。";
-                            return false;
+                            if (!SameContent(_backupPath, TargetPath))
+                            {
+                                SafeDelete(_temporaryPath);
+                                error = TargetPath + ": 置換途中の状態を判別できないため、backupを残しました。";
+                                return false;
+                            }
                         }
-
-                        File.Move(_backupPath, TargetPath);
+                        else
+                        {
+                            File.Move(_backupPath, TargetPath);
+                        }
                     }
 
                     SafeDelete(_temporaryPath);

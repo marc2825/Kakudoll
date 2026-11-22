@@ -161,11 +161,14 @@ def file_findings(rel: str, data: bytes | None, excluded: Container[str], mode: 
     return found
 
 
-def metadata_findings(raw: bytes, allowed_emails: Collection[str]) -> list[str]:
-    """commit/tag objectの作者・コミッター・タガーのメールとメッセージを検査する。値そのものは返さない。"""
+def metadata_findings(raw: bytes, allowed_emails: Collection[str], check_identities: bool = True) -> list[str]:
+    """commit/tag objectの作者・コミッター・タガーのメールとメッセージを検査する。値そのものは返さない。
+
+    check_identities=False は作者メールの許可リストが未設定のとき用（呼び出し側がNOT RUNと表示する）。
+    """
     header, _, message = raw.partition(b"\n\n")
     found = []
-    for role, email in IDENTITY_LINE.findall(header):
+    for role, email in (IDENTITY_LINE.findall(header) if check_identities else []):
         address = email.decode("utf-8", errors="replace")
         if address.lower() not in allowed_emails and vlat_release.find_other_private_data(address):
             found.append(f"{role.decode()} email が許可されていない個人アドレス（--allow-email で明示するか noreply を使う）")
@@ -267,7 +270,7 @@ class _ObjectReader:
         self._proc.stdout.close()
 
 
-def check_history(root: Path, allowed_emails: Collection[str]) -> list[str]:
+def check_history(root: Path, allowed_emails: Collection[str], check_identities: bool = True) -> list[str]:
     """公開リポジトリの全refから到達できる履歴を、現行treeと同じ判定（file_findings）で検査する。
 
     - 全ref（refs/heads・tags・remotes・notes・stash・replace等）とHEADから到達できる全commitについて、
@@ -315,7 +318,7 @@ def check_history(root: Path, allowed_emails: Collection[str]) -> list[str]:
                     continue
                 if kind == "commit":
                     tree_first_commit.setdefault(obj[1].split(b"\n", 1)[0].split()[1].decode(), sha)
-                failures += [f"{kind} {sha[:12]}: {finding}" for finding in metadata_findings(obj[1], allowed)]
+                failures += [f"{kind} {sha[:12]}: {finding}" for finding in metadata_findings(obj[1], allowed, check_identities)]
 
         # 2. 全commitのtreeにある (blob, path, mode) と、それが最初に現れたcommit
         pairs: dict[tuple[str, str, str], str] = {}
@@ -372,13 +375,17 @@ def main() -> int:
     parser.add_argument("--allow-email", action="append", default=[],
                         help="commit/tagの作者・コミッター・メッセージに公開してよいメールアドレス。複数指定・カンマ区切り可"
                              "（file内容の検査には影響しない）")
+    parser.add_argument("--skip-author-emails", action="store_true",
+                        help="作者・コミッター・タガーのメール検査だけを NOT RUN にする（許可リスト未設定のCI用。PASSには数えない）")
     args = parser.parse_args()
     root = args.export.resolve()
     if not root.is_dir():
         parser.error(f"not a directory: {root}")
     failures, warnings = check_tree(root)
     if args.git_history:
-        failures += check_history(root, parse_emails(args.allow_email))
+        failures += check_history(root, parse_emails(args.allow_email), not args.skip_author_emails)
+        if args.skip_author_emails:
+            print("NOT RUN: commit/tag author email check (allow-list not configured; not counted as PASS)")
     for line in warnings:
         print("WARN:", line)
     for line in failures:

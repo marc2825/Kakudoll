@@ -38,6 +38,8 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 _ALLOWED_EMAIL = re.compile(r"(?i)^(?:noreply@anthropic\.com|[^@]+@(?:example\.(?:com|org|net)|users\.noreply\.github\.com))$")
 _EMAIL = re.compile(r"(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b")
 _WINDOWS_HOSTNAME = re.compile(r"\b(?:DESKTOP|LAPTOP)-[A-Z0-9]{6,}\b")
+# VRChatのユーザー・アバター・ワールド・ファイルID。インスタンス文字列などに個人のIDが混ざるのを防ぐ。
+_VRCHAT_ID = re.compile(r"\b(?:usr|avtr|wrld|file)_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b", re.I)
 _PRIVATE_IPV4 = re.compile(r"\b(?:10\.\d{1,3}|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}\b")
 
 LEDGER_RELATIVE_PATH = "docs/PUBLIC_EXPORT_LEDGER.json"
@@ -55,7 +57,7 @@ def find_personal_paths(text: str) -> list[tuple[str, int]]:
 
 
 def find_other_private_data(text: str, allowed_emails: Collection[str] = ()) -> list[tuple[str, int]]:
-    """認証情報らしき文字列、個人メール、Windows hostname、内部IPv4の件数を返す。
+    """認証情報らしき文字列、個人メール、Windows hostname、内部IPv4、VRChatのIDの件数を返す。
 
     allowed_emails は所有者が公開を認めたメール（大文字小文字を区別しない）。commit/tagの作者情報と
     メッセージの検査だけで渡し、file内容の検査では渡さない。
@@ -69,7 +71,7 @@ def find_other_private_data(text: str, allowed_emails: Collection[str] = ()) -> 
     emails = [m for m in _EMAIL.findall(text) if not _ALLOWED_EMAIL.match(m) and m.lower() not in allowed]
     if emails:
         found.append(("email-address", len(emails)))
-    for kind, regex in (("windows-hostname", _WINDOWS_HOSTNAME), ("private-ipv4", _PRIVATE_IPV4)):
+    for kind, regex in (("windows-hostname", _WINDOWS_HOSTNAME), ("private-ipv4", _PRIVATE_IPV4), ("vrchat-id", _VRCHAT_ID)):
         count = len(regex.findall(text))
         if count:
             found.append((kind, count))

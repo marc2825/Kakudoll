@@ -48,8 +48,10 @@ internal static class Program
                 case VlatInterruptedSaveOutcome.CompletedSaveKept: kept++; break;
                 case VlatInterruptedSaveOutcome.None: clean++; break;
                 default:
+                    // 復旧できないと以降の保存が全て拒否されるため、最初の失敗で止める。
                     failures++;
                     Console.WriteLine("iteration " + i + ": recovery failed: " + recovery.Diagnostics[0].Message);
+                    i = iterations;
                     continue;
             }
 

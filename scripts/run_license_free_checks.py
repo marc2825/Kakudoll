@@ -65,6 +65,9 @@ DOTNET_CHECKS = [
                            "--logger", "trx;LogFileName=core.trx", "--results-directory", "artifacts/core"]),
     ("Core netstandard2.1 build", ["dotnet", "build", "tests/CoreHarness/Compatibility/Core.Compatibility.csproj",
                                    "-warnaserror"]),
+    # 保存中の子プロセスを実際にkillし、復旧後のJSONとbinが保存前か保存後のどちらかに一致することを確かめる。
+    ("save crash (process kill x50)", ["dotnet", "run", "-c", "Release", "--project",
+                                       "tests/CoreHarness/SaveCrash/SaveCrash.csproj", "--", "50"]),
 ]
 
 

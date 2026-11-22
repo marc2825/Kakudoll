@@ -251,6 +251,31 @@ class HistoryAuditTests(unittest.TestCase):
         self.assertIn("email-address (1 match(es))", content.stdout)
         self.assertNotIn(OWNER_ADDRESS, content.stdout)
 
+    def test_skip_author_emails_is_reported_as_not_run(self) -> None:
+        repo = TempRepo(Path(self.temp.name) / "skip-repo", email=OWNER_ADDRESS)
+        self.repo = repo
+        repo.write("src/a.cs", "class A {}\n")
+        repo.commit("add a")
+        skipped = self.run_cli("--git-history", "--skip-author-emails")
+        self.assertEqual(skipped.returncode, 0, skipped.stdout)
+        self.assertIn("NOT RUN: commit/tag author email check", skipped.stdout)
+        # 作者メールを飛ばしても、メッセージとfile内容の検査は続ける
+        repo.write("docs/contact.md", f"mail: {OWNER_ADDRESS}\n")
+        repo.commit("add contact")
+        content = self.run_cli("--git-history", "--skip-author-emails")
+        self.assertEqual(content.returncode, 1, content.stdout)
+        self.assertNotIn(OWNER_ADDRESS, content.stdout)
+
+    def test_vrchat_ids_are_detected(self) -> None:
+        identifier = "usr" + "_" + "12345678-abcd-4abc-8abc-1234567890ab"
+        self.repo.write("experiments/x/client-evidence.csv", f"world_instance\nwrld_x:1~private({identifier})\n")
+        self.repo.commit("add evidence")
+        self.repo.remove("experiments/x/client-evidence.csv")
+        self.repo.commit("remove evidence")
+        findings, _ = self.history()
+        self.assertHistoryFinding(findings, "experiments/x/client-evidence.csv", "vrchat-id")
+        self.assertFalse(any(identifier in f for f in findings))
+
     def test_non_branch_refs_are_audited(self) -> None:
         repo = self.repo
         # refs/replace: 置き換えが有効だと、元のcommitにある禁止fileが見えなくなる
