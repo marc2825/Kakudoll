@@ -55,10 +55,10 @@ namespace VLat.Tests.Edit
                 f.Preview.SetAngles(VlatPreviewView.Main, 0, 0);
                 Assert.That(f.Preview.RenderIfNeeded(), Is.True);
                 Assert.That(observed.Count, Is.EqualTo(3));
-                Assert.That(observed["VLat Preview Camera 0"].x, Is.EqualTo(100).Within(.001));
-                Assert.That(observed["VLat Preview Camera 1"].x, Is.EqualTo(50).Within(.001));
-                Assert.That(observed["VLat Preview Camera 1"].y, Is.EqualTo(50).Within(.001));
-                Assert.That(observed["VLat Preview Camera 2"].y, Is.EqualTo(100).Within(.001));
+                Assert.That(observed["Kakudoll Preview Camera 0"].x, Is.EqualTo(100).Within(.001));
+                Assert.That(observed["Kakudoll Preview Camera 1"].x, Is.EqualTo(50).Within(.001));
+                Assert.That(observed["Kakudoll Preview Camera 1"].y, Is.EqualTo(50).Within(.001));
+                Assert.That(observed["Kakudoll Preview Camera 2"].y, Is.EqualTo(100).Within(.001));
                 AssertGeometry(f, 1, 0, 0);
             }
             finally { Camera.onPreCull -= Record; }

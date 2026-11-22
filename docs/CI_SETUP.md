@@ -1,6 +1,6 @@
 # CI セットアップ
 
-2026-11-19更新。VLatのCI（`.github/workflows/ci.yml`）は次の4ジョブで構成します。
+2026-11-19更新。KakudollのCI（`.github/workflows/ci.yml`）は次の4ジョブで構成します。
 ライセンスファイルや認証情報をリポジトリへコミットしてはいけません。
 
 | ジョブ | Unityライセンス | 内容 |

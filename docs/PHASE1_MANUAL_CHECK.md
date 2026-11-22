@@ -56,7 +56,7 @@ VRM 0.xを確認する場合は、UniVRMの `canLoadVrm0X` 対応ロード経路
    判別できる明るさにします。シーンを保存します。
 
 `.vlat` が未作成の場合は、Hierarchyでアバター配下の前髪
-`SkinnedMeshRenderer` を選択して `VLat > Dev > Generate Sample Document` を
+`SkinnedMeshRenderer` を選択して `Kakudoll > Dev > Generate Sample Document` を
 実行し、保存ダイアログで生成先を `Assets/Samples` 配下にします。メニューが
 無効な場合は、`Vrm10Instance` 配下にあるMesh付きのRendererを選択しているか
 確認してください。生成後に手順5の `VlatApplier` へ割り当て直します。

@@ -111,7 +111,7 @@ namespace VLat.Editor.Authoring
             try
             {
                 TemporaryMesh = Object.Instantiate(source);
-                TemporaryMesh.name = "VLat Drag Temporary";
+                TemporaryMesh.name = "Kakudoll Drag Temporary";
                 TemporaryMesh.hideFlags = HideFlags.HideAndDontSave;
                 TemporaryMesh.ClearBlendShapes(); // Expressionは既存geometry modeでstash済み。二重補正を避ける。
                 using (VlatEditorProfiling.Measure(VlatEditorPhase.DragBeginSkinning))
@@ -135,7 +135,7 @@ namespace VLat.Editor.Authoring
         // quality/bone数/scaleを独自に推測せず、開始時のみ実行。MouseMoveではBakeも割当も行わない。
         private void CaptureSkinning()
         {
-            var baked = new Mesh { hideFlags = HideFlags.HideAndDontSave, name = "VLat Drag Calibration" };
+            var baked = new Mesh { hideFlags = HideFlags.HideAndDontSave, name = "Kakudoll Drag Calibration" };
             var vertices = new List<Vector3>(_positions.Length);
             try
             {

@@ -1,5 +1,5 @@
 /*
-  VLat Editor Window
+  Kakudoll Editor Window
   色はUnity Editorのテーマ変数を使い、Personal(ライト)/Pro(ダーク)の両方で読めるようにする。
   強調色だけは .vlat-light でライトテーマ用に上書きする。
 */

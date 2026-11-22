@@ -147,7 +147,7 @@ namespace VLat.Runtime
                     diagnostics,
                     VlatRuntimeDiagnosticSeverity.Warning,
                     "textures",
-                    "読み込み済みTexture配列がVLatドキュメントのtextures数より短いため、一部のtextureIndex補正を適用できません。");
+                    "読み込み済みTexture配列がKakudollドキュメントのtextures数より短いため、一部のtextureIndex補正を適用できません。");
             }
 
             var textureCheckCount = _textures.Length < document.Textures.Count
@@ -774,7 +774,7 @@ namespace VLat.Runtime
 
                 var clone = new Material(source)
                 {
-                    name = source.name + " (VLat Runtime)",
+                    name = source.name + " (Kakudoll Runtime)",
                     hideFlags = HideFlags.DontSave,
                 };
                 slot.GeneratedMaterial = clone;

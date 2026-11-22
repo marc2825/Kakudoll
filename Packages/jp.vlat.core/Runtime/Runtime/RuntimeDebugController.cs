@@ -15,7 +15,7 @@ namespace VLat.Runtime
         private const float OverlayHeight = 285f;
         private const int MaximumDisplayedModifierCount = 512;
 
-        [Header("VLat")]
+        [Header("Kakudoll")]
         [SerializeField]
         private VlatApplier _applier = null;
 
@@ -118,7 +118,7 @@ namespace VLat.Runtime
         private void OnGUI()
         {
             GUILayout.BeginArea(new Rect(12f, 12f, OverlayWidth, OverlayHeight), GUI.skin.box);
-            GUILayout.Label("VLat Runtime Debug");
+            GUILayout.Label("Kakudoll Runtime Debug");
 
             if (_applier == null)
             {

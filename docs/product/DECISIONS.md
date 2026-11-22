@@ -113,3 +113,13 @@ Keyform v0.2の定義・段階実装を開始することが明示された。
 - K-035: 2026-11-19以降の証拠ディレクトリは要約・最終test XML・報告に使った結果・FAIL/NOT RUN記録・`inputs.json`・`SHA256SUMS`
   だけを作業treeに置く。反復的な生出力は `ARCHIVED.sha256` に記録してgit履歴（commit指定）から取得可能にし、外部公開は行わない。
   2026-10のGate 1A〜1E証拠は凍結。上限60 files / 2 MiBと合格XML 2件以下をCIのlicense-free jobで検査する。
+
+## 2026-11-22 — 公開名 Kakudoll（所有者の決定）
+
+- K-036: 公開するツールの名前を **Kakudoll** にする（公開リポジトリ `marc2825/Kakudoll`）。README、メニュー（Kakudoll > Editor）、
+  ウィンドウ名、パッケージの表示名、画面のメッセージ・Undo名、生成するオブジェクト名、LICENSEの著作権者名を変更した。
+- ファイル形式の名前は **VLat** のまま（`.vlat.json` / `.vlat.bin`、`vlat.version`、Schema、Core の診断メッセージ）。
+  変えると v0.1 / v0.2 の既存ファイルとの互換性と仕様が変わるため。
+- パッケージID `jp.vlat.core`、名前空間 `VLat.*`、asmdef名、クラス名 `Vlat*`、フォルダ `VLatProject`、Recovery の保存先
+  `Library/VLat`、Profiler marker、CI変数も維持する。asmdef名は 03_ARCHITECTURE で定めており、変更は利用者のプロジェクト参照・
+  保存済みのRecoveryにも影響するため、必要になったら別の判断として扱う。凍結済みの実験ファイルは変更しない。

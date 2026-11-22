@@ -88,20 +88,20 @@ namespace VLat.Editor.Authoring
             finally { _creatingRecoveryDirectory = previous; }
         }
 
-        [MenuItem("VLat/Editor")]
+        [MenuItem("Kakudoll/Editor")]
         private static void OpenWindow()
         {
             var window = GetWindow<VlatEditorWindow>();
-            window.titleContent = new GUIContent("VLat Editor");
+            window.titleContent = new GUIContent("Kakudoll");
             window.minSize = new Vector2(900.0f, 760.0f);
             window.Show();
         }
 
         private void OnEnable()
         {
-            titleContent = new GUIContent("VLat Editor");
+            titleContent = new GUIContent("Kakudoll");
             minSize = new Vector2(900.0f, 760.0f);
-            saveChangesMessage = "VLatドキュメントに未保存の変更があります。";
+            saveChangesMessage = "Kakudollドキュメントに未保存の変更があります。";
             _assemblyReloading = false;
             _closeApproved = false;
             if (string.IsNullOrEmpty(_recoveryDirectory)) _recoveryDirectory = _creatingRecoveryDirectory;
@@ -1120,7 +1120,7 @@ namespace VLat.Editor.Authoring
         private void OpenDocument()
         {
             var path = OpenDocumentPathProvider != null ? OpenDocumentPathProvider() :
-                EditorUtility.OpenFilePanel("Open VLat Document", string.Empty, "json");
+                EditorUtility.OpenFilePanel("Open Kakudoll Document", string.Empty, "json");
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
@@ -1169,7 +1169,7 @@ namespace VLat.Editor.Authoring
             }
 
             var result = EditorUtility.DisplayDialogComplex(
-                "Unsaved VLat Document",
+                "Unsaved Kakudoll Document",
                 "現在の変更を保存しますか？",
                 "Save",
                 "Cancel",
@@ -1200,7 +1200,7 @@ namespace VLat.Editor.Authoring
         {
             if (SaveDocumentPathProvider != null) return SaveDocumentPathProvider();
             var path = EditorUtility.SaveFilePanel(
-                "Save VLat Document",
+                "Save Kakudoll Document",
                 string.Empty,
                 "document.vlat.json",
                 "json");

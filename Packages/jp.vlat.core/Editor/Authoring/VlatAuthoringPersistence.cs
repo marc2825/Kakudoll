@@ -21,7 +21,7 @@ namespace VLat.Editor.Authoring
         internal static VlatAuthoringDocument CreateNew(
             string avatarName = "Untitled Avatar",
             string vrmVersion = "1.0",
-            string generator = "VLat Editor")
+            string generator = "Kakudoll")
         {
             var document = VlatAuthoringDocument.CreateTemporary();
             document.Metadata.Version = VlatValidator.SupportedVersion;

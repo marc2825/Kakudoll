@@ -82,7 +82,7 @@ namespace VLat.Runtime
                 {
                     hideFlags = HideFlags.DontSave,
                 };
-                texture.name = string.IsNullOrEmpty(definition.Name) ? "VLat Texture " + index : definition.Name;
+                texture.name = string.IsNullOrEmpty(definition.Name) ? "Kakudoll Texture " + index : definition.Name;
                 if (!ImageConversion.LoadImage(texture, encoded, true))
                 {
                     DestroyObject(texture);

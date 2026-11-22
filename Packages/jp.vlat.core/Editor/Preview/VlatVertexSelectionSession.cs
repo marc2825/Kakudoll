@@ -615,7 +615,7 @@ namespace VLat.Editor.Authoring
                 BuildAdjacency(_targetGeometry.Triangles, sourceVertexCount);
                 _selectedCount = 0;
                 _diagnostic = _targets[_targetIndex].BindingIndex < 0
-                    ? "Target is not resolved to a VLat meshBinding; selection cannot be committed."
+                    ? "Target is not resolved to a Kakudoll meshBinding; selection cannot be committed."
                     : string.Empty;
                 _geometryBuildCount++;
                 return true;
@@ -1367,7 +1367,7 @@ namespace VLat.Editor.Authoring
             DestroyObject(_overlay);
             _overlay = new Texture2D(width, height, TextureFormat.RGBA32, false, true)
             {
-                name = "VLat Vertex Selection Overlay",
+                name = "Kakudoll Vertex Selection Overlay",
                 hideFlags = HideFlags.HideAndDontSave,
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp,
@@ -1558,7 +1558,7 @@ namespace VLat.Editor.Authoring
                 {
                     bakedMesh = new Mesh
                     {
-                        name = "VLat Selection Bake " + renderer.name,
+                        name = "Kakudoll Selection Bake " + renderer.name,
                         hideFlags = HideFlags.HideAndDontSave,
                     };
                     skinned.BakeMesh(bakedMesh);

@@ -1,17 +1,18 @@
 {
   "name": "jp.vlat.core",
   "version": "0.1.0",
-  "displayName": "VLat",
-  "description": "Non-destructive view-dependent layers for VRM avatars.",
+  "displayName": "Kakudoll",
+  "description": "Edit how a VRM avatar's shape changes with the viewing angle, without modifying the original assets. Files use the VLat format (.vlat.json).",
   "unity": "2022.3",
   "license": "MIT",
   "author": {
-    "name": "VLat Contributors"
+    "name": "Kakudoll Contributors"
   },
   "keywords": [
     "avatar",
     "vrm",
-    "view-dependent"
+    "view-dependent",
+    "kakudoll"
   ],
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",

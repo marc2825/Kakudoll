@@ -189,7 +189,7 @@ namespace VLat.Editor.Authoring
             }
             if (SamePositions(group.Keys[keyIndex].Deltas, positions)) return CompleteUnchanged();
             using (VlatEditorProfiling.Measure(VlatEditorPhase.CommitUndoSnapshot))
-                VlatAuthoringCommands.SetKeyformPositions(Document, groupIndex, keyIndex, positions, "Drag VLat Keyform Positions");
+                VlatAuthoringCommands.SetKeyformPositions(Document, groupIndex, keyIndex, positions, "Drag Kakudoll Keyform Positions");
             CommitChange();
             return true;
         }

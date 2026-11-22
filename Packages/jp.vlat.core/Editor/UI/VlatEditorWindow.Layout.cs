@@ -156,7 +156,7 @@ namespace VLat.Editor.Authoring
         }
 
         private const string KeyformVersionNote =
-            "Keyform v0.2文書です。Keyform対応のVLat Editorで編集できます（Keyform非対応の旧Runtime・旧Editorでは読み込めません）。";
+            "Keyform v0.2文書です。Keyform対応のKakudollで編集できます（Keyform非対応の旧Runtime・旧Editorでは読み込めません）。";
 
         // 同じ内容の重複を1件にまとめ、Keyform v0.2文書のnewer-minor警告（仕様上の旧backend向け注意）は情報表示にする。
         private void RebuildDiagnosticItems()

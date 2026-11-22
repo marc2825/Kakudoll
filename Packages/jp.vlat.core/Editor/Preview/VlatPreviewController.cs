@@ -134,7 +134,7 @@ namespace VLat.Editor.Authoring
         internal string PerformanceSummary =>
             "Refresh: " + _lastRenderMilliseconds.ToString("F2") + " ms" +
             " / avg " + _averageRenderMilliseconds.ToString("F2") + " ms" +
-            " / VLat eval " + _lastEvaluationMilliseconds.ToString("F2") + " ms" +
+            " / Kakudoll eval " + _lastEvaluationMilliseconds.ToString("F2") + " ms" +
             " / cameras " + _lastRenderOnlyMilliseconds.ToString("F2") + " ms" +
             " / rebuild " + _lastRebuildMilliseconds.ToString("F2") + " ms";
         internal string ResourceSummary =>
@@ -366,7 +366,7 @@ namespace VLat.Editor.Authoring
             ReleaseTarget(index);
             var target = new RenderTexture(textureWidth, textureHeight, 24, RenderTextureFormat.ARGB32)
             {
-                name = "VLat Preview " + (VlatPreviewView)index,
+                name = "Kakudoll Preview " + (VlatPreviewView)index,
                 antiAliasing = 1,
                 hideFlags = HideFlags.HideAndDontSave,
             };
@@ -705,7 +705,7 @@ namespace VLat.Editor.Authoring
         {
             for (var index = 0; index < ViewCount; index++)
             {
-                var cameraObject = new GameObject("VLat Preview Camera " + index)
+                var cameraObject = new GameObject("Kakudoll Preview Camera " + index)
                 {
                     hideFlags = HideFlags.HideAndDontSave,
                 };
@@ -726,7 +726,7 @@ namespace VLat.Editor.Authoring
                     EditorSceneManager.GetSceneCullingMask(_previewScene);
             }
 
-            var lightObject = new GameObject("VLat Preview Key Light")
+            var lightObject = new GameObject("Kakudoll Preview Key Light")
             {
                 hideFlags = HideFlags.HideAndDontSave,
             };
@@ -736,7 +736,7 @@ namespace VLat.Editor.Authoring
             light.transform.rotation = Quaternion.Euler(35f, 135f, 0f);
             SceneManager.MoveGameObjectToScene(lightObject, _previewScene);
 
-            var fillObject = new GameObject("VLat Preview Fill Light")
+            var fillObject = new GameObject("Kakudoll Preview Fill Light")
             {
                 hideFlags = HideFlags.HideAndDontSave,
             };
@@ -877,7 +877,7 @@ namespace VLat.Editor.Authoring
             {
                 BindingReport = null;
                 _vertexSelection.SetBindingReport(null);
-                _diagnostics.Add("VLat selection binding unavailable: " + exception.Message);
+                _diagnostics.Add("Kakudoll selection binding unavailable: " + exception.Message);
             }
 
             UniVrmAdapter.TryGetHead(_avatar, out _head);
@@ -913,7 +913,7 @@ namespace VLat.Editor.Authoring
             {
                 State = VlatPreviewState.AvatarOnly;
                 _diagnostics.Add(
-                    "VLat not applicable: document has no layers; baseline avatar preview continues.");
+                    "Kakudoll not applicable: document has no layers; baseline avatar preview continues.");
                 return;
             }
 
@@ -943,7 +943,7 @@ namespace VLat.Editor.Authoring
                 var diagnostic = result.Diagnostics[index];
                 _vlatDiagnostics.Add(diagnostic);
                 _diagnostics.Add(
-                    (result.Success ? "VLat diagnostic " : "VLat not applicable ") +
+                    (result.Success ? "Kakudoll diagnostic " : "Kakudoll not applicable ") +
                     diagnostic.Path + ": " + diagnostic.Message);
             }
 
@@ -996,7 +996,7 @@ namespace VLat.Editor.Authoring
                     var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false)
                     {
                         name = string.IsNullOrWhiteSpace(definition.Name)
-                            ? "VLat Preview Texture " + index
+                            ? "Kakudoll Preview Texture " + index
                             : definition.Name,
                         hideFlags = HideFlags.HideAndDontSave,
                     };
@@ -1010,7 +1010,7 @@ namespace VLat.Editor.Authoring
                 }
                 catch (Exception exception)
                 {
-                    _diagnostics.Add("VLat preview texture[" + index + "]: " + exception.Message);
+                    _diagnostics.Add("Kakudoll preview texture[" + index + "]: " + exception.Message);
                 }
             }
 
@@ -1060,7 +1060,7 @@ namespace VLat.Editor.Authoring
             {
                 var diagnostic = diagnostics[index];
                 _diagnostics.Add(
-                    "VLat not applicable " + diagnostic.Path + ": " + diagnostic.Message);
+                    "Kakudoll not applicable " + diagnostic.Path + ": " + diagnostic.Message);
             }
         }
 
@@ -1182,24 +1182,24 @@ namespace VLat.Editor.Authoring
             switch (State)
             {
                 case VlatPreviewState.AvatarOnly:
-                    return "Avatar loaded / VLat not applied";
+                    return "Avatar loaded / Kakudoll not applied";
                 case VlatPreviewState.AvatarWithVLat:
                     if (KeyformDragEnabled && _keyformPreview != null)
                         return "Keyform 2D編集 / Mainは選択キー固定 / Sub A・Bは確定済みYaw補間 / 表情は中立";
                     if (!_applicationEnabled)
                     {
-                        return "Avatar loaded / VLat applied / Before (application disabled)";
+                        return "Avatar loaded / Kakudoll applied / Before (application disabled)";
                     }
 
                     if (_keyformPreview != null)
                         return "Keyform 補間 / yaw-smoothstep / " + GetKeyformBlendSummary(0) +
                             " / " + GetKeyformBlendSummary(1) + " / " + GetKeyformBlendSummary(2);
                     return _applier != null && _applier.IsInitialized
-                        ? "Avatar loaded / VLat applied / active bands " + _applier.ActiveBandCount +
+                        ? "Avatar loaded / Kakudoll applied / active bands " + _applier.ActiveBandCount +
                             " / applied modifiers " + _applier.AppliedModifierCount
-                        : "Avatar loaded / VLat applied";
+                        : "Avatar loaded / Kakudoll applied";
                 case VlatPreviewState.VLatUnavailable:
-                    return "Avatar loaded / VLat not applicable / rebind required";
+                    return "Avatar loaded / Kakudoll not applicable / rebind required";
                 case VlatPreviewState.AvatarLoadError:
                     return "Avatar load error";
                 default:

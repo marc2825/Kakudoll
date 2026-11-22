@@ -6,7 +6,7 @@
     -->
     <ui:VisualElement class="vlat-root">
         <ui:VisualElement name="toolbar" class="vlat-toolbar">
-            <ui:Button name="new-button" text="新規" tooltip="新しいVLatドキュメントを作成します。未保存の変更がある場合は確認します。" />
+            <ui:Button name="new-button" text="新規" tooltip="新しいKakudollドキュメントを作成します。未保存の変更がある場合は確認します。" />
             <ui:Button name="open-button" text="開く…" tooltip="既存の .vlat.json を開きます。" />
             <ui:Button name="save-button" text="保存" tooltip="現在のファイルへ保存します。" />
             <ui:Button name="save-as-button" text="別名で保存…" tooltip="保存先を選んで保存します。" />

@@ -36,7 +36,7 @@ namespace VLat.Editor.Authoring
     internal sealed class VlatAuthoringMetadata
     {
         [SerializeField] private string _version = "0.1.0";
-        [SerializeField] private string _generator = "VLat Editor";
+        [SerializeField] private string _generator = "Kakudoll";
         [SerializeField] private string _avatarName = string.Empty;
         [SerializeField] private string _vrmVersion = "1.0";
         [SerializeField] private List<VlatAuthoringMeshBinding> _meshBindings = new List<VlatAuthoringMeshBinding>();

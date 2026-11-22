@@ -11,7 +11,7 @@ namespace VLat.Editor
 {
     internal static class SampleDocumentGenerator
     {
-        private const string MenuPath = "VLat/Dev/Generate Sample Document";
+        private const string MenuPath = "Kakudoll/Dev/Generate Sample Document";
         private const float DeltaMagnitude = 0.02f;
 
         [MenuItem(MenuPath, true)]
@@ -32,7 +32,7 @@ namespace VLat.Editor
             if (renderer == null || instance == null || renderer.sharedMesh == null)
             {
                 EditorUtility.DisplayDialog(
-                    "VLat Sample",
+                    "Kakudoll Sample",
                     "Vrm10Instance配下のSkinnedMeshRendererを選択してください。",
                     "OK");
                 return;
@@ -47,7 +47,7 @@ namespace VLat.Editor
             catch (Exception exception)
             {
                 EditorUtility.DisplayDialog(
-                    "VLat Sample",
+                    "Kakudoll Sample",
                     "選択Meshの頂点を読み取れません。Read/Write設定を確認してください。\n" + exception.Message,
                     "OK");
                 return;
@@ -55,12 +55,12 @@ namespace VLat.Editor
 
             if (vertices.Length == 0 || mesh.subMeshCount == 0)
             {
-                EditorUtility.DisplayDialog("VLat Sample", "頂点とsubMeshを持つMeshを選択してください。", "OK");
+                EditorUtility.DisplayDialog("Kakudoll Sample", "頂点とsubMeshを持つMeshを選択してください。", "OK");
                 return;
             }
 
             var jsonPath = EditorUtility.SaveFilePanel(
-                "Save VLat sample document",
+                "Save Kakudoll sample document",
                 Application.dataPath,
                 renderer.name + ".vlat.json",
                 "json");
@@ -92,19 +92,19 @@ namespace VLat.Editor
                     var message = result.Diagnostics.Count == 0
                         ? "不明な保存エラーです。"
                         : result.Diagnostics[0].Path + ": " + result.Diagnostics[0].Message;
-                    EditorUtility.DisplayDialog("VLat Sample", message, "OK");
+                    EditorUtility.DisplayDialog("Kakudoll Sample", message, "OK");
                     return;
                 }
 
                 AssetDatabase.Refresh();
                 EditorUtility.DisplayDialog(
-                    "VLat Sample",
+                    "Kakudoll Sample",
                     "選択したMeshを対象とする左右横顔用サンプルを保存しました。\n" + jsonPath,
                     "OK");
             }
             catch (Exception exception)
             {
-                EditorUtility.DisplayDialog("VLat Sample", "生成に失敗しました。\n" + exception.Message, "OK");
+                EditorUtility.DisplayDialog("Kakudoll Sample", "生成に失敗しました。\n" + exception.Message, "OK");
             }
         }
 
@@ -139,7 +139,7 @@ namespace VLat.Editor
                 materials);
             var metadata = new VlatMetadata(
                 "0.1.0",
-                "VLat Sample Generator",
+                "Kakudoll Sample Generator",
                 new TargetAvatar(instance.name, "1.0", new[] { binding }));
             var indices = new VlatAccessor(0, "UINT32");
             var positions = new VlatAccessor(1, "FLOAT32");

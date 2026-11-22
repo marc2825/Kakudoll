@@ -76,7 +76,7 @@ namespace VLat.Editor.Authoring
                 state.SelectionParentIdentity);
             Selection.Reconcile(Document);
             ValidateEditing();
-            LastMessage = "前回のVLat Editorセッションを復元しました。";
+            LastMessage = "前回のKakudollセッションを復元しました。";
             PersistRecovery();
             return true;
         }
@@ -93,7 +93,7 @@ namespace VLat.Editor.Authoring
 
             var document = VlatAuthoringPersistence.CreateNew();
             ReplaceDocument(document, document.Revision);
-            LastMessage = "新しいVLatドキュメントを作成しました。";
+            LastMessage = "新しいKakudollドキュメントを作成しました。";
             return true;
         }
 
@@ -108,7 +108,7 @@ namespace VLat.Editor.Authoring
             if (!loadResult.Success)
             {
                 _diagnostics = loadResult.Diagnostics;
-                LastMessage = "VLatドキュメントを開けませんでした。現在の編集内容は保持されています。";
+                LastMessage = "Kakudollドキュメントを開けませんでした。現在の編集内容は保持されています。";
                 return false;
             }
 
@@ -122,7 +122,7 @@ namespace VLat.Editor.Authoring
             // diagnostics/LastMessageはRecovery対象外なので、同一snapshotを二重に書かない。
             ReplaceDocument(loadResult.Document, loadResult.Document.Revision);
             _diagnostics = loadResult.Diagnostics;
-            LastMessage = "VLatドキュメントを開きました。";
+            LastMessage = "Kakudollドキュメントを開きました。";
             return true;
         }
 
@@ -161,7 +161,7 @@ namespace VLat.Editor.Authoring
             _recoveryStore.Clear();
             ReleaseDocument();
             _diagnostics = Array.Empty<VlatDiagnostic>();
-            LastMessage = "VLat Editorセッションを閉じました。";
+            LastMessage = "Kakudollセッションを閉じました。";
             return true;
         }
 
@@ -565,7 +565,7 @@ namespace VLat.Editor.Authoring
             ValidateEditing();
             _savedContent = _currentContent;
             Document.MarkSaved(_sourcePath);
-            LastMessage = "VLatドキュメントを保存しました。";
+            LastMessage = "Kakudollドキュメントを保存しました。";
             PersistRecovery();
             return true;
         }
@@ -770,7 +770,7 @@ namespace VLat.Editor.Authoring
             RequireNotDisposed();
             if (Document == null)
             {
-                throw new InvalidOperationException("VLatドキュメントがありません。");
+                throw new InvalidOperationException("Kakudollドキュメントがありません。");
             }
 
             return Document;

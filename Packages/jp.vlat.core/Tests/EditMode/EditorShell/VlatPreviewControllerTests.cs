@@ -509,7 +509,7 @@ namespace VLat.Tests.Edit
                 Assert.That(controller.State, Is.EqualTo(VlatPreviewState.AvatarWithVLat));
                 Assert.That(controller.BindingReport, Is.Not.Null);
                 Assert.That(controller.BindingReport.AllSucceeded, Is.True);
-                Assert.That(controller.DiagnosticSummary, Does.Contain("VLat applied"));
+                Assert.That(controller.DiagnosticSummary, Does.Contain("Kakudoll applied"));
                 Assert.That(controller.DiagnosticSummary, Does.Not.Contain("UpdateType"));
                 Assert.That(ContainsRuntimeMessage(controller.VlatDiagnostics, "UpdateType"), Is.False);
 
@@ -584,7 +584,7 @@ namespace VLat.Tests.Edit
                 Assert.That(controller.State, Is.EqualTo(VlatPreviewState.VLatUnavailable));
                 Assert.That(controller.HasAvatar, Is.True);
                 Assert.That(controller.BindingReport, Is.Null);
-                Assert.That(controller.DiagnosticSummary, Does.Contain("VLat not applicable"));
+                Assert.That(controller.DiagnosticSummary, Does.Contain("Kakudoll not applicable"));
                 Assert.That(controller.DiagnosticSummary, Does.Not.Contain("ERROR"));
                 controller.SetExpressionWeight(0, 0.5f);
                 controller.ResetView(VlatPreviewView.Main);
@@ -623,7 +623,7 @@ namespace VLat.Tests.Edit
                 var lightCount = 0;
                 for (var rootIndex = 0; rootIndex < roots.Length; rootIndex++)
                 {
-                    if (roots[rootIndex].name == "VLat Preview Camera 0")
+                    if (roots[rootIndex].name == "Kakudoll Preview Camera 0")
                     {
                         mainCamera = roots[rootIndex].GetComponent<Camera>();
                     }

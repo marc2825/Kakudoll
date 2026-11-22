@@ -141,7 +141,7 @@ namespace VLat.Runtime
 
             if (document.Metadata == null || document.Metadata.TargetAvatar == null)
             {
-                throw new ArgumentException("VLatドキュメントにtargetAvatarがありません。", nameof(document));
+                throw new ArgumentException("KakudollドキュメントにtargetAvatarがありません。", nameof(document));
             }
 
             var candidates = CollectCandidates(avatarRoot);

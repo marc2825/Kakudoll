@@ -14,7 +14,7 @@ namespace VLat.Editor.Authoring
             string vrmVersion)
         {
             RequireDocument(document);
-            Record(document, "Edit VLat Metadata");
+            Record(document, "Edit Kakudoll Metadata");
             document.Metadata.Version = version;
             document.Metadata.Generator = generator;
             document.Metadata.AvatarName = avatarName;
@@ -25,7 +25,7 @@ namespace VLat.Editor.Authoring
         internal static void SetGenerator(VlatAuthoringDocument document, string value)
         {
             RequireDocument(document);
-            Record(document, "Edit VLat Generator");
+            Record(document, "Edit Kakudoll Generator");
             document.Metadata.Generator = value;
             Finish(document);
         }
@@ -44,7 +44,7 @@ namespace VLat.Editor.Authoring
             double hysteresis)
         {
             var band = GetBand(document, bandIndex);
-            Record(document, "Edit VLat Band");
+            Record(document, "Edit Kakudoll Band");
             band.Id = id;
             band.Name = name;
             band.YawMin = yawMin;
@@ -68,7 +68,7 @@ namespace VLat.Editor.Authoring
             string bandId)
         {
             var layer = GetLayer(document, layerIndex);
-            Record(document, "Edit VLat Layer");
+            Record(document, "Edit Kakudoll Layer");
             layer.Id = id;
             layer.Name = name;
             layer.Tag = tag;
@@ -81,7 +81,7 @@ namespace VLat.Editor.Authoring
         internal static void SetLayerName(VlatAuthoringDocument document, int layerIndex, string value)
         {
             var layer = GetLayer(document, layerIndex);
-            Record(document, "Edit VLat Layer");
+            Record(document, "Edit Kakudoll Layer");
             layer.Name = value;
             Finish(document);
         }
@@ -95,7 +95,7 @@ namespace VLat.Editor.Authoring
             }
 
             _ = layer.EditorIdentity;
-            Record(document, "Add VLat Layer");
+            Record(document, "Add Kakudoll Layer");
             document.Layers.Add(layer);
             Finish(document);
         }
@@ -103,7 +103,7 @@ namespace VLat.Editor.Authoring
         internal static void RemoveLayer(VlatAuthoringDocument document, int layerIndex)
         {
             GetLayer(document, layerIndex);
-            Record(document, "Remove VLat Layer");
+            Record(document, "Remove Kakudoll Layer");
             document.Layers.RemoveAt(layerIndex);
             Finish(document);
         }
@@ -111,7 +111,7 @@ namespace VLat.Editor.Authoring
         internal static void MoveLayer(VlatAuthoringDocument document, int fromIndex, int toIndex)
         {
             RequireDocument(document);
-            Move(document, document.Layers, fromIndex, toIndex, "Reorder VLat Layer");
+            Move(document, document.Layers, fromIndex, toIndex, "Reorder Kakudoll Layer");
         }
 
         internal static void AddBand(VlatAuthoringDocument document, VlatAuthoringBand band)
@@ -123,7 +123,7 @@ namespace VLat.Editor.Authoring
             }
 
             _ = band.EditorIdentity;
-            Record(document, "Add VLat Band");
+            Record(document, "Add Kakudoll Band");
             document.Bands.Add(band);
             Finish(document);
         }
@@ -131,7 +131,7 @@ namespace VLat.Editor.Authoring
         internal static void RemoveBand(VlatAuthoringDocument document, int bandIndex)
         {
             GetBand(document, bandIndex);
-            Record(document, "Remove VLat Band");
+            Record(document, "Remove Kakudoll Band");
             document.Bands.RemoveAt(bandIndex);
             Finish(document);
         }
@@ -139,7 +139,7 @@ namespace VLat.Editor.Authoring
         internal static void MoveBand(VlatAuthoringDocument document, int fromIndex, int toIndex)
         {
             RequireDocument(document);
-            Move(document, document.Bands, fromIndex, toIndex, "Reorder VLat Band");
+            Move(document, document.Bands, fromIndex, toIndex, "Reorder Kakudoll Band");
         }
 
         internal static void AddModifier(
@@ -154,7 +154,7 @@ namespace VLat.Editor.Authoring
             }
 
             _ = modifier.EditorIdentity;
-            Record(document, "Add VLat Modifier");
+            Record(document, "Add Kakudoll Modifier");
             layer.Modifiers.Add(modifier);
             Finish(document);
         }
@@ -166,7 +166,7 @@ namespace VLat.Editor.Authoring
         {
             var layer = GetLayer(document, layerIndex);
             GetModifier(layer, modifierIndex);
-            Record(document, "Remove VLat Modifier");
+            Record(document, "Remove Kakudoll Modifier");
             layer.Modifiers.RemoveAt(modifierIndex);
             Finish(document);
         }
@@ -178,7 +178,7 @@ namespace VLat.Editor.Authoring
             int toIndex)
         {
             var layer = GetLayer(document, layerIndex);
-            Move(document, layer.Modifiers, fromIndex, toIndex, "Reorder VLat Modifier");
+            Move(document, layer.Modifiers, fromIndex, toIndex, "Reorder Kakudoll Modifier");
         }
 
         internal static void SetVertexDeltaModifier(
@@ -189,7 +189,7 @@ namespace VLat.Editor.Authoring
             bool hasNormals)
         {
             var modifier = GetModifier<VlatAuthoringVertexDeltaModifier>(document, layerIndex, modifierIndex);
-            Record(document, "Edit VLat Vertex Delta Modifier");
+            Record(document, "Edit Kakudoll Vertex Delta Modifier");
             modifier.MeshBinding = meshBinding;
             modifier.HasNormals = hasNormals;
             Finish(document);
@@ -204,7 +204,7 @@ namespace VLat.Editor.Authoring
             bool visibleInBand)
         {
             var modifier = GetModifier<VlatAuthoringVisibilityModifier>(document, layerIndex, modifierIndex);
-            Record(document, "Edit VLat Visibility Modifier");
+            Record(document, "Edit Kakudoll Visibility Modifier");
             modifier.MeshBinding = meshBinding;
             modifier.SubMesh = subMesh;
             modifier.VisibleInBand = visibleInBand;
@@ -220,7 +220,7 @@ namespace VLat.Editor.Authoring
             double value)
         {
             var modifier = GetModifier<VlatAuthoringOpacityModifier>(document, layerIndex, modifierIndex);
-            Record(document, "Edit VLat Opacity Modifier");
+            Record(document, "Edit Kakudoll Opacity Modifier");
             modifier.MeshBinding = meshBinding;
             modifier.MaterialSlot = materialSlot;
             modifier.Value = value;
@@ -244,7 +244,7 @@ namespace VLat.Editor.Authoring
                 document,
                 layerIndex,
                 modifierIndex);
-            Record(document, "Edit VLat Material Property Modifier");
+            Record(document, "Edit Kakudoll Material Property Modifier");
             modifier.MeshBinding = meshBinding;
             modifier.MaterialSlot = materialSlot;
             modifier.Property = property;
@@ -273,7 +273,7 @@ namespace VLat.Editor.Authoring
             int offset)
         {
             var modifier = GetModifier<VlatAuthoringRenderQueueModifier>(document, layerIndex, modifierIndex);
-            Record(document, "Edit VLat Render Queue Modifier");
+            Record(document, "Edit Kakudoll Render Queue Modifier");
             modifier.MeshBinding = meshBinding;
             modifier.MaterialSlot = materialSlot;
             modifier.Offset = offset;
@@ -298,7 +298,7 @@ namespace VLat.Editor.Authoring
                 throw new ArgumentNullException(nameof(value));
             }
 
-            Record(document, "Edit VLat Vertex Delta");
+            Record(document, "Edit Kakudoll Vertex Delta");
             modifier.Deltas[deltaIndex] = value.Copy();
             Finish(document);
         }
@@ -315,7 +315,7 @@ namespace VLat.Editor.Authoring
                 throw new ArgumentNullException(nameof(value));
             }
 
-            Record(document, "Add VLat Vertex Delta");
+            Record(document, "Add Kakudoll Vertex Delta");
             modifier.Deltas.Add(value.Copy());
             Finish(document);
         }
@@ -332,7 +332,7 @@ namespace VLat.Editor.Authoring
                 throw new ArgumentOutOfRangeException(nameof(deltaIndex));
             }
 
-            Record(document, "Remove VLat Vertex Delta");
+            Record(document, "Remove Kakudoll Vertex Delta");
             modifier.Deltas.RemoveAt(deltaIndex);
             Finish(document);
         }

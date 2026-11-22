@@ -7,7 +7,7 @@ namespace VLat.Editor.Authoring
     {
         internal static void AddKeyformGroup(VlatAuthoringDocument document, VlatAuthoringKeyformGroup group)
         {
-            Record(document, "Add VLat Keyform Group");
+            Record(document, "Add Kakudoll Keyform Group");
             document.Metadata.Version = VlatValidator.KeyformVersion;
             document.KeyformGroups.Add(group);
             Finish(document);
@@ -15,7 +15,7 @@ namespace VLat.Editor.Authoring
 
         internal static void RemoveKeyformGroup(VlatAuthoringDocument document, int index)
         {
-            Record(document, "Remove VLat Keyform Group");
+            Record(document, "Remove Kakudoll Keyform Group");
             document.KeyformGroups.RemoveAt(index);
             if (document.KeyformGroups.Count == 0) document.Metadata.Version = VlatValidator.SupportedVersion;
             Finish(document);
@@ -24,7 +24,7 @@ namespace VLat.Editor.Authoring
         internal static void SetKeyformGroup(VlatAuthoringDocument document, int groupIndex,
             string id, double supportStart, double supportEnd)
         {
-            Record(document, "Edit VLat Keyform Group");
+            Record(document, "Edit Kakudoll Keyform Group");
             var group = document.KeyformGroups[groupIndex];
             group.Id = id;
             group.SupportStart = supportStart;
@@ -35,7 +35,7 @@ namespace VLat.Editor.Authoring
         internal static void BindKeyformGroup(VlatAuthoringDocument document, int groupIndex,
             VlatAuthoringMeshBinding binding, string topologyHash)
         {
-            Record(document, "Bind VLat Keyform Target");
+            Record(document, "Bind Kakudoll Keyform Target");
             var group = document.KeyformGroups[groupIndex];
             if (group.MeshBinding < 0 || group.MeshBinding >= document.Metadata.MeshBindings.Count)
             {
@@ -49,7 +49,7 @@ namespace VLat.Editor.Authoring
 
         internal static void AddKeyform(VlatAuthoringDocument document, int groupIndex, VlatAuthoringKeyform key)
         {
-            Record(document, "Add VLat Keyform");
+            Record(document, "Add Kakudoll Keyform");
             var keys = document.KeyformGroups[groupIndex].Keys;
             keys.Add(key);
             keys.Sort((a, b) => a.Yaw.CompareTo(b.Yaw));
@@ -58,14 +58,14 @@ namespace VLat.Editor.Authoring
 
         internal static void RemoveKeyform(VlatAuthoringDocument document, int groupIndex, int keyIndex)
         {
-            Record(document, "Remove VLat Keyform");
+            Record(document, "Remove Kakudoll Keyform");
             document.KeyformGroups[groupIndex].Keys.RemoveAt(keyIndex);
             Finish(document);
         }
 
         internal static void SetKeyformYaw(VlatAuthoringDocument document, int groupIndex, int keyIndex, double yaw)
         {
-            Record(document, "Edit VLat Keyform Yaw");
+            Record(document, "Edit Kakudoll Keyform Yaw");
             var keys = document.KeyformGroups[groupIndex].Keys;
             keys[keyIndex].Yaw = yaw;
             keys.Sort((a, b) => a.Yaw.CompareTo(b.Yaw));
@@ -74,7 +74,7 @@ namespace VLat.Editor.Authoring
 
         // 1Dの直接編集も、この一括差分commitへ接続する。頂点ごとのUndoは作らない。
         internal static void SetKeyformPositions(VlatAuthoringDocument document, int groupIndex, int keyIndex,
-            IReadOnlyList<VlatAuthoringVertexDelta> positions, string undoName = "Import VLat Keyform Positions")
+            IReadOnlyList<VlatAuthoringVertexDelta> positions, string undoName = "Import Kakudoll Keyform Positions")
         {
             var copy = new List<VlatAuthoringVertexDelta>(positions.Count);
             for (var i = 0; i < positions.Count; i++) copy.Add(positions[i].Copy());

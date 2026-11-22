@@ -419,7 +419,7 @@ namespace VLat.Runtime
             }
             else if (instance.UpdateType == Vrm10Instance.UpdateTypes.None)
             {
-                diagnostics.Add(Warning("$", "Vrm10Instance.UpdateTypeがNoneです。VLatより前にVRMを手動更新してください。"));
+                diagnostics.Add(Warning("$", "Vrm10Instance.UpdateTypeがNoneです。Kakudollより前にVRMを手動更新してください。"));
             }
 
             return InitializeInternal(

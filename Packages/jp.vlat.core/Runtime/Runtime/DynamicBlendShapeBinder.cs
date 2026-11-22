@@ -240,7 +240,7 @@ namespace VLat.Runtime
                 if (state == null)
                 {
                     generatedMesh = UnityEngine.Object.Instantiate(sourceMesh);
-                    generatedMesh.name = sourceMesh.name + " (VLat Runtime)";
+                    generatedMesh.name = sourceMesh.name + " (Kakudoll Runtime)";
                     createdMesh = true;
                 }
                 else
