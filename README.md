@@ -154,10 +154,11 @@ CI の設定と、Unity のテストを CI で動かす方法は [docs/CI_SETUP.
 | 対象 | 実行した場所 | 結果 | 日付・コミット・環境 |
 |---|---|---|---|
 | ライセンス不要の検証（Schema、Core NUnit 140 件、netstandard2.1 build、公開監査ツールの試験、保存中の強制終了 50 回、保存済み実験結果） | ローカル | PASS（非配布ファイルを使う 5 件は NOT RUN） | 2026-11-22、`20a9449`、WSL2 Ubuntu 24.04 / .NET SDK 10.0.115 / Python 3.12 |
-| 同上 | GitHub Actions | push・PR ごとに実行 | 各 run の Job Summary |
+| 同上 | GitHub Actions | PASS（push・PR ごとに実行） | 2026-11-22、`2ee4989`、ubuntu-24.04。以降は各 run の Job Summary |
 | Unity EditMode | ローカル | 413/413 PASS。`VLat.Core` の行カバレッジ 90.82%（下限 80%） | 2026-11-22、`20a9449`、Windows 11 Pro（26200）/ Unity 2022.3.62f3 / D3D11 |
 | Unity PlayMode | ローカル | 4/4 PASS。7 万頂点・20 Layer の定常評価は中央値 11.71 µs/frame（上限 300 µs）、GC 割り当て 0 | 同上 |
-| Unity EditMode / PlayMode | GitHub Actions | **NOT RUN**（Unity ライセンスの Secret が未設定） | — |
+| Unity EditMode / PlayMode | GitHub Actions | **NOT RUN**（Unity ライセンスの Secret が未設定） | 2026-11-22、`2ee4989` |
+| 履歴の監査（Gitleaks・全 ref の禁止ファイル検査） | GitHub Actions | PASS（作者メールの検査は許可リスト未設定のため NOT RUN） | 2026-11-22、`2ee4989` |
 | 新しいプロジェクトへの導入（Git URL・ローカルパス）・メニュー表示・サンプルの読み書き・削除 | ローカル | PASS | 2026-11-22、`20a9449`、Unity 2022.3.62f3 / UniVRM v0.128.3 / Windows 11 |
 | VRChat クライアント・HMD | — | **NOT RUN** | [ROADMAP](docs/product/ROADMAP.md) 段階 5 |
 
