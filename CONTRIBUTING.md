@@ -3,6 +3,11 @@
 Kakudoll は開発中です。不具合の報告、提案、Pull Request を歓迎します。
 大きな変更は、先に Issue で相談してください。
 
+- 不具合・提案: [Issue](https://github.com/marc2825/Kakudoll/issues/new/choose)（テンプレートがあります）
+- 質問・アイデア: [Discussions](https://github.com/marc2825/Kakudoll/discussions)
+- 脆弱性: 公開の場には書かず [SECURITY.md](SECURITY.md) の方法で
+- 今後の予定: [ROADMAP](docs/product/ROADMAP.md)
+
 ## 開発環境
 
 - Unity 2022.3.62f3（Built-in Render Pipeline）、C# 9、UI Toolkit
@@ -26,7 +31,10 @@ python3 scripts/run_license_free_checks.py
 ```
 
 Unity のテストは Test Runner（Window > General > Test Runner）から実行してください。
-Pull Request には、実行したコマンド、Unity のバージョン、OS、結果を書いてください。
+Pull Request には、実行したコマンド、Unity のバージョン、OS、結果を書いてください（テンプレートがあります）。
+fork からの Pull Request では Unity のテストが CI で動かない（NOT RUN になる）ため、手元の結果を書いてください。
+
+変更は [CHANGELOG](Packages/jp.vlat.core/CHANGELOG.md) の `[Unreleased]` に追記してください。版の付け方は [RELEASING.md](docs/product/RELEASING.md) にあります。
 
 ## 入れないでほしいもの
 

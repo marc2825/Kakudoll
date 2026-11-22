@@ -1,0 +1,56 @@
+name: 不具合の報告 / Bug report
+description: 動かない・おかしい動作の報告 / Something does not work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        第三者のアバター、テクスチャ、スクリーンショット、個人のパスを含むログは添付しないでください。
+        Please do not attach third-party avatars, textures, screenshots of them, or logs with personal paths.
+        セキュリティの問題は Issue ではなく SECURITY.md の方法で報告してください。
+  - type: textarea
+    id: what
+    attributes:
+      label: 起きたこと / What happened
+      description: 期待した動作と、実際の動作 / Expected and actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順 / Steps to reproduce
+      placeholder: |
+        1. Kakudoll > Editor を開く
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: kakudoll
+    attributes:
+      label: Kakudoll の版またはコミット / Kakudoll version or commit
+      placeholder: "0.1.0 / 1a2b3c4"
+    validations:
+      required: true
+  - type: input
+    id: unity
+    attributes:
+      label: Unity の版 / Unity version
+      placeholder: "2022.3.62f3"
+    validations:
+      required: true
+  - type: input
+    id: univrm
+    attributes:
+      label: UniVRM の版 / UniVRM version
+      placeholder: "v0.128.3"
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "Windows 11 23H2"
+  - type: textarea
+    id: log
+    attributes:
+      label: ログ・診断メッセージ / Log or diagnostics
+      description: Kakudoll の診断や Console のエラー。個人のパスは伏せてください。/ Remove personal paths.
+      render: text

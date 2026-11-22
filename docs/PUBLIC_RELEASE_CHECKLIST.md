@@ -3,6 +3,8 @@
 - 実施日: 2026-11-22
 - 対象: `main` のコミット `4679729db3f359f902aeaab37c919731b5ab1fc7`（追跡ファイル 690 件、履歴 3 コミット）
 - 関連: Issue #5
+- 追記（同日）: この監査のあと `main` に入ったのは、コード・テスト・文書・CI設定・`.gitleaks.toml`・Issue/PRテンプレートだけで、
+  画像・Unityアセット・実験結果は追加していない。追加後も自動スキャン（現行ツリー・全履歴・Gitleaks）は PASS
 - 範囲: 追跡ファイル全体、Git の作者情報と全 ref、GitHub 上の Issue #1〜#8 の本文、最新 CI の成果物
 
 自動スキャナー（[`scripts/check_public_export.py`](../scripts/check_public_export.py)）の PASS は、画像・アセットの権利までは保証しません。
@@ -172,7 +174,20 @@ THIRD_PARTY_NOTICES に載っていない、開発・CI だけで使うもの（
 - [ ] 公開するときに push するのは `main` だけで、ローカルの作業用ブランチは含めない。
 - [ ] Issue #1〜#8 の本文が公開されてよい。
 
-## 10. 再実行の手順
+## 10. 公開するときの手順
+
+リポジトリを Public にする前後で、所有者が GitHub の設定を変えます（Private のままでは使えない設定を含みます）。
+
+- [ ] Actions の Secret（`UNITY_EMAIL` / `UNITY_PASSWORD` / `UNITY_LICENSE` など）を登録する（[CI_SETUP.md](CI_SETUP.md)）
+- [ ] リポジトリ変数 `VLAT_PUBLIC_AUTHOR_EMAILS` に、公開してよい作者メールを登録する
+- [ ] Actions → CI → Run workflow（`release_check` にチェック）で `main` を実行し、`Release readiness` が READY になる
+- [ ] 9章の所有者確認がすべて済んでいる
+- [ ] Public に変更する（push するのは `main` とリリースのタグだけ）
+- [ ] Settings → Security で **Private vulnerability reporting** を有効にする（[SECURITY.md](../SECURITY.md) の報告先。Public のリポジトリでだけ使える）
+- [ ] Settings → General で **Discussions** を有効にする（Issue テンプレートの質問先）
+- [ ] 公開後、README の Git URL で新しいプロジェクトに導入できることを確かめる（[RELEASING.md](product/RELEASING.md) 手順 7）
+
+## 11. 再実行の手順
 
 リポジトリのルートで実行します。
 
