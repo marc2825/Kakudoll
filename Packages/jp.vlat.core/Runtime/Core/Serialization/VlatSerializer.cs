@@ -11,16 +11,41 @@ using VLat.Core.Validation;
 namespace VLat.Core.Serialization
 {
     /// <summary>VLatのJSONドキュメントと外部バイナリを読み書きします。</summary>
-    public static class VlatSerializer
+    /// <remarks>
+    /// ファイルを扱うLoad/Saveは既定で安全モード（<see cref="VlatFileAccessPolicy.Default"/>）です。
+    /// 外部ファイルはJSONファイルのフォルダ内に限り、<see cref="VlatReadLimits"/>の上限を超える入力は
+    /// 確保前に拒否します。
+    /// </remarks>
+    public static partial class VlatSerializer
     {
         /// <summary>JSON文字列をVLatドキュメントへ変換し、バイナリを除く意味検証を実行します。</summary>
         /// <param name="json">UTF-8 JSONに相当する文字列。</param>
         /// <returns>ドキュメント、診断、および空のバイナリ一覧を含む結果。</returns>
         public static VlatLoadResult Deserialize(string json)
         {
-            var state = ParseJson(json);
+            return Deserialize(json, null);
+        }
+
+        /// <summary>上限を指定してJSON文字列をVLatドキュメントへ変換し、バイナリを除く意味検証を実行します。</summary>
+        /// <param name="json">UTF-8 JSONに相当する文字列。</param>
+        /// <param name="limits">読み込み上限。nullなら既定。文字列長は <see cref="VlatReadLimits.MaxJsonBytes"/> を文字数として扱います。</param>
+        /// <returns>ドキュメント、診断、および空のバイナリ一覧を含む結果。</returns>
+        public static VlatLoadResult Deserialize(string json, VlatReadLimits limits)
+        {
+            limits = limits ?? VlatReadLimits.Default;
+            if (json != null && json.Length > limits.MaxJsonBytes)
+            {
+                return new VlatLoadResult(null, Array.Empty<byte[]>(), new[]
+                {
+                    Error("$", 0, 0, "JSONが大きすぎます（" + Invariant(json.Length) + " 文字、上限 " +
+                                     VlatExternalFiles.FormatBytes(limits.MaxJsonBytes) + "）。"),
+                });
+            }
+
+            var state = ParseJson(json, limits);
             if (state.Document != null)
             {
+                // bufferの宣言長などの資源上限は、実際にファイルを読み書きするLoad/Saveで適用する。
                 AddDiagnostics(state.Diagnostics, VlatValidator.Validate(state.Document));
                 EnrichLocations(state.Root, state.Diagnostics);
             }
@@ -28,11 +53,22 @@ namespace VLat.Core.Serialization
             return new VlatLoadResult(state.Document, Array.Empty<byte[]>(), state.Diagnostics);
         }
 
-        /// <summary>JSONファイルと参照される全バイナリファイルを読み込みます。</summary>
+        /// <summary>JSONファイルと参照される全バイナリファイルを、安全モードで読み込みます。</summary>
         /// <param name="jsonPath">読み込む.vlat.jsonファイルのパス。</param>
         /// <returns>ドキュメント、バイナリ内容、および診断を含む結果。</returns>
         public static VlatLoadResult Load(string jsonPath)
         {
+            return Load(jsonPath, null);
+        }
+
+        /// <summary>JSONファイルと参照される全バイナリファイルを、指定したポリシーで読み込みます。</summary>
+        /// <param name="jsonPath">読み込む.vlat.jsonファイルのパス。</param>
+        /// <param name="policy">外部ファイルのアクセス範囲と読み込み上限。nullなら <see cref="VlatFileAccessPolicy.Default"/>。</param>
+        /// <returns>ドキュメント、バイナリ内容、および診断を含む結果。</returns>
+        public static VlatLoadResult Load(string jsonPath, VlatFileAccessPolicy policy)
+        {
+            policy = policy ?? VlatFileAccessPolicy.Default;
+            var limits = policy.Limits;
             var diagnostics = new List<VlatDiagnostic>();
             if (string.IsNullOrWhiteSpace(jsonPath))
             {
@@ -45,7 +81,26 @@ namespace VLat.Core.Serialization
             try
             {
                 fullJsonPath = Path.GetFullPath(jsonPath);
-                json = File.ReadAllText(fullJsonPath, Encoding.UTF8);
+                string rootError;
+                if (!VlatExternalFiles.TryGetAllowedRoot(fullJsonPath, policy, out _, out rootError))
+                {
+                    diagnostics.Add(Error("$", 0, 0, rootError));
+                    return new VlatLoadResult(null, Array.Empty<byte[]>(), diagnostics);
+                }
+
+                byte[] bytes;
+                string readError;
+                if (!VlatExternalFiles.TryReadAllBytes(fullJsonPath, limits.MaxJsonBytes, out bytes, out readError))
+                {
+                    diagnostics.Add(Error("$", 0, 0, "VLat JSONを読み込めません: " + readError));
+                    return new VlatLoadResult(null, Array.Empty<byte[]>(), diagnostics);
+                }
+
+                // File.ReadAllText(path, UTF8) と同じく、BOMがあればそれに従って復号する。
+                using (var reader = new StreamReader(new MemoryStream(bytes, false), Encoding.UTF8, true))
+                {
+                    json = reader.ReadToEnd();
+                }
             }
             catch (Exception exception)
             {
@@ -53,7 +108,8 @@ namespace VLat.Core.Serialization
                 return new VlatLoadResult(null, Array.Empty<byte[]>(), diagnostics);
             }
 
-            var state = ParseJson(json);
+            AddDiagnostics(diagnostics, InspectInterruptedSave(fullJsonPath, policy));
+            var state = ParseJson(json, limits);
             AddDiagnostics(diagnostics, state.Diagnostics);
             if (state.Document == null)
             {
@@ -67,8 +123,15 @@ namespace VLat.Core.Serialization
                     return new VlatLoadResult(state.Document, Array.Empty<byte[]>(), diagnostics);
             }
 
+            var limitDiagnostics = CheckDocumentLimits(state.Document, limits);
+            if (limitDiagnostics.Count != 0)
+            {
+                AddDiagnostics(diagnostics, limitDiagnostics);
+                EnrichLocations(state.Root, diagnostics);
+                return new VlatLoadResult(state.Document, Array.Empty<byte[]>(), diagnostics);
+            }
+
             var buffers = new List<byte[]>(state.Document.Buffers.Count);
-            var baseDirectory = Path.GetDirectoryName(fullJsonPath) ?? string.Empty;
             for (var i = 0; i < state.Document.Buffers.Count; i++)
             {
                 var definition = state.Document.Buffers[i];
@@ -80,33 +143,51 @@ namespace VLat.Core.Serialization
 
                 string bufferPath;
                 string pathError;
-                if (!TryResolveExternalPath(baseDirectory, definition.Uri, out bufferPath, out pathError))
+                if (!VlatExternalFiles.TryResolve(fullJsonPath, definition.Uri, policy, out bufferPath, out pathError))
                 {
                     diagnostics.Add(Error(
                         "$.buffers[" + Invariant(i) + "].uri",
                         0,
                         0,
-                        pathError));
+                        "bufferを読み込めません: " + pathError));
                     buffers.Add(null);
                     continue;
                 }
 
-                try
+                // 宣言長と実ファイル長が違う場合は、内容を確保せずに拒否する（宣言長の偽装・取り違え対策）。
+                var actual = new FileInfo(bufferPath);
+                if (actual.Exists && actual.Length != definition.ByteLength)
                 {
-                    if (state.Document.KeyformGroups.Count != 0 &&
-                        new FileInfo(bufferPath).Length != definition.ByteLength)
-                        throw new InvalidDataException("Keyform bufferの実ファイル長が宣言と一致しません。");
-                    buffers.Add(File.ReadAllBytes(bufferPath));
+                    diagnostics.Add(Error(
+                        "$.buffers[" + Invariant(i) + "].byteLength",
+                        0,
+                        0,
+                        "宣言されたbyteLength（" + definition.ByteLength.ToString(CultureInfo.InvariantCulture) +
+                        " byte）と実ファイル長（" + actual.Length.ToString(CultureInfo.InvariantCulture) +
+                        " byte）が一致しません。"));
+                    buffers.Add(null);
+                    continue;
                 }
-                catch (Exception exception)
+
+                byte[] contents;
+                string readError;
+                if (!VlatExternalFiles.TryReadAllBytes(
+                        bufferPath,
+                        limits.MaxBufferBytes,
+                        definition.ByteLength,
+                        out contents,
+                        out readError))
                 {
                     diagnostics.Add(Error(
                         "$.buffers[" + Invariant(i) + "].uri",
                         0,
                         0,
-                        "バイナリバッファを読み込めません: " + exception.Message));
+                        "バイナリバッファを読み込めません: " + readError));
                     buffers.Add(null);
+                    continue;
                 }
+
+                buffers.Add(contents);
             }
 
             AddDiagnostics(diagnostics, VlatValidator.Validate(state.Document, buffers));
@@ -141,7 +222,7 @@ namespace VLat.Core.Serialization
             return builder.ToString();
         }
 
-        /// <summary>VLat JSONとbuffers配列が参照する各バイナリを原子的に保存します。</summary>
+        /// <summary>VLat JSONとbuffers配列が参照する各バイナリを、安全モードで保存します。</summary>
         /// <param name="jsonPath">保存先.vlat.jsonファイルのパス。</param>
         /// <param name="document">保存するドキュメント。</param>
         /// <param name="binaryBuffers">buffers配列と同じ順序のバイナリ内容。</param>
@@ -151,6 +232,26 @@ namespace VLat.Core.Serialization
             VlatDocument document,
             IReadOnlyList<byte[]> binaryBuffers)
         {
+            return Save(jsonPath, document, binaryBuffers, null);
+        }
+
+        /// <summary>
+        /// VLat JSONとbuffers配列が参照する各バイナリを、指定したポリシーで保存します。
+        /// 保存中の異常終了は保存ジャーナルで検出でき、<see cref="RecoverInterruptedSave(string, VlatFileAccessPolicy)"/>で
+        /// 保存前または保存後のどちらか一貫した状態へ戻せます。
+        /// </summary>
+        /// <param name="jsonPath">保存先.vlat.jsonファイルのパス。</param>
+        /// <param name="document">保存するドキュメント。</param>
+        /// <param name="binaryBuffers">buffers配列と同じ順序のバイナリ内容。</param>
+        /// <param name="policy">書き込みを許可する範囲と、再読込できることを確認する上限。nullなら既定。</param>
+        /// <returns>保存結果と診断。</returns>
+        public static VlatSaveResult Save(
+            string jsonPath,
+            VlatDocument document,
+            IReadOnlyList<byte[]> binaryBuffers,
+            VlatFileAccessPolicy policy)
+        {
+            policy = policy ?? VlatFileAccessPolicy.Default;
             var diagnostics = new List<VlatDiagnostic>();
             if (string.IsNullOrWhiteSpace(jsonPath))
             {
@@ -170,6 +271,13 @@ namespace VLat.Core.Serialization
                 return new VlatSaveResult(diagnostics);
             }
 
+            // 読み込み上限を超える文書は、保存しても同じ既定設定では開けないため保存前に拒否する。
+            AddDiagnostics(diagnostics, CheckDocumentLimits(document, policy.Limits));
+            if (ContainsError(diagnostics))
+            {
+                return new VlatSaveResult(diagnostics);
+            }
+
             string fullJsonPath;
             string json;
             try
@@ -183,21 +291,36 @@ namespace VLat.Core.Serialization
                 return new VlatSaveResult(diagnostics);
             }
 
+            string rootError;
+            if (!VlatExternalFiles.TryGetAllowedRoot(fullJsonPath, policy, out _, out rootError))
+            {
+                diagnostics.Add(Error("$", 0, 0, rootError));
+                return new VlatSaveResult(diagnostics);
+            }
+
+            var jsonBytes = new UTF8Encoding(false).GetBytes(json);
+            if (jsonBytes.LongLength > policy.Limits.MaxJsonBytes)
+            {
+                diagnostics.Add(Error("$", 0, 0, "JSONが読み込み上限（" +
+                                                 VlatExternalFiles.FormatBytes(policy.Limits.MaxJsonBytes) +
+                                                 "）を超えるため保存しません。"));
+                return new VlatSaveResult(diagnostics);
+            }
+
             var writes = new List<PendingWrite>();
             var targetPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             targetPaths.Add(fullJsonPath);
-            var baseDirectory = Path.GetDirectoryName(fullJsonPath) ?? string.Empty;
             for (var i = 0; i < document.Buffers.Count; i++)
             {
                 string bufferPath;
                 string pathError;
-                if (!TryResolveExternalPath(baseDirectory, document.Buffers[i].Uri, out bufferPath, out pathError))
+                if (!VlatExternalFiles.TryResolve(fullJsonPath, document.Buffers[i].Uri, policy, out bufferPath, out pathError))
                 {
                     diagnostics.Add(Error(
                         "$.buffers[" + Invariant(i) + "].uri",
                         0,
                         0,
-                        pathError));
+                        "bufferを保存できません: " + pathError));
                     continue;
                 }
 
@@ -219,9 +342,11 @@ namespace VLat.Core.Serialization
                 return new VlatSaveResult(diagnostics);
             }
 
-            writes.Add(new PendingWrite(fullJsonPath, new UTF8Encoding(false).GetBytes(json)));
+            // JSONを最後にcommitする。読み手は常にJSONから参照を辿るため、途中で止まっても
+            // 保存ジャーナルが残り、次回Loadで「中断された保存」として検出される。
+            writes.Add(new PendingWrite(fullJsonPath, jsonBytes));
             string writeError;
-            if (!TryWriteTransaction(writes, out writeError))
+            if (!TryWriteTransaction(fullJsonPath, writes, out writeError))
             {
                 diagnostics.Add(Error("$", 0, 0, writeError));
             }
@@ -229,7 +354,62 @@ namespace VLat.Core.Serialization
             return new VlatSaveResult(diagnostics);
         }
 
-        private static ParseState ParseJson(string json)
+        private static IReadOnlyList<VlatDiagnostic> CheckDocumentLimits(VlatDocument document, VlatReadLimits limits)
+        {
+            var diagnostics = new List<VlatDiagnostic>();
+            if (document == null)
+            {
+                return diagnostics;
+            }
+
+            if (document.Buffers.Count > limits.MaxBufferCount)
+            {
+                diagnostics.Add(Error("$.buffers", 0, 0, "bufferが多すぎます（" + Invariant(document.Buffers.Count) +
+                                                          " 個、上限 " + Invariant(limits.MaxBufferCount) + " 個）。"));
+            }
+
+            if (document.Textures.Count > limits.MaxTextureCount)
+            {
+                diagnostics.Add(Error("$.textures", 0, 0, "textureが多すぎます（" + Invariant(document.Textures.Count) +
+                                                           " 個、上限 " + Invariant(limits.MaxTextureCount) + " 個）。"));
+            }
+
+            long total = 0;
+            for (var i = 0; i < document.Buffers.Count; i++)
+            {
+                var buffer = document.Buffers[i];
+                if (buffer == null)
+                {
+                    continue;
+                }
+
+                if (buffer.ByteLength > limits.MaxBufferBytes)
+                {
+                    diagnostics.Add(Error(
+                        "$.buffers[" + Invariant(i) + "].byteLength",
+                        0,
+                        0,
+                        "bufferが大きすぎます（" + VlatExternalFiles.FormatBytes(buffer.ByteLength) + "、上限 " +
+                        VlatExternalFiles.FormatBytes(limits.MaxBufferBytes) + "）。"));
+                }
+
+                if (buffer.ByteLength > 0)
+                {
+                    total = buffer.ByteLength > long.MaxValue - total ? long.MaxValue : total + buffer.ByteLength;
+                }
+            }
+
+            if (total > limits.MaxTotalBufferBytes)
+            {
+                diagnostics.Add(Error("$.buffers", 0, 0, "bufferの合計が大きすぎます（" +
+                                                          VlatExternalFiles.FormatBytes(total) + "、上限 " +
+                                                          VlatExternalFiles.FormatBytes(limits.MaxTotalBufferBytes) + "）。"));
+            }
+
+            return diagnostics;
+        }
+
+        private static ParseState ParseJson(string json, VlatReadLimits limits)
         {
             var diagnostics = new List<VlatDiagnostic>();
             if (json == null)
@@ -238,7 +418,8 @@ namespace VLat.Core.Serialization
                 return new ParseState(null, null, diagnostics);
             }
 
-            if (!RejectComments(json, diagnostics))
+            // DOMを作る前に、深さとトークン数をストリーミングで確認する（巨大・深いJSONによる資源枯渇の防止）。
+            if (!PrescanJson(json, limits, diagnostics))
             {
                 return new ParseState(null, null, diagnostics);
             }
@@ -257,6 +438,7 @@ namespace VLat.Core.Serialization
                 {
                     reader.DateParseHandling = DateParseHandling.None;
                     reader.FloatParseHandling = FloatParseHandling.Double;
+                    reader.MaxDepth = limits.MaxJsonDepth;
                     var loadSettings = new JsonLoadSettings
                     {
                         CommentHandling = CommentHandling.Ignore,
@@ -339,7 +521,7 @@ namespace VLat.Core.Serialization
             return new ParseState(document, root, diagnostics);
         }
 
-        private static bool RejectComments(string json, List<VlatDiagnostic> diagnostics)
+        private static bool PrescanJson(string json, VlatReadLimits limits, List<VlatDiagnostic> diagnostics)
         {
             try
             {
@@ -347,15 +529,45 @@ namespace VLat.Core.Serialization
                 using (var reader = new JsonTextReader(stringReader))
                 {
                     reader.DateParseHandling = DateParseHandling.None;
+                    // 深さは下で独自に数え、上限超過を分かりやすい診断にする。
+                    reader.MaxDepth = null;
+                    var tokens = 0;
                     while (reader.Read())
                     {
-                        if (reader.TokenType == JsonToken.Comment)
+                        var tokenType = reader.TokenType;
+                        if (tokenType == JsonToken.Comment)
                         {
                             diagnostics.Add(Error(
                                 NormalizePath(reader.Path),
                                 GetLineNumber(reader),
                                 GetLinePosition(reader),
                                 ".vlat.jsonではコメントを使用できません。"));
+                            return false;
+                        }
+
+                        if (tokenType == JsonToken.EndObject || tokenType == JsonToken.EndArray)
+                        {
+                            continue;
+                        }
+
+                        if ((tokenType == JsonToken.StartObject || tokenType == JsonToken.StartArray) &&
+                            reader.Depth + 1 > limits.MaxJsonDepth)
+                        {
+                            diagnostics.Add(Error(
+                                NormalizePath(reader.Path),
+                                GetLineNumber(reader),
+                                GetLinePosition(reader),
+                                "JSONのネストが深すぎます（上限 " + Invariant(limits.MaxJsonDepth) + "）。"));
+                            return false;
+                        }
+
+                        if (++tokens > limits.MaxJsonTokens)
+                        {
+                            diagnostics.Add(Error(
+                                NormalizePath(reader.Path),
+                                GetLineNumber(reader),
+                                GetLinePosition(reader),
+                                "JSONの要素が多すぎます（上限 " + Invariant(limits.MaxJsonTokens) + " トークン）。"));
                             return false;
                         }
                     }
@@ -1230,91 +1442,6 @@ namespace VLat.Core.Serialization
             return JsonSerializer.Create(settings);
         }
 
-        private static bool TryResolveExternalPath(
-            string baseDirectory,
-            string uri,
-            out string fullPath,
-            out string error)
-        {
-            fullPath = null;
-            error = null;
-            if (string.IsNullOrWhiteSpace(uri))
-            {
-                error = "bufferのuriは空にできません。";
-                return false;
-            }
-
-            try
-            {
-                if (!VlatValidator.IsRelativeExternalUri(uri))
-                {
-                    error = "bufferのuriはJSONファイルを基準とした相対URIである必要があります。";
-                    return false;
-                }
-
-                var decoded = Uri.UnescapeDataString(uri).Replace('/', Path.DirectorySeparatorChar);
-                var fullBaseDirectory = Path.GetFullPath(baseDirectory);
-                fullPath = Path.GetFullPath(Path.Combine(fullBaseDirectory, decoded));
-                return true;
-            }
-            catch (Exception exception)
-            {
-                error = "bufferのuriをファイルパスへ変換できません: " + exception.Message;
-                return false;
-            }
-        }
-
-        private static bool TryWriteTransaction(IReadOnlyList<PendingWrite> writes, out string error)
-        {
-            error = null;
-            try
-            {
-                for (var i = 0; i < writes.Count; i++)
-                {
-                    writes[i].Stage();
-                }
-
-                for (var i = 0; i < writes.Count; i++)
-                {
-                    writes[i].Commit();
-                }
-            }
-            catch (Exception exception)
-            {
-                var rollbackErrors = new StringBuilder();
-                for (var i = writes.Count - 1; i >= 0; i--)
-                {
-                    string rollbackError;
-                    if (!writes[i].Rollback(out rollbackError) && !string.IsNullOrEmpty(rollbackError))
-                    {
-                        if (rollbackErrors.Length > 0)
-                        {
-                            rollbackErrors.Append(" / ");
-                        }
-
-                        rollbackErrors.Append(rollbackError);
-                    }
-                }
-
-                error = "VLatファイルを保存できません: " + exception.Message;
-                if (rollbackErrors.Length > 0)
-                {
-                    error += "（復元にも失敗しました: " + rollbackErrors + "）";
-                }
-
-                return false;
-            }
-
-            // 全commit後は保存が成立済みです。backup削除失敗をrollbackへ流すと、
-            // 先に削除済みのbackupを復元できないため、cleanupはbest-effortで行います。
-            for (var i = 0; i < writes.Count; i++)
-            {
-                writes[i].Complete();
-            }
-
-            return true;
-        }
-
         private static void EnrichLocations(JToken root, List<VlatDiagnostic> diagnostics)
         {
             if (root == null)
@@ -1459,126 +1586,6 @@ namespace VLat.Core.Serialization
             public JToken Root { get; }
 
             public List<VlatDiagnostic> Diagnostics { get; }
-        }
-
-        private sealed class PendingWrite
-        {
-            private readonly byte[] _contents;
-            private string _temporaryPath;
-            private string _backupPath;
-            private bool _hadOriginal;
-            private bool _committed;
-
-            public PendingWrite(string targetPath, byte[] contents)
-            {
-                TargetPath = targetPath;
-                _contents = contents;
-            }
-
-            public string TargetPath { get; }
-
-            public void Stage()
-            {
-                var directory = Path.GetDirectoryName(TargetPath);
-                if (!string.IsNullOrEmpty(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                _temporaryPath = CreateSidecarPath(TargetPath, ".tmp");
-                using (var stream = new FileStream(
-                           _temporaryPath,
-                           FileMode.CreateNew,
-                           FileAccess.Write,
-                           FileShare.None))
-                {
-                    stream.Write(_contents, 0, _contents.Length);
-                    stream.Flush(true);
-                }
-            }
-
-            public void Commit()
-            {
-                _hadOriginal = File.Exists(TargetPath);
-                if (_hadOriginal)
-                {
-                    _backupPath = CreateSidecarPath(TargetPath, ".bak");
-                    File.Replace(_temporaryPath, TargetPath, _backupPath);
-                }
-                else
-                {
-                    File.Move(_temporaryPath, TargetPath);
-                }
-
-                _committed = true;
-                _temporaryPath = null;
-            }
-
-            public void Complete()
-            {
-                try
-                {
-                    SafeDelete(_backupPath);
-                }
-                catch (Exception)
-                {
-                    // 保存自体は完了しているため、一意名のバックアップを残して処理を継続します。
-                }
-
-                _backupPath = null;
-            }
-
-            public bool Rollback(out string error)
-            {
-                error = null;
-                try
-                {
-                    if (_committed)
-                    {
-                        if (_hadOriginal && !string.IsNullOrEmpty(_backupPath) && File.Exists(_backupPath))
-                        {
-                            if (File.Exists(TargetPath))
-                            {
-                                File.Replace(_backupPath, TargetPath, null);
-                            }
-                            else
-                            {
-                                File.Move(_backupPath, TargetPath);
-                            }
-                        }
-                        else if (!_hadOriginal)
-                        {
-                            SafeDelete(TargetPath);
-                        }
-                    }
-
-                    SafeDelete(_temporaryPath);
-                    SafeDelete(_backupPath);
-                    return true;
-                }
-                catch (Exception exception)
-                {
-                    error = TargetPath + ": " + exception.Message;
-                    return false;
-                }
-            }
-
-            private static string CreateSidecarPath(string targetPath, string suffix)
-            {
-                var directory = Path.GetDirectoryName(targetPath) ?? string.Empty;
-                var fileName = Path.GetFileName(targetPath);
-                return Path.Combine(
-                    directory,
-                    "." + fileName + "." + Guid.NewGuid().ToString("N") + suffix);
-            }
-
-            private static void SafeDelete(string path)
-            {
-                if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-            }
         }
     }
 }
