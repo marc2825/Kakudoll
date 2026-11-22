@@ -1,0 +1,15 @@
+# Gitleaks の設定。既定ルールをすべて使い、確認済みの誤検出だけを除外する。
+# 除外を追加するときは、ルール・file・値をすべて限定し（condition = "AND"）、理由を書く。
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+# generic-api-key の誤検出: 引数名 `key` の直後にある画像差分の検証variant名（C#の文字列リテラル）で、認証情報ではない。
+# このfileは非公開側と同じ内容を保つため、gitleaks:allow のコメントを足して書き換えることはしない。
+description = "Image difference sweep variant label, not a credential"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^experiments/VRCImageDifference/Overlay/Editor/ImageDifferenceSweep\.cs$''']
+regexTarget = "secret"
+regexes = ['''^NegativeMeshShift1mm$''']

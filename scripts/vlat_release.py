@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Collection
 from pathlib import Path
 
 # 汎用プレースホルダー（<user>, USER, username, Public, Default）とCI runnerのhomeは個人情報ではない。
@@ -53,14 +54,19 @@ def find_personal_paths(text: str) -> list[tuple[str, int]]:
     return found
 
 
-def find_other_private_data(text: str) -> list[tuple[str, int]]:
-    """認証情報らしき文字列、個人メール、Windows hostname、内部IPv4の件数を返す。"""
+def find_other_private_data(text: str, allowed_emails: Collection[str] = ()) -> list[tuple[str, int]]:
+    """認証情報らしき文字列、個人メール、Windows hostname、内部IPv4の件数を返す。
+
+    allowed_emails は所有者が公開を認めたメール（大文字小文字を区別しない）。commit/tagの作者情報と
+    メッセージの検査だけで渡し、file内容の検査では渡さない。
+    """
+    allowed = {email.lower() for email in allowed_emails}
     found = []
     for kind, regex in SECRET_PATTERNS:
         count = len(regex.findall(text))
         if count:
             found.append((kind, count))
-    emails = [m for m in _EMAIL.findall(text) if not _ALLOWED_EMAIL.match(m)]
+    emails = [m for m in _EMAIL.findall(text) if not _ALLOWED_EMAIL.match(m) and m.lower() not in allowed]
     if emails:
         found.append(("email-address", len(emails)))
     for kind, regex in (("windows-hostname", _WINDOWS_HOSTNAME), ("private-ipv4", _PRIVATE_IPV4)):
