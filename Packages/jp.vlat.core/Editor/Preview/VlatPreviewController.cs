@@ -14,6 +14,7 @@ using UnityEngine.SceneManagement;
 using VLat.Core.Validation;
 using VLat.Core.Evaluation;
 using VLat.Core.Model;
+using VLat.Core.Serialization;
 using VLat.Runtime;
 using Object = UnityEngine.Object;
 
@@ -961,12 +962,16 @@ namespace VLat.Editor.Authoring
         private Texture[] LoadTextures(VlatAuthoringDocument document)
         {
             var textures = new Texture[document.Textures.Count];
+            // Runtimeと同じ安全モードのアクセス範囲と上限で読み、デコード前に寸法を確認する。
+            var policy = VlatFileAccessPolicy.Default;
+            var budget = new VlatTextureBudget(policy.Limits);
             for (var index = 0; index < document.Textures.Count; index++)
             {
                 var definition = document.Textures[index];
                 try
                 {
                     byte[] bytes;
+                    string error;
                     if (definition.IsEmbedded)
                     {
                         bytes = definition.EmbeddedBytes;
@@ -978,19 +983,22 @@ namespace VLat.Editor.Authoring
                             throw new InvalidDataException("External texture requires a saved document path.");
                         }
 
-                        var baseUri = new Uri(Path.GetFullPath(document.SourcePath));
-                        var textureUri = new Uri(baseUri, definition.Uri);
-                        if (!textureUri.IsFile)
+                        string texturePath;
+                        if (!VlatExternalFiles.TryResolve(document.SourcePath, definition.Uri, policy, out texturePath, out error) ||
+                            !VlatExternalFiles.TryReadAllBytes(texturePath, policy.Limits.MaxTextureEncodedBytes, out bytes, out error))
                         {
-                            throw new InvalidDataException("External texture must resolve to a file URI.");
+                            throw new InvalidDataException(error);
                         }
-
-                        bytes = File.ReadAllBytes(textureUri.LocalPath);
                     }
 
                     if (bytes == null || bytes.Length == 0)
                     {
                         throw new InvalidDataException("Texture bytes are empty.");
+                    }
+
+                    if (!budget.TryReserve(bytes, out error))
+                    {
+                        throw new InvalidDataException(error);
                     }
 
                     var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false)

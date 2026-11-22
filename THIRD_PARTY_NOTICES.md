@@ -31,13 +31,24 @@ VRChat 向けの検証実験では、正規に購入したモデルの複製を�
 
 ## 依存ソフトウェア（同梱せず、パッケージマネージャーで取得）
 
+2026-11-22 に各配布元のライセンス文書で確認しました。
+
 | 名前 | 用途 | ライセンス |
 |---|---|---|
-| [UniVRM](https://github.com/vrm-c/UniVRM) v0.128.3 | VRM の読み込み | MIT License |
-| Newtonsoft.Json 13.0.2（Unity 版 `com.unity.nuget.newtonsoft-json` 3.2.1） | JSON の読み書き | MIT License（Unity のパッケージは同梱の LICENSE に従う） |
+| [UniVRM](https://github.com/vrm-c/UniVRM) v0.128.3（`com.vrmc.gltf` / `com.vrmc.univrm` / `com.vrmc.vrm`） | VRM の読み込み | MIT License（[LICENSE.txt](https://github.com/vrm-c/UniVRM/blob/v0.128.3/LICENSE.txt)） |
+| `com.unity.nuget.newtonsoft-json` 3.2.1（Newtonsoft.Json 13.0.2 を同梱） | JSON の読み書き | パッケージは Unity Companion License、同梱の Newtonsoft.Json は MIT License |
 | Unity Test Framework などの `com.unity.*` パッケージ | テストとエディタ | Unity Companion License |
+| `com.unity.ext.nunit` 2.0.3（Unity Test Framework の依存） | テスト | Unity Package Distribution License（同梱の NUnit 3.5 は MIT License） |
 | NUnit、NUnit3TestAdapter、Microsoft.NET.Test.Sdk | Core の .NET テスト | MIT License |
-| VRChat SDK 3.10.5 | `experiments/` の検証用プロジェクトだけで使用。同梱せず、各自が VRChat Creator Companion で導入 | VRChat の SDK 利用規約 |
+| VRChat SDK 3.10.5 | `experiments/` の検証用プロジェクトだけで使用。同梱せず、各自が VRChat Creator Companion で導入 | [VRChat Materials License Agreement](https://hello.vrchat.com/legal/sdk)。SDK の再配布・改変を認めていないため、このリポジトリには SDK のファイルを含めていません。MIT License は SDK には及びません |
+
+### 開発・CI だけで使うツール（配布物には含まない）
+
+| 名前 | ライセンス |
+|---|---|
+| Python `jsonschema` と依存パッケージ（`attrs`、`referencing`、`rpds-py`、`jsonschema-specifications`） | MIT License |
+| GitHub Actions（`actions/checkout`、`actions/setup-python`、`actions/setup-dotnet`、`actions/cache`、`actions/upload-artifact`）、`game-ci/unity-test-runner` | MIT License |
+| .NET SDK | MIT License |
 
 ## 商標
 

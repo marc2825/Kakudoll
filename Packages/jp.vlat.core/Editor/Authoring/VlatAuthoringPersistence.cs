@@ -33,16 +33,46 @@ namespace VLat.Editor.Authoring
 
         internal static VlatAuthoringLoadResult Load(string jsonPath)
         {
+            // 利用者が明示的に開くときだけ、中断された保存を一貫した状態（保存前か保存後）へ戻す。
+            var recovery = RecoverInterruptedSave(jsonPath);
+            if (!recovery.Success)
+            {
+                return new VlatAuthoringLoadResult(null, recovery.Diagnostics);
+            }
+
             var loadResult = VlatSerializer.Load(jsonPath);
             if (!loadResult.Success)
             {
-                return new VlatAuthoringLoadResult(null, loadResult.Diagnostics);
+                return new VlatAuthoringLoadResult(null, Concat(recovery.Diagnostics, loadResult.Diagnostics));
             }
 
-            return VlatAuthoringConversion.FromImmutable(
+            var converted = VlatAuthoringConversion.FromImmutable(
                 loadResult.Document,
                 loadResult.Buffers,
                 Path.GetFullPath(jsonPath));
+            return recovery.Diagnostics.Count == 0
+                ? converted
+                : new VlatAuthoringLoadResult(converted.Document, Concat(recovery.Diagnostics, converted.Diagnostics));
+        }
+
+        private static VlatInterruptedSaveRecovery RecoverInterruptedSave(string jsonPath)
+        {
+            if (string.IsNullOrWhiteSpace(jsonPath))
+            {
+                return new VlatInterruptedSaveRecovery(VlatInterruptedSaveOutcome.None, null);
+            }
+
+            return VlatSerializer.RecoverInterruptedSave(jsonPath);
+        }
+
+        private static IReadOnlyList<VlatDiagnostic> Concat(
+            IReadOnlyList<VlatDiagnostic> first,
+            IReadOnlyList<VlatDiagnostic> second)
+        {
+            var diagnostics = new List<VlatDiagnostic>(first.Count + second.Count);
+            diagnostics.AddRange(first);
+            diagnostics.AddRange(second);
+            return diagnostics.AsReadOnly();
         }
 
         internal static IReadOnlyList<VlatDiagnostic> Validate(
@@ -191,25 +221,32 @@ namespace VLat.Editor.Authoring
                 return new VlatAuthoringSaveResult(packResult.Diagnostics);
             }
 
+            // 前回の中断保存が残っていると新しい保存を開始できないため、先に一貫した状態へ戻す。
+            // 別の処理が保存中ならここで失敗し、何も上書きしない。
+            var recovery = RecoverInterruptedSave(fullJsonPath);
+            if (!recovery.Success)
+            {
+                return new VlatAuthoringSaveResult(recovery.Diagnostics);
+            }
+
             var saveResult = VlatSerializer.Save(fullJsonPath, packResult.Document, packResult.Buffers);
             if (!saveResult.Success)
             {
-                return new VlatAuthoringSaveResult(saveResult.Diagnostics);
+                return new VlatAuthoringSaveResult(Concat(recovery.Diagnostics, saveResult.Diagnostics));
             }
 
             source.MarkSaved(fullJsonPath);
-            return new VlatAuthoringSaveResult(saveResult.Diagnostics);
+            return new VlatAuthoringSaveResult(Concat(recovery.Diagnostics, saveResult.Diagnostics));
         }
 
         private static string GetBinaryUri(string jsonPath)
         {
             var fileName = Path.GetFileName(jsonPath);
-            if (fileName.EndsWith(".vlat.json", StringComparison.OrdinalIgnoreCase))
-            {
-                return fileName.Substring(0, fileName.Length - ".json".Length) + ".bin";
-            }
-
-            return Path.GetFileNameWithoutExtension(fileName) + ".vlat.bin";
+            var binaryName = fileName.EndsWith(".vlat.json", StringComparison.OrdinalIgnoreCase)
+                ? fileName.Substring(0, fileName.Length - ".json".Length) + ".bin"
+                : Path.GetFileNameWithoutExtension(fileName) + ".vlat.bin";
+            // uriは読込時に%デコードされるため、ファイル名の % だけをエスケープする（他の文字は従来どおり）。
+            return binaryName.Replace("%", "%25");
         }
 
         private static void ValidateStructure(

@@ -21,5 +21,6 @@
     <Compile Include="../../Packages/jp.vlat.core/Tests/EditMode/VlatStrictJsonTests.cs" />
     <Compile Include="../../Packages/jp.vlat.core/Tests/EditMode/VlatIoAndValidationEdgeTests.cs" />
     <Compile Include="../../Packages/jp.vlat.core/Tests/EditMode/KeyformTests.cs" />
+    <Compile Include="../../Packages/jp.vlat.core/Tests/EditMode/VlatFileSafetyTests.cs" />
   </ItemGroup>
 </Project>

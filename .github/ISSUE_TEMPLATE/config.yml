@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 脆弱性の報告 / Security vulnerability
+    url: https://github.com/marc2825/Kakudoll/security/advisories/new
+    about: 公開の Issue には書かず、非公開で報告してください（SECURITY.md）。Please report privately.
+  - name: 質問・相談 / Questions
+    url: https://github.com/marc2825/Kakudoll/discussions
+    about: 使い方の質問やアイデアは Discussions へ。Use Discussions for questions and ideas.

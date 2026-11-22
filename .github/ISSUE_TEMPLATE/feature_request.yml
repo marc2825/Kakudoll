@@ -1,0 +1,26 @@
+name: 機能の提案 / Feature request
+description: 新しい機能や改善の提案 / Suggest a feature or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        VRChat 対応・Keyform の実行時再生などの予定は docs/product/ROADMAP.md にあります。先に確認してください。
+        See docs/product/ROADMAP.md for planned work such as VRChat support.
+  - type: textarea
+    id: problem
+    attributes:
+      label: 困っていること / Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案 / Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: ファイル形式・既存データへの影響 / Impact on file format or existing data
+      description: .vlat.json の互換性に関わる場合は書いてください。/ Note any effect on .vlat.json compatibility.

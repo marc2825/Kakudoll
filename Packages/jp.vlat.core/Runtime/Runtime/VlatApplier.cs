@@ -197,6 +197,23 @@ namespace VLat.Runtime
             Camera evaluationCamera,
             string jsonPath)
         {
+            return InitializeFromFile(instance, evaluationCamera, jsonPath, null);
+        }
+
+        /// <summary>
+        /// VRM 1.0インスタンスとファイルから、外部ファイルのアクセス範囲と読み込み上限を指定して評価ループを初期化します。
+        /// </summary>
+        /// <param name="instance">UniVRMでロード済みのVRM 1.0インスタンス。</param>
+        /// <param name="evaluationCamera">角度算出に使用する単一カメラ。</param>
+        /// <param name="jsonPath">読み込む.vlat.jsonのパス。</param>
+        /// <param name="policy">buffer・textureのアクセス範囲と上限。nullなら安全モードの既定。</param>
+        /// <returns>再バインド結果と診断を含む初期化結果。</returns>
+        public VlatRuntimeInitializationResult InitializeFromFile(
+            Vrm10Instance instance,
+            Camera evaluationCamera,
+            string jsonPath,
+            VlatFileAccessPolicy policy)
+        {
             DisposeRuntime();
             var diagnostics = new List<VlatRuntimeDiagnostic>();
             if (string.IsNullOrWhiteSpace(jsonPath))
@@ -205,7 +222,7 @@ namespace VLat.Runtime
                 return CompleteFailedInitialization(diagnostics, null);
             }
 
-            var loadResult = VlatSerializer.Load(jsonPath);
+            var loadResult = VlatSerializer.Load(jsonPath, policy);
             CopyCoreDiagnostics(loadResult.Diagnostics, diagnostics);
             if (!loadResult.Success || loadResult.Document == null)
             {
@@ -216,6 +233,7 @@ namespace VLat.Runtime
                 loadResult.Document,
                 loadResult.Buffers,
                 jsonPath,
+                policy,
                 diagnostics);
             if (ContainsError(diagnostics))
             {

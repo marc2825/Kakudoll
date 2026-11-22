@@ -33,6 +33,9 @@ PYTHON_CHECKS = [
     ("schema v0.2 keyform", [sys.executable, "scripts/validate_keyform_schema.py"], None, ()),
     ("client evidence tools", [sys.executable, "-m", "unittest", "discover",
                                "-s", "experiments/VRCClientValidation", "-p", "test_*.py"], None, ()),
+    # 一時Gitリポジトリで、履歴にだけ残る禁止file・秘密情報・作者メールを検出できることを確かめる（-B: 公開版に__pycache__を作らない）。
+    ("public export audit tests", [sys.executable, "-B", "-m", "unittest", "discover",
+                                   "-s", "scripts/tests", "-p", "test_*.py"], None, ()),
     ("S1 head frame results", [sys.executable, "scripts/check_head_frame_results.py",
                                "experiments/VRCHeadFrame/results/2026-10-16-unity2022.3.22f1"],
      "experiments/VRCHeadFrame/results/2026-10-16-unity2022.3.22f1", ()),
@@ -62,6 +65,9 @@ DOTNET_CHECKS = [
                            "--logger", "trx;LogFileName=core.trx", "--results-directory", "artifacts/core"]),
     ("Core netstandard2.1 build", ["dotnet", "build", "tests/CoreHarness/Compatibility/Core.Compatibility.csproj",
                                    "-warnaserror"]),
+    # 保存中の子プロセスを実際にkillし、復旧後のJSONとbinが保存前か保存後のどちらかに一致することを確かめる。
+    ("save crash (process kill x50)", ["dotnet", "run", "-c", "Release", "--project",
+                                       "tests/CoreHarness/SaveCrash/SaveCrash.csproj", "--", "50"]),
 ]
 
 

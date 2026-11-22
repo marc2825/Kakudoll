@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using VLat.Core.Model;
+using VLat.Core.Serialization;
 
 namespace VLat.Runtime
 {
@@ -28,11 +29,12 @@ namespace VLat.Runtime
             VlatDocument document,
             IReadOnlyList<byte[]> binaryBuffers,
             string jsonPath,
+            VlatFileAccessPolicy policy,
             List<VlatRuntimeDiagnostic> diagnostics)
         {
+            policy = policy ?? VlatFileAccessPolicy.Default;
             var textures = new Texture[document.Textures.Count];
-            var fullJsonPath = Path.GetFullPath(jsonPath);
-            var jsonUri = new Uri(fullJsonPath);
+            var budget = new VlatTextureBudget(policy.Limits);
             for (var index = 0; index < document.Textures.Count; index++)
             {
                 var definition = document.Textures[index];
@@ -47,17 +49,18 @@ namespace VLat.Runtime
                 }
 
                 byte[] encoded;
+                string error;
                 try
                 {
                     if (!string.IsNullOrEmpty(definition.Uri))
                     {
-                        var textureUri = new Uri(jsonUri, definition.Uri);
-                        if (!textureUri.IsFile)
+                        // bufferと同じアクセス範囲・上限で外部画像を読む（Core共通の解決規則）。
+                        string texturePath;
+                        if (!VlatExternalFiles.TryResolve(jsonPath, definition.Uri, policy, out texturePath, out error) ||
+                            !VlatExternalFiles.TryReadAllBytes(texturePath, policy.Limits.MaxTextureEncodedBytes, out encoded, out error))
                         {
-                            throw new InvalidDataException("外部textureは相対file URIである必要があります。");
+                            throw new InvalidDataException(error);
                         }
-
-                        encoded = File.ReadAllBytes(textureUri.LocalPath);
                     }
                     else
                     {
@@ -66,7 +69,13 @@ namespace VLat.Runtime
                             throw new InvalidDataException("textureにはuriまたはbufferViewが必要です。");
                         }
 
-                        encoded = CopyBufferView(document, binaryBuffers, definition.BufferView.Value);
+                        encoded = CopyBufferView(document, binaryBuffers, definition.BufferView.Value, budget);
+                    }
+
+                    // デコード前にヘッダーの寸法と、全textureのデコード後合計を確認する。
+                    if (!budget.TryReserve(encoded, out error))
+                    {
+                        throw new InvalidDataException(error);
                     }
                 }
                 catch (Exception exception)
@@ -125,7 +134,8 @@ namespace VLat.Runtime
         private static byte[] CopyBufferView(
             VlatDocument document,
             IReadOnlyList<byte[]> binaryBuffers,
-            int viewIndex)
+            int viewIndex,
+            VlatTextureBudget budget)
         {
             if (viewIndex < 0 || viewIndex >= document.BufferViews.Count)
             {
@@ -148,6 +158,12 @@ namespace VLat.Runtime
                 || view.ByteLength > int.MaxValue)
             {
                 throw new InvalidDataException("bufferViewのバイト範囲が不正です。");
+            }
+
+            string sizeError;
+            if (!budget.CheckEncodedLength(view.ByteLength, out sizeError))
+            {
+                throw new InvalidDataException(sizeError);
             }
 
             var destination = new byte[(int)view.ByteLength];

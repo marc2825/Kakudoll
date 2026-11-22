@@ -1,9 +1,11 @@
 name: CI
 
-# Unityライセンス不要の検証(license-free)は常に実行する。
+# Unityライセンス不要の検証(license-free)と公開履歴の監査は常に実行する。
 # Unity EditMode/PlayModeはライセンスSecretがある場合だけ実行し、ない場合はNOT RUNとして
 # job summaryと警告annotationに明示する(skippedはPASSではない)。
 # リポジトリ変数 VLAT_REQUIRE_UNITY_TESTS=true のときは、ライセンス未設定をCI失敗にする。
+# 最後の release-readiness が全ジョブをPASS/FAIL/NOT RUNで集計し、1つでもPASS以外なら
+# 「公開準備: NOT READY」とする。workflow_dispatch で release_check=true のときはNOT READYをCI失敗にする。
 # 設定手順: docs/CI_SETUP.md
 
 on:
@@ -12,6 +14,11 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_check:
+        description: "公開前の検証として実行する（NOT RUNが1つでもあれば失敗にする）"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -225,3 +232,125 @@ jobs:
           name: playmode-results
           path: ${{ steps.tests.outputs.artifactsPath }}
           if-no-files-found: warn
+
+  public-history-audit:
+    name: Public history audit (Gitleaks + check_public_export --git-history)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      author_emails: ${{ steps.audit.outputs.author_emails }}
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # actions/checkout は branch と tag しか取得しない。notes / replace も公開されていれば検査対象に含める。
+      # 認証はこのstepだけに渡す（tokenはログでマスクされる。checkoutには保存しない）。
+      - name: Fetch notes and replace refs
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" \
+            fetch --no-tags origin '+refs/notes/*:refs/notes/*' '+refs/replace/*:refs/replace/*'
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Gitleaks (pinned, SHA-256 verified)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$archive" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
+          echo "$RUNNER_TEMP/gitleaks" >> "$GITHUB_PATH"
+
+      # 既定の log-opts は `--full-history --all`。値は --redact で伏せる。-v は作者メールを出すため付けない。
+      - name: Gitleaks (all refs, values redacted)
+        run: gitleaks git --redact --no-banner --exit-code 1 .
+
+      # 作者メールは所有者が公開を認めたものだけを許可する（リポジトリ変数、カンマ区切り）。
+      # 未設定ならメール検査だけをNOT RUNとして記録し、ほかの検査は実行する。
+      - name: Public export audit (current tree + full Git history)
+        id: audit
+        env:
+          VLAT_PUBLIC_AUTHOR_EMAILS: ${{ vars.VLAT_PUBLIC_AUTHOR_EMAILS }}
+        run: |
+          if [ -n "$VLAT_PUBLIC_AUTHOR_EMAILS" ]; then
+            python3 -B scripts/check_public_export.py . --git-history --allow-email "$VLAT_PUBLIC_AUTHOR_EMAILS"
+            echo "author_emails=PASS" >> "$GITHUB_OUTPUT"
+          else
+            python3 -B scripts/check_public_export.py . --git-history --skip-author-emails
+            echo "author_emails=NOT RUN" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Author email check NOT RUN::Repository variable VLAT_PUBLIC_AUTHOR_EMAILS is not set. See docs/CI_SETUP.md."
+          fi
+
+  release-readiness:
+    name: Release readiness (PASS / FAIL / NOT RUN)
+    needs: [license-free, unity-license, editmode, playmode, public-history-audit]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Summarize results
+        env:
+          LICENSE_FREE: ${{ needs.license-free.result }}
+          EDITMODE: ${{ needs.editmode.result }}
+          PLAYMODE: ${{ needs.playmode.result }}
+          HISTORY: ${{ needs.public-history-audit.result }}
+          AUTHOR_EMAILS: ${{ needs.public-history-audit.outputs.author_emails }}
+          RELEASE_CHECK: ${{ github.event_name == 'workflow_dispatch' && inputs.release_check }}
+          SHA: ${{ github.sha }}
+        run: |
+          status() {
+            case "$1" in
+              success) echo "PASS" ;;
+              skipped|cancelled|"") echo "NOT RUN" ;;
+              *) echo "FAIL" ;;
+            esac
+          }
+          emails="${AUTHOR_EMAILS:-NOT RUN}"
+          if [ "$HISTORY" != "success" ]; then emails="$(status "$HISTORY")"; fi
+          rows=(
+            "License-free checks (Schema / Core .NET / save crash / evidence)|$(status "$LICENSE_FREE")"
+            "Unity EditMode + VLat.Core coverage >= 80%|$(status "$EDITMODE")"
+            "Unity PlayMode + performance gate|$(status "$PLAYMODE")"
+            "Public history audit (Gitleaks + tree/history scan)|$(status "$HISTORY")"
+            "Author email allow-list|$emails"
+          )
+          ready=true
+          {
+            echo "## Release readiness for \`${SHA}\`"
+            echo ""
+            echo "| Check | Result |"
+            echo "|---|---|"
+            for row in "${rows[@]}"; do
+              echo "| ${row%%|*} | ${row##*|} |"
+              [ "${row##*|}" = "PASS" ] || ready=false
+            done
+            echo ""
+            if [ "$ready" = "true" ]; then
+              echo "**公開準備: READY**（自動検査のみ。権利の手動確認は docs/PUBLIC_RELEASE_CHECKLIST.md）"
+            else
+              echo "**公開準備: NOT READY** — PASS以外の項目があります。NOT RUNはPASSではありません。"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$ready" != "true" ]; then
+            if [ "$RELEASE_CHECK" = "true" ]; then
+              echo "::error title=Release readiness::NOT READY. See the job summary."
+              exit 1
+            fi
+            echo "::warning title=Release readiness::NOT READY (Unity tests or other checks did not all PASS). See the job summary."
+          fi

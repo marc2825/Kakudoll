@@ -634,7 +634,10 @@ namespace VLat.Tests.Edit
             }
         }
 
-        /// <summary>親相対URIと上書き保存が成功し、入力bufferと保存済みbufferが相互に独立することを検証します。</summary>
+        /// <summary>
+        /// 親相対URIは共通の親フォルダを明示的に許可したときだけ保存・読込でき、上書き保存が成功し、
+        /// 入力bufferと保存済みbufferが相互に独立することを検証します。既定の安全モードでは拒否します。
+        /// </summary>
         [Test]
         public void SaveLoad_ParentRelativeOverwriteAndCopiesRemainIndependent()
         {
@@ -645,10 +648,17 @@ namespace VLat.Tests.Edit
                 var document = CreateDocumentWithBuffer("../shared/data.bin", 4);
                 var first = new byte[] { 1, 2, 3, 4 };
                 var firstCopy = (byte[])first.Clone();
+                var policy = new VlatFileAccessPolicy(directory);
 
-                Assert.That(VlatSerializer.Save(jsonPath, document, new[] { first }).Success, Is.True);
+                var rejected = VlatSerializer.Save(jsonPath, document, new[] { first });
+                Assert.That(rejected.Success, Is.False);
+                AssertHasError(rejected.Diagnostics, "$.buffers[0].uri");
+                Assert.That(Directory.Exists(Path.Combine(directory, "shared")), Is.False);
+
+                Assert.That(VlatSerializer.Save(jsonPath, document, new[] { first }, policy).Success, Is.True);
                 CollectionAssert.AreEqual(firstCopy, first);
-                var loadedFirst = VlatSerializer.Load(jsonPath);
+                AssertHasError(VlatSerializer.Load(jsonPath).Diagnostics, "$.buffers[0].uri");
+                var loadedFirst = VlatSerializer.Load(jsonPath, policy);
                 Assert.That(loadedFirst.Success, Is.True);
                 CollectionAssert.AreEqual(firstCopy, loadedFirst.Buffers[0]);
 
@@ -657,9 +667,12 @@ namespace VLat.Tests.Edit
 
                 var second = new byte[] { 5, 6, 7, 8 };
                 var secondCopy = (byte[])second.Clone();
-                Assert.That(VlatSerializer.Save(jsonPath, document, new[] { second }).Success, Is.True);
+                Assert.That(VlatSerializer.Save(jsonPath, document, new[] { second }, policy).Success, Is.True);
                 CollectionAssert.AreEqual(secondCopy, second);
-                CollectionAssert.AreEqual(secondCopy, VlatSerializer.Load(jsonPath).Buffers[0]);
+                CollectionAssert.AreEqual(secondCopy, VlatSerializer.Load(jsonPath, policy).Buffers[0]);
+                CollectionAssert.AreEqual(
+                    secondCopy,
+                    VlatSerializer.Load(jsonPath, VlatFileAccessPolicy.TrustedLegacy).Buffers[0]);
             }
             finally
             {
