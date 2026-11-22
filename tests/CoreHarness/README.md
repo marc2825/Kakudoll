@@ -1,23 +1,20 @@
-# Unity非依存Coreの補助試験
+# Core の .NET テスト
 
-Unity用の実Coreソースと、既存Core試験60件・Keyform試験30件をリンクする。
-UnityEngine/Editorのstubを使わない。Unity EditMode/PlayModeやVRChatの代替ではない。
+Unity に依存しない Core のコードを、Unity なしで .NET SDK 10 で試すためのプロジェクトです。
+Unity の EditMode・PlayMode のテストの代わりにはなりません。
 
-リポジトリ内から.NET SDK 10で実行:
+- `Core.Tests.csproj`: Core のソースと、Unity を使わないテスト（`Tests/EditMode` の一部）をまとめてビルドし、NUnit で実行する
+- `Compatibility/`: Unity と同じ .NET Standard 2.1 の範囲でビルドできるかを確かめる
+- `SaveCrash/`: 保存中のプロセスを強制終了し、復旧後のファイルが保存前か保存後のどちらかに一致するかを確かめる
 
 ```bash
-dotnet test tests/CoreHarness/Core.Tests.csproj \
-  --logger "trx;LogFileName=core.trx" --results-directory artifacts/core
+dotnet test tests/CoreHarness/Core.Tests.csproj --logger "trx;LogFileName=core.trx" --results-directory artifacts/core
 dotnet build tests/CoreHarness/Compatibility/Core.Compatibility.csproj
-python3 scripts/validate_schema.py
-python3 scripts/validate_keyform_schema.py
+dotnet run -c Release --project tests/CoreHarness/SaveCrash/SaveCrash.csproj -- 100
 ```
 
-いずれもC# 9でコンパイル。Compatibilityはnetstandard2.1のAPI範囲を確認する。
-NuGet依存はcsprojに固定した。配布UPMの依存には追加しない。
-隔離キャッシュを使う場合は `DOTNET_CLI_HOME` / `NUGET_PACKAGES` を一時ディレクトリに設定する。
-ソケットを禁止するsandboxではVSTestのプロセス間通信も拒否されるため、
-実行環境でローカルソケットを許可する必要がある。
+普段は `python3 scripts/run_license_free_checks.py` からまとめて実行されます。
+どれも C# 9 でビルドします。NuGet の依存は csproj で固定しており、配布するパッケージの依存には加えていません。
 
-Unity固有の5試験は `VlatBlendShapeKeyformImporterTests` にあり、この補助ハーネスには含めない。
-実UnityのUI操作・実アバター・VRChat実機は別途 `docs/product/TEST_MATRIX.md` に記録する。
+ソケットを禁止する環境では、VSTest のプロセス間通信も止められるため、テストが動きません。
+Unity 専用のテスト（`VlatBlendShapeKeyformImporterTests` など）はここには含めていません。

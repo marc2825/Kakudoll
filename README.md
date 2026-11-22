@@ -1,238 +1,152 @@
 # Kakudoll
 
-見る角度によって、アバターの形を描き分けるための Unity エディタ拡張です。
+見る角度によってアバターの形を変えられるようにする、Unity のエディタ拡張です。
 
-> **VRChat ではまだ使えません。** 編集とプレビューは Unity Editor の中だけで動きます。
-> 開発中（Pre-beta）で、ファイル形式や API は今後変わることがあります。
+アニメでは、正面と横顔で前髪の流れや輪郭をわざと描き変えることがあります。
+Kakudoll は、この「角度ごとの描き分け」を VRM アバターで作るためのツールです。
+元の VRM やメッシュ、マテリアルは書き換えません。
 
-アニメの作画では、正面と横顔で前髪の流れや顔の輪郭をわざと描き変えます。
-Kakudoll は、その「角度ごとの見え方」を 3D アバターでも作れるようにすることを目指しています。
-元の VRM・メッシュ・マテリアルは書き換えません。
+> 開発中（Pre-beta）です。今は Unity エディタの中でしか動かず、VRChat では使えません。
 
 [English](#english)
 
-## 目次
+## できること
 
-- [できること・まだできないこと](#できることまだできないこと)
-- [動作環境](#動作環境)
-- [インストール](#インストール)（[更新](#更新) / [削除](#削除)）
-- [クイックスタート](#クイックスタート)
-- [安全な編集と保存](#安全な編集と保存)
-- [困ったとき](#困ったとき)
-- [開発](#開発)（[テスト実績](#テスト実績)）
+- 顔などのメッシュに、左右の向き（Yaw）ごとのキーを作る
+- 頂点を選んでドラッグし、その角度での形を作る（ソフト選択あり）
+- 3 つのビューで、角度による形の変化を見る
+- 既存の BlendShape をキーの形として取り込む
+- 元に戻す・やり直しと、Unity が落ちたときの復元
 
-## できること・まだできないこと
+## まだできないこと
 
-できること:
+- VRChat での表示
+- ゲーム実行中の再生（古い v0.1 形式だけは `VlatApplier` で再生できます）
+- 複数メッシュの同時編集、法線の再計算、上下の向き（Pitch）による切り替え
 
-- 左右の向き（Yaw）ごとにキーを作り、その角度での形を編集する
-- 頂点を選んで、Unity の画面上でドラッグして形を変える（ソフト選択つき）
-- 3 つのプレビューで、キーとキーのあいだの変化を確かめる
-- 既存の BlendShape から形を取り込む
-- 元に戻す・やり直し、保存、Unity が異常終了したときの復元
+13 万頂点ほどの大きなメッシュでは、確定や元に戻すのに 0.2〜0.3 秒かかります。
+今後の予定は [ROADMAP](docs/product/ROADMAP.md) にまとめています。
 
-まだできないこと:
+## 必要なもの
 
-- VRChat 上での再生（実機での確認もまだです）
-- 編集した形をゲーム実行中に再生すること（古い v0.1 形式だけは `VlatApplier` で再生できます）
-- 複数メッシュの同時編集、法線の再計算、上下の向き（Pitch）での切り替え
-- 大きなメッシュ（13 万頂点ほど）では、確定や元に戻すのに 0.2〜0.3 秒かかります
+- Unity 2022.3.62f3（Built-in Render Pipeline）
+- UniVRM v0.128.3（VRM 1.0 に対応。VRM 0.x は読み込みのみ）
+- Git
 
-今後の予定と、それぞれを「できた」と言える条件は [ROADMAP](docs/product/ROADMAP.md) にあります。
+動作を確認しているのは Windows 11 だけです。ほかのバージョンの Unity や、macOS・Linux では試していません。
 
-## 動作環境
+## 導入
 
-| | |
-|---|---|
-| Unity | 2022.3.62f3（Built-in Render Pipeline）。2022.3 のほかの版、Unity 6 は未確認 |
-| UniVRM | v0.128.3（`com.vrmc.gltf` と `com.vrmc.vrm`）。VRM 1.0 を編集できます。VRM 0.x は読み込みのみ |
-| OS | Windows 11 で確認しています。macOS・Linux の Unity Editor は未確認 |
-| プロジェクト | Unity Hub の「3D（Built-in Render Pipeline）」テンプレートで作ったもの。`com.unity.test-framework` が必要です（UniVRM が使います。テンプレートには入っています） |
-| そのほか | UniVRM を Git から取得するため、Git（Windows は Git for Windows）とネット接続 |
-
-既存のアバターへの影響: Kakudoll はアバターのプレビュー用の複製を作って編集します。
-元の VRM・メッシュ・マテリアル・Prefab は変更せず、保存するのは `.vlat.json` と `.vlat.bin` だけです。
-
-## インストール
-
-作業の前に、Unity プロジェクトのバックアップを取ってください。
-
-### 既存のプロジェクトに追加する（Git URL）
-
-`Packages/manifest.json` の `dependencies` に 3 行を加えます。
+プロジェクトのバックアップを取ってから、`Packages/manifest.json` の `dependencies` に次の 3 行を足します。
 
 ```json
 "com.vrmc.gltf": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.128.3",
 "com.vrmc.vrm": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10#v0.128.3",
-"jp.vlat.core": "https://github.com/marc2825/Kakudoll.git?path=/Packages/jp.vlat.core#v0.1.0"
+"jp.vlat.core": "https://github.com/marc2825/Kakudoll.git?path=/Packages/jp.vlat.core#main"
 ```
 
-Unity に戻ると取り込みが始まり、メニューに **Kakudoll** が出ます。
+Unity に戻ると読み込みが始まり、メニューに **Kakudoll** が追加されます。
+`#main` は開発中の最新版です。リリース後は `#v0.1.0` のようにバージョンを指定できます。
 
-> `#v0.1.0` は最初のリリースのタグで、まだ付けていません。それまでは末尾を `#main` にすると、開発中の最新版を取得できます
-> （2026-11-22 に `#main` で、新しいプロジェクトへの導入・メニュー表示・サンプルの読み書きを確認しました）。
+Unity Hub の 3D テンプレート以外で作ったプロジェクトでは、`"com.unity.test-framework": "1.1.33"` も足してください（UniVRM が使います）。
 
-### clone したフォルダから追加する
+clone したリポジトリを使う場合は、3 行目を `"jp.vlat.core": "file:C:/path/to/Kakudoll/Packages/jp.vlat.core"` にします。
+リポジトリの `VLatProject` を Unity Hub で開けば、設定済みのプロジェクトとしてすぐに試せます。
 
-このリポジトリを clone し、`Packages/manifest.json` に UniVRM の 2 行と、clone した場所を指す行を加えます。
+更新するときは、先に [CHANGELOG](Packages/jp.vlat.core/CHANGELOG.md) を読み、作ったファイルのバックアップを取ってください。
 
-```json
-"jp.vlat.core": "file:C:/path/to/Kakudoll/Packages/jp.vlat.core"
-```
+削除するときは、`manifest.json` から `jp.vlat.core` の行を消し、プロジェクトの `Library/VLat/` フォルダ（未保存の編集の復元用データ）を消します。
+保存したファイルはそのまま残ります。
 
-`manifest.json` からの相対パス（例: `file:../../Kakudoll/Packages/jp.vlat.core`）でも書けます。
-
-### 開発用のプロジェクトを開く
-
-clone した中の `VLatProject` フォルダを Unity Hub で開くと、Kakudoll と UniVRM が設定済みの状態で使えます。
-
-### 更新
-
-1. [CHANGELOG](Packages/jp.vlat.core/CHANGELOG.md) の「互換性」を読みます。
-2. `.vlat.json` と `.vlat.bin` を複製しておきます。
-3. `manifest.json` の `#v0.1.0` を新しいタグに書き換えます。
-
-### 削除
-
-1. `manifest.json` から `jp.vlat.core` の行を消します。ほかで UniVRM を使っていなければ、UniVRM の 2 行も消します。
-2. プロジェクトの `Library/VLat/` フォルダを消します（まだ保存していない編集の復元用データです）。
-
-保存した `.vlat.json` と `.vlat.bin` は、保存した場所にそのまま残ります。
-
-## クイックスタート
+## 使い方
 
 1. メニューの **Kakudoll > Editor** を開く
-2. 「VRMを開く…」でアバターを読み込む（編集はプレビュー用の複製に対して行われます）
-3. 編集したいメッシュ（顔など）を選び、グループを作る
-4. 0°・45°・90° などの角度にキーを追加する
-5. 頂点を選び、メインビューでドラッグして形を変える
-6. サブビューで角度による変化を確かめ、「保存」する（`.vlat.json` と `.vlat.bin` ができます）
+2. 「VRMを開く…」でアバターを読み込む（編集するのはプレビュー用の複製です）
+3. 顔などのメッシュを選んでグループを作る
+4. 0°、45°、90° など、形を変えたい角度にキーを足す
+5. 頂点を選び、メインビューでドラッグする
+6. サブビューで角度ごとの見え方を確かめて「保存」する
 
-アバターを用意せずに動作だけ確かめるなら、「開く…」でパッケージに入っている合成サンプル
-`Packages/jp.vlat.core/Tests/EditMode/Fixtures/Keyform/three-keys.vlat.json` を開けます
-（実在のアバターとは結びついていないので、プレビューには形が出ません）。
+保存すると `.vlat.json` と `.vlat.bin` の 2 つのファイルができます。
 
-## 安全な編集と保存
+## ファイルの扱い
 
-- **前の版には戻せません。** 大事なファイルは、保存する前に複製するか Git で管理してください。
-- 保存中に Unity が落ちても、次に Kakudoll Editor で開けば、保存前か保存後のどちらかの内容に戻ります。
-  JSON と bin が食い違ったまま使われることはありません。詳しくは [保存の仕組みと、データを守れる範囲](docs/product/SAVE_AND_RECOVERY.md)。
-- まだ保存していない編集は `Library/VLat/` に自動で残り、Unity が異常終了したあとに復元できます。
-- 他の人から受け取った `.vlat.json` は、同じフォルダの中のファイルだけを読みます（大きすぎるファイル・画像も読みません）。
-  規則は [形式仕様 §8](docs/spec/02_FORMAT_SPEC.md#8-外部ファイルの扱い参照実装のポリシー)。
+- 保存は上書きで、前の状態には戻せません。大事なファイルはバックアップを取るか、Git で管理してください。
+- 保存中に Unity が落ちても、次に開いたときに保存前か保存後のどちらかの状態に戻ります（[保存の仕組み](docs/product/SAVE_AND_RECOVERY.md)）。
+- 人からもらった `.vlat.json` が読むのは、同じフォルダ（とその下のフォルダ）にあるファイルだけです。
 
 ## 困ったとき
 
-| 症状 | 対処 |
-|---|---|
-| `UnityEditor.TestTools` や `NUnit` が見つからないというコンパイルエラー（UniGLTF のファイル） | `manifest.json` に `"com.unity.test-framework": "1.1.33"` を加える |
-| UniVRM を取得できない | Git が入っていて PATH が通っているか、ネットにつながるかを確認する |
-| 「uriが許可されたフォルダの外を指しています」 | `.vlat.bin` や画像を `.vlat.json` と同じフォルダ（またはその下）に置く |
-| 「前回の保存が途中で中断され…」 | Kakudoll Editor でそのファイルを開くと、保存前の内容へ戻る |
-| 「別の処理がこのファイルを保存中です」 | 同じファイルを別の Unity で開いていないか確認する |
+- **UniGLTF で `UnityEditor.TestTools` や `NUnit` が見つからないというエラーが出る**
+  `manifest.json` に `"com.unity.test-framework": "1.1.33"` を足してください。
+- **UniVRM を取得できない**
+  Git がインストールされているか、ネットにつながっているかを確認してください。
+- **「許可されたフォルダの外を指しています」と出る**
+  `.vlat.bin` や画像を、`.vlat.json` と同じフォルダに置いてください。
+- **「前回の保存が途中で中断され…」と出る**
+  Kakudoll Editor でそのファイルを開くと、保存前の状態に戻ります。
 
-不具合は [Issue](https://github.com/marc2825/Kakudoll/issues/new/choose) で教えてください。
-脆弱性は公開の Issue には書かず、[SECURITY.md](SECURITY.md) の方法で報告してください。
+不具合は [Issue](https://github.com/marc2825/Kakudoll/issues/new/choose) へ、質問は [Discussions](https://github.com/marc2825/Kakudoll/discussions) へどうぞ。
+脆弱性は公開の場に書かず、[SECURITY.md](SECURITY.md) の方法で知らせてください。
 
-## 開発
+## 開発に参加する
 
-貢献のしかたは [CONTRIBUTING.md](CONTRIBUTING.md) にあります。Unity のライセンスが要らない検証は次のとおりです。
+[CONTRIBUTING.md](CONTRIBUTING.md) を読んでください。Unity がなくても動くテストは、次のコマンドで実行できます。
 
 ```bash
 python3 -m pip install "jsonschema>=4.10,<5"
 python3 scripts/run_license_free_checks.py
 ```
 
-Unity のテストは Test Runner（Window > General > Test Runner）から実行できます。
-CI の設定と、Unity のテストを CI で動かす方法は [docs/CI_SETUP.md](docs/CI_SETUP.md) にあります。
+2026-11-22 時点（コミット `20a9449`）で、Unity のテスト（EditMode 413 件、PlayMode 4 件）は Windows 11 / Unity 2022.3.62f3 の手元環境で通っています。
+GitHub Actions では Unity のライセンスを設定していないため、まだ実行していません。
+テストの詳しい内容と結果は [docs/TESTING.md](docs/TESTING.md) にあります。
 
-### テスト実績
-
-「NOT RUN」は実行していないという意味で、PASS ではありません。
-
-| 対象 | 実行した場所 | 結果 | 日付・コミット・環境 |
-|---|---|---|---|
-| ライセンス不要の検証（Schema、Core NUnit 140 件、netstandard2.1 build、公開監査ツールの試験、保存中の強制終了 50 回、保存済み実験結果） | ローカル | PASS（非配布ファイルを使う 5 件は NOT RUN） | 2026-11-22、`20a9449`、WSL2 Ubuntu 24.04 / .NET SDK 10.0.115 / Python 3.12 |
-| 同上 | GitHub Actions | PASS（push・PR ごとに実行） | 2026-11-22、`2ee4989`、ubuntu-24.04。以降は各 run の Job Summary |
-| Unity EditMode | ローカル | 413/413 PASS。`VLat.Core` の行カバレッジ 90.82%（下限 80%） | 2026-11-22、`20a9449`、Windows 11 Pro（26200）/ Unity 2022.3.62f3 / D3D11 |
-| Unity PlayMode | ローカル | 4/4 PASS。7 万頂点・20 Layer の定常評価は中央値 11.71 µs/frame（上限 300 µs）、GC 割り当て 0 | 同上 |
-| Unity EditMode / PlayMode | GitHub Actions | **NOT RUN**（Unity ライセンスの Secret が未設定） | 2026-11-22、`2ee4989` |
-| 履歴の監査（Gitleaks・全 ref の禁止ファイル検査） | GitHub Actions | PASS（作者メールの検査は許可リスト未設定のため NOT RUN） | 2026-11-22、`2ee4989` |
-| 新しいプロジェクトへの導入（ローカルの Git URL・ローカルパス）・メニュー表示・サンプルの読み書き・削除 | ローカル | PASS | 2026-11-22、`20a9449`、Unity 2022.3.62f3 / UniVRM v0.128.3 / Windows 11 |
-| 同上（GitHub の URL、`#main`。削除は未実施） | ローカル | PASS | 2026-11-22、`d8c1daa`、同上 |
-| VRChat クライアント・HMD | — | **NOT RUN** | [ROADMAP](docs/product/ROADMAP.md) 段階 5 |
-
-CI では最後の `Release readiness` ジョブが、コミットごとに各検証の PASS / FAIL / NOT RUN を一覧にします。
-
-### ドキュメント
+設計の資料:
 
 - ファイル形式: [docs/spec/02_FORMAT_SPEC.md](docs/spec/02_FORMAT_SPEC.md)、[docs/product/KEYFORM_V0_2.md](docs/product/KEYFORM_V0_2.md)
-- 設計: [docs/spec/03_ARCHITECTURE.md](docs/spec/03_ARCHITECTURE.md)、[docs/product/DECISIONS.md](docs/product/DECISIONS.md)
-- 版の付け方とリリース手順: [docs/product/RELEASING.md](docs/product/RELEASING.md)
-- VRChat に向けた検証実験: [docs/experiments/](docs/experiments/)
-- このリポジトリに含めていない資料: [docs/PUBLIC_DISTRIBUTION.md](docs/PUBLIC_DISTRIBUTION.md)
+- 全体の構成: [docs/spec/03_ARCHITECTURE.md](docs/spec/03_ARCHITECTURE.md)、[docs/product/DECISIONS.md](docs/product/DECISIONS.md)
+- VRChat に向けた実験: [docs/experiments/](docs/experiments/)
 
-## 名前について
+## 名前
 
-Kakudoll（カクドール）は「角度（kakudo）」と「doll」を合わせた名前です。
-開発初期の名前「VLat」は、ファイル形式（`.vlat.json`）、パッケージ名（`jp.vlat.core`）、コード内の名前にそのまま残っています。
-互換性のため、これらは変えません。
+Kakudoll は「角度（kakudo）」と「doll」を合わせた名前です。
+開発の初めは「VLat」という名前で、ファイル形式（`.vlat.json`）やパッケージ名（`jp.vlat.core`）に残っています。互換性のため、このまま使います。
 
 ## ライセンス
 
-開発中のあいだは [PolyForm Strict License 1.0.0](LICENSE) です。
-個人の趣味・学習・研究など**非商用の目的で使う**ことはできますが、**改変したものや複製を配布すること、商用で使うことはできません**。
-改善の提案（Pull Request）のための変更は認めています（[CONTRIBUTING.md](CONTRIBUTING.md)）。
-完成したら、MIT License など、より自由なライセンスに変える予定です。
+開発中は [PolyForm Strict License 1.0.0](LICENSE) で公開しています。
+非商用の目的なら使えますが、改変したものや複製を配布することと、商用で使うことはできません。Pull Request を送るための変更はかまいません。
+完成したら MIT License などに切り替える予定です。
 
-2026-11-22 までに MIT License で公開していた版は、その版を受け取った人にとっては MIT License のままです。
-
-第三者のアバターや、その画像・データは含んでいません（[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)）。
+以前 MIT License で公開していた版は、その版については MIT License のままです。
+第三者の素材については [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) を見てください。
 
 ---
 
 ## English
 
-Kakudoll is a Unity editor extension for shaping how an anime-style VRM avatar looks from different viewing angles,
-without modifying the original assets. It is **pre-beta** and **does not work in VRChat yet**: editing and preview run
-inside the Unity Editor only.
+Kakudoll is a Unity editor extension that lets a VRM avatar change shape with the viewing angle, the way anime artists
+redraw bangs or a jawline between front and side views. It never modifies the original VRM, meshes or materials.
 
-**What works:** per-yaw keyforms on one mesh, vertex dragging with soft selection, three-view preview, importing
-existing BlendShapes, undo/redo, saving to `.vlat.json` + `.vlat.bin`, and recovery after an Editor crash.
-**Not yet:** playback at runtime (only the older v0.1 format plays via `VlatApplier`), VRChat, multiple meshes,
-normals, pitch. See the [roadmap](docs/product/ROADMAP.md).
+It is in pre-beta and runs only inside the Unity Editor. It does not work in VRChat yet.
 
-**Requirements:** Unity 2022.3.62f3 (Built-in RP) and UniVRM v0.128.3, tested on Windows 11. The project needs
-`com.unity.test-framework` (included in Unity Hub's 3D template) because UniVRM uses it. Git must be on PATH.
+**Requirements:** Unity 2022.3.62f3 (Built-in Render Pipeline), UniVRM v0.128.3 and Git. Tested on Windows 11 only.
 
-**Install:** back up your project, then add to `Packages/manifest.json`:
+**Install:** back up your project and add these lines to `dependencies` in `Packages/manifest.json`:
 
 ```json
 "com.vrmc.gltf": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.128.3",
 "com.vrmc.vrm": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10#v0.128.3",
-"jp.vlat.core": "https://github.com/marc2825/Kakudoll.git?path=/Packages/jp.vlat.core#v0.1.0"
+"jp.vlat.core": "https://github.com/marc2825/Kakudoll.git?path=/Packages/jp.vlat.core#main"
 ```
 
-The `v0.1.0` tag will exist after the first release; until then use `#main` for the latest development version (verified on 2026-11-22).
-To remove Kakudoll, delete the `jp.vlat.core` line and the `Library/VLat/` folder. Your saved files stay where you saved them.
+If the project was not made from Unity Hub's 3D template, also add `"com.unity.test-framework": "1.1.33"`.
+To uninstall, remove the `jp.vlat.core` line and delete the project's `Library/VLat/` folder.
 
-**Quick start:** open **Kakudoll > Editor**, load a VRM 1.0 avatar with "VRMを開く…", create a group on a mesh, add keys
-at angles such as 0°/45°/90°, drag vertices in the main view, then save.
+**Use:** open **Kakudoll > Editor**, load a VRM 1.0 avatar, add keys at angles such as 0°, 45° and 90°, drag vertices
+in the main view, and save. Saving overwrites the file, so keep backups.
 
-**Your data:** Kakudoll never edits the original VRM, meshes or materials. A save interrupted by a crash is rolled back or
-completed the next time you open the file in Kakudoll, but there is no version history, so keep backups.
-Files received from others may only reference files inside their own folder, and oversized inputs are rejected
-([format spec §8](docs/spec/02_FORMAT_SPEC.md#8-外部ファイルの扱い参照実装のポリシー)).
-
-**Tests:** `python3 scripts/run_license_free_checks.py` runs the checks that need no Unity license. As of 2026-11-22
-(commit `20a9449`, Windows 11, Unity 2022.3.62f3), Unity EditMode 413/413 and PlayMode 4/4 pass locally;
-Unity tests on GitHub Actions are **NOT RUN** until a Unity license secret is configured.
-
-**Reporting:** bugs via [Issues](https://github.com/marc2825/Kakudoll/issues/new/choose); security issues privately as
-described in [SECURITY.md](SECURITY.md).
-
-**License:** while in development, Kakudoll is under the [PolyForm Strict License 1.0.0](LICENSE): you may use it for
-noncommercial purposes, but you may not distribute it or modified versions, or use it commercially. Changes made only to
-propose a pull request are permitted. The plan is to move to a permissive license such as MIT once it is complete.
-Versions published under MIT before 2026-11-22 stay MIT for those who received them.
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for third-party terms.
+**License:** [PolyForm Strict 1.0.0](LICENSE) while in development. You may use it for noncommercial purposes, but you may
+not distribute it or modified versions, or use it commercially. Changes made to send a pull request are fine.
+The plan is to switch to MIT or a similar license once it is complete.
