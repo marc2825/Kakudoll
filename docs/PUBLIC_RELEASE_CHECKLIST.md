@@ -184,13 +184,14 @@ Pull Request のための変更は LICENSE の Additional Permission で認め�
 リポジトリを Public にする前後で、所有者が GitHub の設定を変えます（Private のままでは使えない設定を含みます）。
 
 - [ ] Actions の Secret（`UNITY_EMAIL` / `UNITY_PASSWORD` / `UNITY_LICENSE` など）を登録する（[CI_SETUP.md](CI_SETUP.md)）
-- [ ] リポジトリ変数 `VLAT_PUBLIC_AUTHOR_EMAILS` に、公開してよい作者メールを登録する
+- [x] リポジトリ変数 `VLAT_PUBLIC_AUTHOR_EMAILS` に、公開してよい作者メールを登録する（2026-11-22）
 - [ ] Actions → CI → Run workflow（`release_check` にチェック）で `main` を実行し、`Release readiness` が READY になる
 - [ ] 9章の所有者確認がすべて済んでいる
-- [ ] Public に変更する（push するのは `main` とリリースのタグだけ）
-- [ ] Settings → Security で **Private vulnerability reporting** を有効にする（[SECURITY.md](../SECURITY.md) の報告先。Public のリポジトリでだけ使える）
-- [ ] Settings → General で **Discussions** を有効にする（Issue テンプレートの質問先）
-- [ ] 公開後、README の Git URL で新しいプロジェクトに導入できることを確かめる（[RELEASING.md](product/RELEASING.md) 手順 7）
+- [x] Public に変更する（push するのは `main` とリリースのタグだけ）（2026-11-22、所有者）
+- [x] Settings → Security で **Private vulnerability reporting** を有効にする（2026-11-22）（[SECURITY.md](../SECURITY.md) の報告先。Public のリポジトリでだけ使える）
+- [x] Settings → General で **Discussions** を有効にする（Issue テンプレートの質問先）（2026-11-22）
+- [x] Secret scanning と push protection、Dependabot alerts を有効にする（2026-11-22）。`main` の削除・force push は ruleset「Protect main」で禁止済み
+- [x] 公開後、README の Git URL（タグ作成前のため `#main`）で新しいプロジェクトに導入できることを確かめる（2026-11-22、`d8c1daa`）。タグを付けたら `#v0.1.0` でも確かめる（[RELEASING.md](product/RELEASING.md) 手順 7）
 
 ## 11. 再実行の手順
 

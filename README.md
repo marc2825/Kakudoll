@@ -69,9 +69,8 @@ Kakudoll は、その「角度ごとの見え方」を 3D アバターでも作�
 
 Unity に戻ると取り込みが始まり、メニューに **Kakudoll** が出ます。
 
-> `#v0.1.0` は最初のリリースのタグで、まだ付けていません。リポジトリを公開して v0.1.0 を出したあとに使える手順です。
-> 同じ書き方（`?path=` とタグの指定）は、2026-11-22 にローカルの Git リポジトリを使って、
-> 新しいプロジェクトへの導入・メニュー表示・サンプルの読み書き・削除まで確認しました（[テスト実績](#テスト実績)）。
+> `#v0.1.0` は最初のリリースのタグで、まだ付けていません。それまでは末尾を `#main` にすると、開発中の最新版を取得できます
+> （2026-11-22 に `#main` で、新しいプロジェクトへの導入・メニュー表示・サンプルの読み書きを確認しました）。
 
 ### clone したフォルダから追加する
 
@@ -159,7 +158,8 @@ CI の設定と、Unity のテストを CI で動かす方法は [docs/CI_SETUP.
 | Unity PlayMode | ローカル | 4/4 PASS。7 万頂点・20 Layer の定常評価は中央値 11.71 µs/frame（上限 300 µs）、GC 割り当て 0 | 同上 |
 | Unity EditMode / PlayMode | GitHub Actions | **NOT RUN**（Unity ライセンスの Secret が未設定） | 2026-11-22、`2ee4989` |
 | 履歴の監査（Gitleaks・全 ref の禁止ファイル検査） | GitHub Actions | PASS（作者メールの検査は許可リスト未設定のため NOT RUN） | 2026-11-22、`2ee4989` |
-| 新しいプロジェクトへの導入（Git URL・ローカルパス）・メニュー表示・サンプルの読み書き・削除 | ローカル | PASS | 2026-11-22、`20a9449`、Unity 2022.3.62f3 / UniVRM v0.128.3 / Windows 11 |
+| 新しいプロジェクトへの導入（ローカルの Git URL・ローカルパス）・メニュー表示・サンプルの読み書き・削除 | ローカル | PASS | 2026-11-22、`20a9449`、Unity 2022.3.62f3 / UniVRM v0.128.3 / Windows 11 |
+| 同上（GitHub の URL、`#main`。削除は未実施） | ローカル | PASS | 2026-11-22、`d8c1daa`、同上 |
 | VRChat クライアント・HMD | — | **NOT RUN** | [ROADMAP](docs/product/ROADMAP.md) 段階 5 |
 
 CI では最後の `Release readiness` ジョブが、コミットごとに各検証の PASS / FAIL / NOT RUN を一覧にします。
@@ -213,7 +213,7 @@ normals, pitch. See the [roadmap](docs/product/ROADMAP.md).
 "jp.vlat.core": "https://github.com/marc2825/Kakudoll.git?path=/Packages/jp.vlat.core#v0.1.0"
 ```
 
-The `v0.1.0` tag will exist after the first release; the same syntax was verified against a local Git repository.
+The `v0.1.0` tag will exist after the first release; until then use `#main` for the latest development version (verified on 2026-11-22).
 To remove Kakudoll, delete the `jp.vlat.core` line and the `Library/VLat/` folder. Your saved files stay where you saved them.
 
 **Quick start:** open **Kakudoll > Editor**, load a VRM 1.0 avatar with "VRMを開く…", create a group on a mesh, add keys
