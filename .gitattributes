@@ -1,0 +1,4 @@
+# Keep every file byte-for-byte as committed on all platforms.
+# Frozen experiment results are verified by SHA-256, and Git for Windows would
+# otherwise convert LF to CRLF on checkout (core.autocrlf=true).
+* -text
