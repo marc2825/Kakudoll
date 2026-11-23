@@ -35,7 +35,8 @@ SECRET_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 # 公開して差し支えない連絡先・機械生成アドレス。個人のメールアドレスは列挙しない。
-_ALLOWED_EMAIL = re.compile(r"(?i)^(?:noreply@anthropic\.com|[^@]+@(?:example\.(?:com|org|net)|users\.noreply\.github\.com))$")
+# noreply@github.com は、GitHub が PR の検査用マージや Web 画面でのマージで作る commit の committer。
+_ALLOWED_EMAIL = re.compile(r"(?i)^(?:noreply@(?:anthropic|github)\.com|[^@]+@(?:example\.(?:com|org|net)|users\.noreply\.github\.com))$")
 _EMAIL = re.compile(r"(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b")
 _WINDOWS_HOSTNAME = re.compile(r"\b(?:DESKTOP|LAPTOP)-[A-Z0-9]{6,}\b")
 # VRChatのユーザー・アバター・ワールド・ファイルID。インスタンス文字列などに個人のIDが混ざるのを防ぐ。

@@ -50,6 +50,15 @@ VRChat に向けた実験では、正規に購入したモデルの複製を手�
 | GitHub Actions（`actions/checkout`、`actions/setup-python`、`actions/setup-dotnet`、`actions/cache`、`actions/upload-artifact`）、`game-ci/unity-test-runner` | MIT License |
 | .NET SDK | MIT License |
 
+## ロゴと紹介画像のフォント
+
+[docs/assets/brand/](docs/assets/brand/) のロゴと紹介画像では、次のフォントの文字を図形（アウトライン）に変換して使っています。フォントのファイルは含めていません。
+
+| フォント | 使った場所 | 著作権表示 | ライセンス |
+|---|---|---|---|
+| Fredoka SemiBold（Version 2.001） | ロゴ文字「Kakudoll」 | Copyright 2016 The Fredoka Project Authors | [SIL Open Font License 1.1](https://scripts.sil.org/OFL) |
+| Noto Sans CJK JP Regular / Bold（Version 2.004） | 紹介画像の日本語 | © 2014-2021 Adobe | [SIL Open Font License 1.1](https://scripts.sil.org/OFL) |
+
 ## 商標
 
 Unity は Unity Technologies の、VRChat は VRChat Inc. の商標です。VRM は VRM コンソーシアムの仕様です。

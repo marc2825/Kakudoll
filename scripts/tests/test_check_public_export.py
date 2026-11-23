@@ -251,6 +251,25 @@ class HistoryAuditTests(unittest.TestCase):
         self.assertIn("email-address (1 match(es))", content.stdout)
         self.assertNotIn(OWNER_ADDRESS, content.stdout)
 
+    def test_github_merge_committer_is_allowed(self) -> None:
+        # GitHub が PR の検査用マージ（refs/pull/N/merge）や Web 画面のマージで作る commit は、
+        # committer が noreply@github.com になる。許可するのはこの1件だけで、github.com の他のアドレスは検出する。
+        repo = TempRepo(Path(self.temp.name) / "merge-repo", email=OWNER_ADDRESS)
+        self.repo = repo
+        repo.write("src/a.cs", "class A {}\n")
+        repo.git("add", "-A", "-f")
+        repo.git("-c", "user.name=GitHub", "-c", "user.email=noreply" + "@" + "github.com",
+                 "commit", "-q", "-m", "Merge pull request")
+        merged = self.run_cli("--git-history", "--allow-email", OWNER_ADDRESS)
+        self.assertEqual(merged.returncode, 0, merged.stdout)
+        repo.write("src/b.cs", "class B {}\n")
+        repo.git("add", "-A", "-f")
+        repo.git("-c", "user.name=Someone", "-c", "user.email=someone" + "@" + "github.com",
+                 "commit", "-q", "-m", "add b")
+        other = self.run_cli("--git-history", "--allow-email", OWNER_ADDRESS)
+        self.assertEqual(other.returncode, 1, other.stdout)
+        self.assertIn("committer email が許可されていない個人アドレス", other.stdout)
+
     def test_skip_author_emails_is_reported_as_not_run(self) -> None:
         repo = TempRepo(Path(self.temp.name) / "skip-repo", email=OWNER_ADDRESS)
         self.repo = repo
