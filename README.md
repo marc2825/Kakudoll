@@ -1,5 +1,9 @@
 # Kakudoll
 
+<p align="center">
+  <img src="docs/assets/brand/kakudoll-teaser.png" width="720" alt="どの角度から見ても、かわいく。ツインテールの女の子の顔を、正面 0°・ななめ 45°・横 90° から見た形で並べたイラスト">
+</p>
+
 見る角度によってアバターの形を変えられるようにする、Unity のエディタ拡張です。
 
 アニメでは、正面と横顔で前髪の流れや輪郭をわざと描き変えることがあります。
@@ -112,6 +116,8 @@ GitHub Actions では Unity のライセンスを設定していないため、�
 
 Kakudoll は「角度（kakudo）」と「doll」を合わせた名前です。
 開発の初めは「VLat」という名前で、ファイル形式（`.vlat.json`）やパッケージ名（`jp.vlat.core`）に残っています。互換性のため、このまま使います。
+
+ロゴ、アイコン、紹介画像は [docs/assets/brand/](docs/assets/brand/) にあります。
 
 ## ライセンス
 

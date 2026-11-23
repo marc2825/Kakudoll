@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Kakudoll">
+<rect width="128" height="128" rx="28" fill="#A9C8FF"></rect>
+<g transform="translate(15 5) scale(0.86)">
+<path d="M24 36 C6 40 -2 62 2 90 C4 102 8 112 16 120 C18 110 24 102 28 92 C36 78 38 62 34 46 Z" fill="#27325B"></path>
+<path d="M98 44 C110 52 114 72 110 92 C108 100 106 106 102 112 C100 100 96 88 95 74 Z" fill="#27325B"></path>
+<circle cx="60" cy="54" r="40" fill="#27325B"></circle>
+<path d="M36 62 C36 44 50 30 66 30 C84 30 97 44 97 62 C97 80 86 95 70 98 C52 96 36 82 36 62 Z" fill="#FFE4D2"></path>
+<path d="M20.9 46 A40 40 0 0 1 99.1 46 L98 70 L93 50 L86 58 L79 47 L70 62 L60 48 L50 60 L42 50 L32 84 L24 60 Z" fill="#27325B"></path>
+<ellipse cx="55" cy="72" rx="6" ry="9" fill="#27325B"></ellipse>
+<ellipse cx="82" cy="72" rx="4.4" ry="9" fill="#27325B"></ellipse>
+<path d="M47.5 68 Q55 57.5 62.5 67 M76.5 67 Q82 57.5 88 68" fill="none" stroke="#27325B" stroke-width="2.2" stroke-linecap="round"></path>
+<circle cx="57" cy="68" r="2.2" fill="#FFFFFF"></circle>
+<circle cx="83.5" cy="68" r="1.8" fill="#FFFFFF"></circle>
+<ellipse cx="47" cy="83" rx="5" ry="2.6" fill="#FF8A7A" fill-opacity="0.6"></ellipse>
+<ellipse cx="88" cy="83" rx="3.6" ry="2.6" fill="#FF8A7A" fill-opacity="0.6"></ellipse>
+<path d="M66 87 Q70 90 74 87" fill="none" stroke="#27325B" stroke-width="2" stroke-linecap="round"></path>
+<circle cx="24" cy="41" r="6" fill="#FF8A3D"></circle>
+</g>
+</svg>
