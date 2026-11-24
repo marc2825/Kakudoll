@@ -1,0 +1,880 @@
+<title>Kakudoll エディタ UI 改訂案</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* レイアウト: 1カラムの報告書。診断は「番号・重さ・指摘と根拠」の3列リスト、
+   案はタブで同じ位置に切り替えて見比べる。色はブランド（紺・オレンジ・淡い青）から取る。 */
+:root{
+  --bg:#F1F5FB; --surface:#FFFFFF; --tint:#E4EAF6; --ink:#27325B; --ink-2:#4B5578; --line:#CFD8EA;
+  --accent:#FF8A3D; --accent-ink:#B4500F; --high:#C8402F; --on-high:#FFFFFF;
+  --f-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  /* Unity ダークテーマを模したモックアップ用。ページのテーマに関係なく同じ見た目にする */
+  --u-win:#383838; --u-bar:#3E3E3E; --u-deep:#2B2B2B; --u-line:#222222; --u-text:#DADADA; --u-dim:#ABABAB;
+  --u-view:#59606F; --u-btn:#565656; --u-key:#FF8A3D; --u-sel:#4C8FD6; --u-ok:#7FCB8F;
+  --h-hair:#232B52; --h-skin:#FFE4D2; --h-blush:#FF8A7A;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141932; --surface:#1D2445; --tint:#262E57; --ink:#EEF2FA; --ink-2:#B2BCD8; --line:#37416D;
+    --accent:#FF8A3D; --accent-ink:#FFA566; --high:#FF8A7A; --on-high:#2A1210; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141932; --surface:#1D2445; --tint:#262E57; --ink:#EEF2FA; --ink-2:#B2BCD8; --line:#37416D;
+  --accent:#FF8A3D; --accent-ink:#FFA566; --high:#FF8A7A; --on-high:#2A1210; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.8;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+.wrap{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+.prose{max-width:44em}
+h1,h2,h3{font-family:var(--f-display);line-height:1.35;margin:0;text-wrap:balance}
+h1{font-size:clamp(26px,4.4vw,38px)}
+h2{font-size:24px}
+h3{font-size:17px}
+p{margin:0}
+code{font-family:var(--f-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+section{display:flex;flex-direction:column;gap:20px;min-width:0}
+.lead{font-size:16px;color:var(--ink-2)}
+.stack{display:flex;flex-direction:column;gap:12px}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 冒頭: ティザーの「角度の軸」をそのまま置く */
+.axis{position:relative;height:54px;margin:8px 0 0;max-width:520px}
+.axis::before{content:"";position:absolute;left:0;right:0;top:12px;height:2px;background:var(--line)}
+.axis span{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.axis span::before{content:"";width:13px;height:13px;margin-top:6px;background:var(--accent);transform:rotate(45deg);border-radius:2px}
+.axis span:nth-child(1){left:7px;transform:none;align-items:flex-start}
+.axis span:nth-child(2){left:50%}
+.axis span:nth-child(3){left:auto;right:7px;transform:none;align-items:flex-end}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border-top:2px solid var(--ink)}
+.summary div{padding:16px 20px 4px 0;min-width:0}
+.summary b{display:block;font-family:var(--f-display);font-size:16px;margin-bottom:4px}
+.summary p{font-size:14px;color:var(--ink-2)}
+
+/* 現状の画面を縮尺どおりに描いた図 */
+.scale-scroll,.mock-scroll,.table-scroll{overflow-x:auto}
+.scale{position:relative;min-width:560px;aspect-ratio:900/760;background:var(--surface);border:1px solid var(--ink);font-size:11px;line-height:1.3}
+.scale div{position:absolute;border:1px solid var(--line);padding:3px 5px;overflow:hidden;color:var(--ink-2)}
+.scale .hot{background:var(--accent);border-color:var(--accent);color:#27325B;font-weight:700}
+.scale .fill{background:var(--tint)}
+.figure{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.figure{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700;color:var(--ink-2);font-size:13px}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;padding-right:0}
+.note{font-size:13px;color:var(--ink-2)}
+
+/* 指摘リスト */
+.issues{display:flex;flex-direction:column}
+.issue{display:grid;grid-template-columns:2.6rem 2.6rem minmax(0,1fr);gap:4px 10px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.issue .id{font-family:var(--f-mono);font-size:13px;color:var(--ink-2)}
+.sev{font-size:12px;font-weight:700;text-align:center;border-radius:4px;padding:1px 0;line-height:1.6}
+.sev.h{background:var(--high);color:var(--on-high)}
+.sev.m{border:1.5px solid var(--accent-ink);color:var(--accent-ink)}
+.sev.l{color:var(--ink-2);border:1px dashed var(--line)}
+.issue b{display:block}
+.issue p{font-size:14px;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-2);align-items:center}
+.legend .sev{display:inline-block;width:2.6rem;margin-right:6px}
+.good{columns:2 320px;column-gap:40px;margin:0;padding-left:1.2em;font-size:14px}
+.good li{break-inside:avoid;margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px 40px}
+.two>*{min-width:0}
+ul.plain{margin:0;padding-left:1.2em;font-size:14px;display:flex;flex-direction:column;gap:6px}
+
+/* タブ */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button{font:inherit;font-weight:700;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:6px 18px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{display:flex;flex-direction:column;gap:22px}
+.panel>header{display:flex;flex-direction:column;gap:6px}
+.try{font-size:13px;color:var(--accent-ink);font-weight:500}
+
+/* ---------- Unity 風モックアップ ---------- */
+.u-win{min-width:720px;height:480px;display:flex;flex-direction:column;background:var(--u-win);color:var(--u-text);font-size:12px;line-height:1.4;border:1px solid var(--u-line);border-radius:6px;overflow:hidden;font-family:var(--f-body)}
+.u-win button,.u-win input,.u-win select{font:inherit;color:inherit}
+.u-top,.u-status{display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--u-bar);flex:none}
+.u-top{height:32px;border-bottom:1px solid var(--u-line)}
+.u-status{height:26px;border-top:1px solid var(--u-line);color:var(--u-dim);white-space:nowrap;overflow:hidden}
+.u-status b{color:var(--u-text);font-weight:500}
+.u-sp{flex:1}
+.u-doc{font-weight:700}
+.u-chip{font-size:11px;padding:1px 8px;border-radius:9px;border:1px solid var(--u-dim);color:var(--u-text)}
+.u-chip.ok{border-color:var(--u-ok);color:var(--u-ok)}
+.u-chip.key{border-color:var(--u-key);color:var(--u-key)}
+.u-btn{background:var(--u-btn);border:1px solid var(--u-line);border-radius:3px;padding:3px 10px;cursor:pointer;white-space:nowrap}
+.u-btn:disabled{opacity:.55;cursor:default}
+.u-btn.primary{background:var(--u-key);border-color:var(--u-key);color:#27210F;font-weight:700}
+.u-btn.ghost{background:transparent}
+.u-btn[aria-pressed="true"]{background:var(--u-sel);border-color:var(--u-sel);color:#fff}
+.u-body{flex:1;display:flex;min-height:0}
+.u-tools{flex:none;width:58px;display:flex;flex-direction:column;gap:4px;padding:8px 6px;background:var(--u-bar);border-right:1px solid var(--u-line)}
+.u-tool{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;background:transparent;border:1px solid transparent;border-radius:4px;cursor:pointer}
+.u-tool kbd{font-family:var(--f-mono);font-size:10px;color:var(--u-dim)}
+.u-tool[aria-pressed="true"]{background:var(--u-sel);color:#fff}
+.u-tool[aria-pressed="true"] kbd{color:#fff}
+.u-tool:disabled{opacity:.5;cursor:default}
+.u-rule{height:1px;background:var(--u-line);margin:4px 0}
+.u-stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+.u-view{flex:1;position:relative;background:var(--u-view);min-height:0;display:flex;align-items:center;justify-content:center}
+.u-view svg{height:92%;max-width:100%}
+.u-tag{position:absolute;left:10px;top:8px;background:rgba(30,30,30,.78);padding:4px 9px;border-radius:4px;max-width:70%}
+.u-tag b{font-size:14px}
+.u-tag span{display:block;color:var(--u-text);font-size:11px}
+.u-pin{position:absolute;right:10px;top:8px;width:104px;background:var(--u-deep);border:1px solid var(--u-line);border-radius:4px;padding:3px 3px 0;text-align:center;font-size:11px;color:var(--u-dim)}
+.u-pin svg{height:78px;display:block;margin:0 auto;background:var(--u-view);width:100%}
+.u-side{flex:none;width:190px;padding:10px;background:var(--u-win);border-left:1px solid var(--u-line);display:flex;flex-direction:column;gap:10px}
+.u-side h4{margin:0;font:700 12px var(--f-body)}
+.u-field{display:flex;flex-direction:column;gap:3px;color:var(--u-dim);font-size:11px}
+.u-field input[type=range]{width:100%;accent-color:var(--u-key)}
+.u-seg{display:flex}
+.u-seg button{flex:1;background:var(--u-btn);border:1px solid var(--u-line);padding:3px 0;cursor:pointer;margin-left:-1px}
+.u-seg button:first-child{margin-left:0;border-radius:3px 0 0 3px}
+.u-seg button:last-child{border-radius:0 3px 3px 0}
+.u-seg button[aria-pressed="true"]{background:var(--u-sel);color:#fff}
+.u-help{font-size:11px;color:var(--u-dim)}
+
+/* 案A: 角度レール */
+.rail{flex:none;background:var(--u-deep);border-top:1px solid var(--u-line);padding:6px 14px 8px;display:flex;flex-direction:column;gap:4px}
+.rail-head{display:flex;align-items:center;gap:8px}
+.rail-track{position:relative;height:96px;cursor:ew-resize;touch-action:none;border-radius:3px}
+.rail-band{position:absolute;top:58px;height:14px;background:rgba(255,138,61,.18);border-left:2px solid var(--u-key);border-right:2px solid var(--u-key)}
+.rail-line{position:absolute;left:0;right:0;top:64px;height:2px;background:#6A6A6A}
+.rail-tick{position:absolute;top:60px;width:1px;height:10px;background:#7A7A7A}
+.rail-tick.major{top:56px;height:18px;background:#A0A0A0}
+.rail-num{position:absolute;top:78px;transform:translateX(-50%);font-size:10px;color:var(--u-dim);font-variant-numeric:tabular-nums}
+.rail-thumb{position:absolute;top:0;width:46px;height:46px;margin-left:-23px;background:var(--u-view);border:1px solid var(--u-line);border-radius:3px;pointer-events:none}
+.rail-thumb.on{border:2px solid var(--u-key)}
+.rail-thumb svg{width:100%;height:100%}
+.rail-key{position:absolute;top:57px;width:16px;height:16px;margin-left:-8px;padding:0;background:var(--u-key);border:2px solid var(--u-deep);transform:rotate(45deg);border-radius:2px;cursor:pointer}
+.rail-key.on{border-color:#fff}
+.rail-play{position:absolute;top:50px;bottom:14px;width:2px;margin-left:-1px;background:#fff;pointer-events:none}
+.rail-play::before{content:"";position:absolute;left:-5px;top:-2px;border:6px solid transparent;border-top-color:#fff}
+
+/* 案B: ターンアラウンド・シート */
+.sheet{flex:1;display:flex;gap:6px;padding:8px;min-height:0;position:relative}
+.col{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--u-deep);border:2px solid transparent;border-radius:4px;cursor:pointer;padding:0;text-align:left}
+.col.on{flex:1.7;border-color:var(--u-key);cursor:default}
+.col-head{display:flex;align-items:center;gap:6px;padding:4px 8px;white-space:nowrap}
+.col-head b{font-size:13px}
+.col-view{flex:1;background:var(--u-view);display:flex;align-items:center;justify-content:center;min-height:0;position:relative}
+.col-view svg{height:86%;max-width:100%}
+.col .palette{display:none}
+.col.on .palette{display:flex;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);gap:0;background:var(--u-deep);border:1px solid var(--u-line);border-radius:4px;padding:3px}
+.palette button{background:transparent;border:0;padding:3px 10px;border-radius:3px;cursor:pointer;white-space:nowrap}
+.palette button[aria-pressed="true"]{background:var(--u-sel);color:#fff}
+.addcol{flex:none;width:20px;align-self:center;height:56px;padding:0;background:transparent;border:1px dashed var(--u-dim);border-radius:3px;color:var(--u-dim);cursor:pointer}
+.between{flex:.9;display:flex;flex-direction:column;min-width:0;background:var(--u-deep);border:2px dashed #6A6A6A;border-radius:4px}
+.between input{margin:4px 8px 6px;accent-color:var(--u-key)}
+.guide{position:absolute;left:8px;right:8px;height:0;border-top:1px dashed rgba(255,255,255,.6);pointer-events:none}
+
+/* 案C: はじめる画面と編集画面 */
+.setup{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;min-height:0}
+.setup-card{width:430px;display:flex;flex-direction:column;gap:12px}
+.setup-card h4{margin:0;font:700 17px var(--f-display)}
+.step{display:grid;grid-template-columns:22px 1fr;gap:2px 10px;align-items:start}
+.step i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--u-btn);text-align:center;line-height:22px;font-weight:700;grid-row:span 2}
+.step b{font-size:13px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts button{background:var(--u-deep);border:1px solid var(--u-line);border-radius:4px;padding:5px 10px;cursor:pointer;text-align:left}
+.opts button small{display:block;color:var(--u-dim);font-size:10px}
+.opts button[aria-pressed="true"]{border-color:var(--u-key);box-shadow:inset 0 0 0 1px var(--u-key)}
+.keys{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--u-bar);border-bottom:1px solid var(--u-line);flex:none}
+.keys .u-seg{flex:none}
+.keys .u-seg button{padding:4px 16px;font-weight:700}
+.keys .u-seg button[aria-pressed="true"]{background:var(--u-key);border-color:var(--u-key);color:#27210F}
+.toolbar-c{display:flex;align-items:center;gap:12px;padding:6px 10px;background:var(--u-bar);border-top:1px solid var(--u-line);flex:none}
+.toolbar-c .u-seg{width:210px;flex:none}
+.toolbar-c label{display:flex;align-items:center;gap:6px;color:var(--u-dim);font-size:11px}
+.toolbar-c input[type=range]{width:110px;accent-color:var(--u-key)}
+.drawer{position:absolute;right:0;top:0;bottom:0;width:230px;background:var(--u-win);border-left:1px solid var(--u-line);padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.drawer h4{margin:0;font:700 12px var(--f-body)}
+.drawer p{color:var(--u-dim);font-size:11px;border-bottom:1px solid var(--u-line);padding-bottom:7px}
+
+.screen-switch{display:flex;gap:8px;align-items:center;font-size:13px;flex-wrap:wrap}
+.screen-switch button{font:inherit;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:3px 12px;cursor:pointer}
+.screen-switch button[aria-pressed="true"]{background:var(--tint);border-color:var(--ink);font-weight:700}
+.reco{border-left:4px solid var(--accent);padding:4px 0 4px 20px;display:flex;flex-direction:column;gap:10px}
+ol.ask{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px}
+@media (prefers-reduced-motion:no-preference){.col{transition:flex .18s ease}}
+</style>
+
+<div class="wrap">
+
+<header class="stack">
+  <h1>Kakudoll エディタ UI 改訂案</h1>
+  <p class="lead prose">現在のエディタ画面を、コード（UXML・USS・C#）から読み取れる事実にもとづいて診断し、作り直しの方向を3案にまとめました。実装はまだしていません。案はどれも下のモックアップで実際に触れます。</p>
+  <div class="axis" aria-hidden="true"><span>正面 0°</span><span>ななめ 45°</span><span>横 90°</span></div>
+  <p class="prose">ティザー画像は Kakudoll を「角度の軸にキーが並ぶ」絵で説明しています。ところが今のエディタには、この軸がどこにも描かれていません。診断でいちばん大きかったのはこの点です。</p>
+</header>
+
+<section aria-labelledby="s-sum">
+  <h2 id="s-sum">要点</h2>
+  <div class="summary">
+    <div><b>主役が小さい</b><p>最小サイズ（900×760）では、編集ビューはウィンドウ面積の約5%です。フルHDでも約2割にとどまります。</p></div>
+    <div><b>同じことを何度も聞く</b><p>「どのメッシュを直すか」を3か所で別々に指定します。食い違うとエラーになります。</p></div>
+    <div><b>読む場所が決まっていない</b><p>操作の結果や次の手順が、画面の9か所に分かれて表示されます。</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="s-now">
+  <h2 id="s-now">現状の診断</h2>
+  <p class="prose">指摘は全部で34件あります。重さは、作業が止まる・誤操作につながるものを「高」、毎回の手間になるものを「中」、仕上げの問題を「低」としました。根拠として該当するファイルと行を添えています。診断はコードを読んで行いました。Unity を起動して画面を確かめてはいないので、実際の見え方と違う所があれば教えてください。</p>
+
+  <div class="figure">
+    <div class="stack">
+      <h3>最小サイズでの画面の使われ方</h3>
+      <div class="scale-scroll">
+        <div class="scale" role="img" aria-label="900×760ピクセルの現在のウィンドウを縮尺どおりに描いた図。オレンジ色の編集ビューは中央の小さな領域だけを占める">
+          <div style="left:0;top:0;width:100%;height:3.9%">ツールバー</div>
+          <div style="left:0;top:3.9%;width:100%;height:5.3%">手順ガイド</div>
+          <div class="fill" style="left:0;top:9.2%;width:27.8%;height:73%">左ペイン<br>ドキュメント、キー一覧、旧形式</div>
+          <div style="left:27.8%;top:9.2%;width:34.4%;height:6.3%">VRM、編集モード</div>
+          <div class="hot" style="left:28.4%;top:18.4%;width:18.9%;height:28.3%">編集ビュー<br>約170×215px</div>
+          <div style="left:47.8%;top:15.5%;width:14.4%;height:15.6%">Sub A</div>
+          <div style="left:47.8%;top:31.1%;width:14.4%;height:15.6%">Sub B</div>
+          <div class="fill" style="left:27.8%;top:46.9%;width:34.4%;height:35.3%">操作パネル<br>視点、表情、頂点選択（スクロール）</div>
+          <div class="fill" style="left:62.2%;top:9.2%;width:37.8%;height:73%">右ペイン<br>選択キー、対象Mesh、BlendShape取込、グループ設定</div>
+          <div class="fill" style="left:0;top:82.2%;width:100%;height:14.7%">検証結果（問題がなくても常に表示）</div>
+          <div style="left:0;top:96.9%;width:100%;height:3.1%">ステータス</div>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <h3>面積の内訳</h3>
+      <table>
+        <tr><th>領域</th><th style="text-align:right">割合</th></tr>
+        <tr><td><b>編集ビュー</b></td><td class="num"><b>約5%</b></td></tr>
+        <tr><td>比較ビュー2つ</td><td class="num">約4%</td></tr>
+        <tr><td>操作パネル</td><td class="num">約12%</td></tr>
+        <tr><td>左ペイン</td><td class="num">約20%</td></tr>
+        <tr><td>右ペイン</td><td class="num">約28%</td></tr>
+        <tr><td>検証結果</td><td class="num">約15%</td></tr>
+        <tr><td>バー類と余白</td><td class="num">約16%</td></tr>
+      </table>
+      <p class="note">USS に書かれた寸法から計算した概算です。Unity 上での実測ではありません。1920×1000 のウィンドウで同じ計算をすると、編集ビューは約22%になります。</p>
+    </div>
+  </div>
+
+  <div class="legend" aria-label="重さの凡例">
+    <span><span class="sev h">高</span>作業が止まる、誤操作につながる</span>
+    <span><span class="sev m">中</span>毎回の手間になる</span>
+    <span><span class="sev l">低</span>仕上げの問題</span>
+  </div>
+
+  <div class="stack">
+    <h3>A. 考え方と画面のずれ</h3>
+    <div class="issues">
+      <div class="issue"><span class="id">A1</span><span class="sev h">高</span><div><b>角度の軸が画面にない</b><p>キーは「45°　120 頂点」という文字の一覧と数値欄だけで表されます。今の視点がどのキーのあいだにあるか、補間がどう効いているか、効く範囲がどこまでかを図で確かめられません。<code>VlatEditorWindow.uxml:49</code> <code>VlatEditorWindow.Keyforms.cs:40, 200-203</code></p></div></div>
+      <div class="issue"><span class="id">A2</span><span class="sev h">高</span><div><b>直すメッシュを3か所で指定する</b><p>「VRMを開く」（プレビュー用の複製）、右ペインの Avatar Root と Renderer の欄（シーン上のオブジェクト）、頂点選択の「対象」の3つです。プレビュー用の VRM は非表示のプレビューシーンに置かれるので、右ペインの欄を埋めるには同じアバターを別にシーンへ置くことになります。3つが食い違うと「選択RendererがKeyformのMeshBindingと異なります」と出て編集できません。<code>Keyforms.cs:149-176</code> <code>VlatPreviewController.cs:95</code> <code>VlatPreviewController.Drag.cs:61</code></p></div></div>
+      <div class="issue"><span class="id">A3</span><span class="sev h">高</span><div><b>編集の段階が2つのチェックボックスで表される</b><p>実際は「見る、選ぶ、動かす」の3段階ですが、画面では「頂点選択」「2Dドラッグ」という独立したチェックに見えます。左ドラッグの意味は段階によって回転・選択・変形と変わります。ドラッグに入ると選んだ頂点の表示が消えます。頂点選択に入ると表情と補正表示が無効になりますが、理由は表示されません。<code>uxml:90-91</code> <code>VlatEditorWindow.cs:1592-1598, 1614</code></p></div></div>
+      <div class="issue"><span class="id">A4</span><span class="sev m">中</span><div><b>キーを選んでも視点が変わらない</b><p>45°のキーを選んでも視点はそのままで、右ペインの「視点をこのキー角度へ」を押す必要があります。一方ドラッグ中は「Mainは選択キー固定」になり、見えている形が補間結果なのかキーそのものなのかが状態によって入れ替わります。<code>Keyforms.cs:111-130</code> <code>VlatPreviewController.cs:1196</code></p></div></div>
+      <div class="issue"><span class="id">A5</span><span class="sev m">中</span><div><b>比較ビューの見出しが固定の文字</b><p>「Sub A (45°)」は UXML に直接書かれた文字で、ビューを回しても変わりません。比較ビューはキーとも連動しません。<code>uxml:108, 115</code></p></div></div>
+      <div class="issue"><span class="id">A6</span><span class="sev m">中</span><div><b>1つしか作れないグループに一覧がある</b><p>グループは1つだけの対応ですが、一覧と追加・削除ボタンがあり、手順にも「2 グループ」があります。利用者が判断することのない作業です。<code>VlatEditorKeyformController.cs:16</code> <code>uxml:38-43</code></p></div></div>
+      <div class="issue"><span class="id">A7</span><span class="sev l">低</span><div><b>旧形式の区画が常に見えている</b><p>v0.1 の Layer 編集が左ペインに常駐します。見出しには「(v0.2)」「(v0.1互換)」という内部の形式番号が出ています。<code>uxml:37, 52</code></p></div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>B. レイアウトと優先順位</h3>
+    <div class="issues">
+      <div class="issue"><span class="id">B1</span><span class="sev h">高</span><div><b>編集ビューが小さい</b><p>上の図のとおりです。原因は、左250px と右340px の固定ペイン、常に出ている検証結果112px、プレビュー区画の最大48%を使う操作パネル、3ビューの同時表示です。<code>VlatEditorWindow.uss:367, 463</code> <code>uxml:33, 82</code></p></div></div>
+      <div class="issue"><span class="id">B2</span><span class="sev h">高</span><div><b>メッセージの出る場所が9か所ある</b><p>手順のヒント、操作ヘルプ、ドラッグの状態、頂点選択の警告、プレビューの診断、選択の状態、ステータスバー、検証結果、右ペインの注意書きです。操作の結果をどこで読めばよいかが決まっていません。<code>uxml:30, 123, 126-128, 156, 175-179</code></p></div></div>
+      <div class="issue"><span class="id">B3</span><span class="sev m">中</span><div><b>検証結果が「問題なし」でも112pxを使う</b><p><code>uss:461-466</code></p></div></div>
+      <div class="issue"><span class="id">B4</span><span class="sev m">中</span><div><b>関係する操作が四隅に離れている</b><p>キー一覧は左、視点合わせのボタンは右、編集モードは上、ツールの設定は下にあります。「キーを選ぶ、視点を合わせる、頂点を選ぶ、動かす、確かめる」の1周でポインタが画面を往復します。</p></div></div>
+      <div class="issue"><span class="id">B5</span><span class="sev m">中</span><div><b>最初の画面が空のまま全部出る</b><p>何も読み込んでいなくても3つのペインと空のビュー3つが表示されます。最初の操作「VRMを開く…」は小さい普通のボタンで、場所は「プレビュー上部の」「左の」という文章で案内しています。<code>VlatEditorWindow.Layout.cs:19-24</code></p></div></div>
+      <div class="issue"><span class="id">B6</span><span class="sev m">中</span><div><b>強弱がつけられていない</b><p>罫線はすべて同じ1px、見出しはすべて太字です。主な操作と補助的な操作（「VRMを開く…」と「閉じる」、3つの「リセット」）が同じ見た目です。</p></div></div>
+      <div class="issue"><span class="id">B7</span><span class="sev l">低</span><div><b>最小サイズが900×760</b><p>Unity のほかのウィンドウと並べて置きにくい大きさです。<code>VlatEditorWindow.cs:96</code></p></div></div>
+      <div class="issue"><span class="id">B8</span><span class="sev l">低</span><div><b>キー一覧が6行ぶんで固定</b><p>キーは16個まで作れます。<code>uss:174</code></p></div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>C. 言葉</h3>
+    <div class="issues">
+      <div class="issue"><span class="id">C1</span><span class="sev h">高</span><div><b>同じものに呼び名がいくつもある</b><p>キー（Yawキー、Keyform、形状キー）。直すメッシュ（対象Mesh、Binding、MeshBinding、対象Renderer、Source Mesh）。補正（After、補間、Keyform Preview）。動かす操作（2Dドラッグ、Keyform 2D編集、変形、直接編集）。頂点選択（Geometry Selection）。README は「左右の向き」「キー」「形」と書いていますが、画面は仕様書の言葉です。</p></div></div>
+      <div class="issue"><span class="id">C2</span><span class="sev m">中</span><div><b>実装の注記が常に出ている</b><p>「Editor CPU Keyform Preview / bind-mesh-local / position only / GPUとの等価性は未検証。」「補間: yaw-smoothstep」「Phase 2Bでは読み取り専用」など。<code>VlatPreviewController.cs:903</code> <code>Keyforms.cs:204-208</code> <code>VlatEditorWindow.cs:785</code></p></div></div>
+      <div class="issue"><span class="id">C3</span><span class="sev m">中</span><div><b>エラーが内部の状態だけを伝える</b><p>「逆投影が特異です。」「変換行列の条件数が大きすぎます。」「Soft Selection weightが不正です。」は、何をすれば直るかを示していません。<code>VlatKeyformDragGesture.cs:101, 211, 363</code></p></div></div>
+      <div class="issue"><span class="id">C4</span><span class="sev l">低</span><div><b>メッセージ中のボタン名が実物と違う</b><p>「Save Asを使用してください」「Openで確認」とありますが、ボタンは「別名で保存…」「開く…」です。<code>VlatEditorDocumentController.cs:134, 546</code></p></div></div>
+      <div class="issue"><span class="id">C5</span><span class="sev l">低</span><div><b>結果のメッセージがどの操作でも同じ</b><p>「編集内容を反映しました。」<code>VlatEditorDocumentController.cs:629</code></p></div></div>
+      <div class="issue"><span class="id">C6</span><span class="sev l">低</span><div><b>単位と目盛り</b><p>「ソフト半径」は0.0001から1までを直線のスライダーで扱うので、小さい値を合わせにくくなっています。単位の表示もありません。<code>uxml:150</code></p></div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>D. 操作</h3>
+    <div class="issues">
+      <div class="issue"><span class="id">D1</span><span class="sev m">中</span><div><b>キーボードでできることがほとんどない</b><p>ウィンドウが受けるキーは Esc（ドラッグの中止）だけです。段階の切り替え、ツール、ブラシの太さ、キー間の移動はすべてマウス操作です。<code>VlatEditorWindow.Drag.cs:25</code></p></div></div>
+      <div class="issue"><span class="id">D2</span><span class="sev m">中</span><div><b>キーを足す位置を選べない</b><p>「＋」はいちばん広い空き区間の真ん中に足します。今見ている角度に足すには、足したあとで数値を打ち直します。<code>VlatEditorKeyformController.cs:202-215</code></p></div></div>
+      <div class="issue"><span class="id">D3</span><span class="sev m">中</span><div><b>押せないボタンの理由が分からない</b><p>「2Dドラッグ」（頂点とキーが必要）、グループの「＋」（すでにある）、表情（頂点選択中）は無効になるだけで、ツールチップは変わりません。<code>VlatEditorWindow.Drag.cs:52</code> <code>Keyforms.cs:83-90</code></p></div></div>
+      <div class="issue"><span class="id">D4</span><span class="sev l">低</span><div><b>補正の前後を見比べにくい</b><p>チェックボックスの切り替えだけで、頂点選択中は使えません。直した直後に比べたい場面で使えません。<code>VlatEditorWindow.cs:1598</code></p></div></div>
+      <div class="issue"><span class="id">D5</span><span class="sev l">低</span><div><b>記号だけの小さいボタン</b><p>＋ − ↑ ↓ は24×20pxです。「リセット」は同じ名前が3つあり、文字は10pxです。<code>uss:159-165, 331-336</code></p></div></div>
+      <div class="issue"><span class="id">D6</span><span class="sev l">低</span><div><b>比較ビューが古いことを文章で説明している</b><p>ドラッグ中は比較ビューが更新されません。「MouseUpで更新」と書いてありますが、ビュー自体に印はありません。<code>VlatPreviewController.Drag.cs:66</code></p></div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>E. 見やすさ</h3>
+    <div class="issues">
+      <div class="issue"><span class="id">E1</span><span class="sev m">中</span><div><b>小さくて薄い文字</b><p>10〜11pxの文字に不透明度0.55〜0.75を重ねています。Unity ダークテーマの既定色で計算すると、未完了の手順チップは約3.2:1、操作ヘルプは約4.2:1 で、WCAG AA の 4.5:1 に届きません。<code>uss:92, 213, 358-359</code></p></div></div>
+      <div class="issue"><span class="id">E2</span><span class="sev m">中</span><div><b>同じ青に3つの意味</b><p>現在の手順、編集ビューの枠、進行中のメッセージが同じ青です。<code>uss:107, 311, 384</code></p></div></div>
+      <div class="issue"><span class="id">E3</span><span class="sev l">低</span><div><b>色だけで状態を区別している</b><p>手順チップの完了（緑）と未着手（薄い）、検証結果のまとめ。</p></div></div>
+      <div class="issue"><span class="id">E4</span><span class="sev l">低</span><div><b>ライトテーマの調整が一部だけ</b><p>強調色は直接の値で書かれ、ライトテーマ用の上書きは一部の文字色（4か所）だけです。手順チップと未保存の表示は調整されていません。<code>uss:399, 445, 512</code></p></div></div>
+      <div class="issue"><span class="id">E5</span><span class="sev l">低</span><div><b>ブランドとのつながりがない</b><p>紺とオレンジ、丸みのあるロゴは画面に現れません。Unity 標準に合わせるという方針（K-025）の結果なので、欠陥とは限りません。</p></div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>F. 手順ガイド</h3>
+    <div class="issues">
+      <div class="issue"><span class="id">F1</span><span class="sev m">中</span><div><b>「済み」が元に戻る</b><p>完了かどうかを毎回その時点の状態から計算しています。頂点選択をオフにすると 5 が未完了に戻り、6 はドラッグをしていなくてもチェックをオンにしただけで完了になります。<code>Layout.cs:112-118</code></p></div></div>
+      <div class="issue"><span class="id">F2</span><span class="sev l">低</span><div><b>慣れたあとも1行を使い続ける</b><p>閉じる方法がありません。</p></div></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>今の画面で良い点（残すもの）</h3>
+    <ul class="good">
+      <li>元の VRM を書き換えないことを、画面の言葉でも繰り返し伝えている</li>
+      <li>手順ガイドが状態を見て次の一手を示す、という考え方</li>
+      <li>1回のドラッグを1回の「元に戻す」で戻せる。Unity が落ちても復元できる</li>
+      <li>色は Unity のテーマ変数が基本で、ライトとダークの両方で読める</li>
+      <li>ほぼすべての操作にツールチップがある</li>
+      <li>検証結果は重複をまとめ、クリックで該当箇所に飛べる</li>
+      <li>性能やリソースの情報は折りたたんである</li>
+      <li>段階に応じて操作ヘルプの文が変わる</li>
+    </ul>
+  </div>
+</section>
+
+<section aria-labelledby="s-base">
+  <h2 id="s-base">作り直しの前提</h2>
+  <div class="two">
+    <div class="stack">
+      <h3>frontend-design の考え方を Unity に当てはめる</h3>
+      <p>参考にしたスキルは「題材の世界から形を決める」「大胆さは1か所に使い、ほかは静かに」「言葉は利用者の側から書く」「動きは操作への反応に限る」を求めています。</p>
+      <p>Unity 2022.3 の UI Toolkit には、標準ではグラデーションも影もぼかしもありません。日本語フォントを同梱するのも容量とライセンスの負担が大きくなります。そこで個性は書体や飾りではなく、構造と、1つの専用部品で出します。その部品が「角度の軸」です。まわりは Unity 標準の見た目のまま静かにします。</p>
+      <p>色は1つだけ足します。オレンジは「キー」と「今の角度」だけに使い、Unity の青は選択とフォーカスのために残します。</p>
+    </div>
+    <div class="stack">
+      <h3>どの案でも行う改善</h3>
+      <ul class="plain">
+        <li>VRM を開いたら、直すパーツを一覧から選ぶだけにする。Avatar Root と Renderer の欄はなくす（A2, A6）</li>
+        <li>編集の段階を「見る・選ぶ・動かす」の3つのツールにし、1・2・3 キーで切り替える（A3, D1）</li>
+        <li>メッセージは1か所にまとめる。検証結果は問題があるときだけ開く（B2, B3）</li>
+        <li>押せないボタンには、ツールチップで理由を出す（D3）</li>
+        <li>旧形式の区画は、旧形式のファイルを開いたときだけ出す（A7）</li>
+        <li>実装の注記は「詳細」に移す。エラーには対処を書く（C2, C3）</li>
+        <li>文字は11px以上、不透明度で薄くしない。コントラストは4.5:1以上（E1）</li>
+      </ul>
+    </div>
+  </div>
+  <div class="stack">
+    <h3>言葉の統一案</h3>
+    <div class="table-scroll">
+    <table>
+      <tr><th>今の画面</th><th>新しい言葉</th><th>補足</th></tr>
+      <tr><td>Yaw</td><td>角度</td><td>必要な所だけ「左右の向き」と添える</td></tr>
+      <tr><td>Yawキー、Keyform、形状キー</td><td>キー</td><td></td></tr>
+      <tr><td>対象Mesh、Binding、Renderer、Source Mesh</td><td>直すパーツ</td><td>メッシュ名は一覧の中に出す</td></tr>
+      <tr><td>位置差分、Vertex deltas</td><td>形</td><td>「312 頂点を動かしています」のように書く</td></tr>
+      <tr><td>支持区間 開始・終了</td><td>効く範囲</td><td>数値欄ではなく軸の上の帯で示す</td></tr>
+      <tr><td>補正を表示、After</td><td>補正前を表示</td><td>押しているあいだだけ切り替える</td></tr>
+      <tr><td>頂点選択、Geometry Selection</td><td>選ぶ</td><td></td></tr>
+      <tr><td>2Dドラッグ、Keyform 2D編集</td><td>動かす</td><td></td></tr>
+      <tr><td>Main、Sub A、Sub B</td><td>編集ビュー、比較ビュー</td><td></td></tr>
+      <tr><td>ソフト半径、減衰</td><td>なじませる範囲、なじませ方</td><td></td></tr>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="s-plan">
+  <h2 id="s-plan">3つの案</h2>
+  <p class="prose">3案は見た目の違いではなく、画面を何で組み立てるかが違います。A は角度の軸、B は横並びの見比べ、C は手順の少なさを中心に置いています。</p>
+  <div class="tabs" role="tablist" aria-label="案の切り替え">
+    <button role="tab" id="tab-a" aria-controls="panel-a" aria-selected="true">案A 角度レール</button>
+    <button role="tab" id="tab-b" aria-controls="panel-b" aria-selected="false">案B 見比べシート</button>
+    <button role="tab" id="tab-c" aria-controls="panel-c" aria-selected="false">案C かんたん編集</button>
+  </div>
+
+  <!-- 案A -->
+  <div class="panel" id="panel-a" role="tabpanel" aria-labelledby="tab-a">
+    <header>
+      <h3>案A 角度レール：角度の軸を画面の中心にする</h3>
+      <p class="prose">ビューの下に角度の軸を置きます。キー一覧、Yaw スライダー、「視点をこのキー角度へ」、比較ビューの4つを、この1つの部品にまとめます。動画編集のタイムラインと同じ考え方で、時間の代わりに角度が流れます。</p>
+      <p class="try">試す：レールをドラッグすると顔が回ります。ひし形を押すとそのキーに移動します。キーのない角度で「この角度にキーを足す」を押せます。</p>
+    </header>
+    <div class="mock-scroll">
+      <div class="u-win" id="mockA">
+        <div class="u-top">
+          <span class="u-doc">front_hair.vlat.json</span><span class="u-chip">未保存</span>
+          <button class="u-btn" type="button">保存</button>
+          <span class="u-sp"></span>
+          <span class="u-chip ok">問題なし</span>
+          <button class="u-btn ghost" type="button">詳細</button>
+        </div>
+        <div class="u-body">
+          <div class="u-tools" role="group" aria-label="ツール">
+            <button class="u-tool" type="button" data-tool="view" aria-pressed="false">見る<kbd>1</kbd></button>
+            <button class="u-tool" type="button" data-tool="select" aria-pressed="false">選ぶ<kbd>2</kbd></button>
+            <button class="u-tool" type="button" data-tool="move" aria-pressed="true">動かす<kbd>3</kbd></button>
+            <div class="u-rule"></div>
+            <button class="u-tool" type="button" id="a-raw" aria-pressed="false">補正前<kbd>Space</kbd></button>
+          </div>
+          <div class="u-stage">
+            <div class="u-view">
+              <svg id="a-head" viewBox="-100 -84 200 180" aria-hidden="true"></svg>
+              <div class="u-tag"><b id="a-title"></b><span id="a-sub"></span></div>
+              <div class="u-pin">正面 0° と比較<svg id="a-pin" viewBox="-100 -84 200 180" aria-hidden="true"></svg></div>
+            </div>
+            <div class="rail">
+              <div class="rail-head">
+                <button class="u-btn" type="button" id="a-add">＋ この角度にキーを足す</button>
+                <span class="u-help" id="a-addwhy"></span>
+                <span class="u-sp"></span>
+                <span class="u-help">オレンジの帯が、補正の効く範囲</span>
+              </div>
+              <div class="rail-track" id="a-rail" tabindex="0" role="slider" aria-label="見る角度" aria-valuemin="-120" aria-valuemax="120" aria-valuenow="45"></div>
+            </div>
+          </div>
+          <div class="u-side" id="a-side"></div>
+        </div>
+        <div class="u-status" id="a-status"></div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="stack">
+        <h3>変わること</h3>
+        <ul class="plain">
+          <li>キーを選ぶと視点もその角度に合う。合わせるボタンは不要になる（A4）</li>
+          <li>キーのあいだを動かすと補間の途中の形がそのまま見える（A1）</li>
+          <li>キーは今見ている角度に足せる。ひし形を横に引けば角度を変えられる（D2）</li>
+          <li>各キーの小さな絵がひし形の上に並ぶ。全部のキーの形を一度に見渡せる</li>
+          <li>ビューは1つで大きい。比べたい角度だけ右上に留める（B1, A5）</li>
+          <li>ツールの設定は右の細い列に、選んでいるツールの分だけ出る（B4）</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>長所と短所</h3>
+        <ul class="plain">
+          <li>長所：ティザーの絵と画面が同じ形になる。説明なしで仕組みが伝わる</li>
+          <li>長所：キーが16個に増えても破綻しない</li>
+          <li>短所：レールは専用部品として新しく作る（Painter2D で描画）。3案でいちばん実装が重い</li>
+          <li>短所：キーごとの小さな絵を描く負荷が増える。確定したときだけ更新する設計が必要</li>
+          <li>短所：大きく並べて見比べる用途は案Bに劣る</li>
+          <li>影響：UXML の要素名が大きく変わる。K-025 の改訂と UI テストの書き直しが必要</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案B -->
+  <div class="panel" id="panel-b" role="tabpanel" aria-labelledby="tab-b" hidden>
+    <header>
+      <h3>案B 見比べシート：キーを横に並べる</h3>
+      <p class="prose">アニメの設定画（正面・ななめ・横を並べた絵）と同じ形にします。キー1つが1列で、押した列が編集ビューになります。横に通る補助線で、目やあごの高さが角度ごとにそろっているかを確かめられます。</p>
+      <p class="try">試す：列を押すと、その角度が編集ビューになります。右端のスライダーでキーのあいだの形を確かめられます。</p>
+    </header>
+    <div class="mock-scroll">
+      <div class="u-win" id="mockB">
+        <div class="u-top">
+          <span class="u-doc">front_hair.vlat.json</span><span class="u-chip">未保存</span>
+          <button class="u-btn" type="button">保存</button>
+          <span class="u-sp"></span>
+          <button class="u-btn" type="button" id="b-guides" aria-pressed="true">補助線</button>
+          <span class="u-chip ok">問題なし</span>
+          <button class="u-btn ghost" type="button">詳細</button>
+        </div>
+        <div class="sheet" id="b-sheet"></div>
+        <div class="u-status" id="b-status"></div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="stack">
+        <h3>変わること</h3>
+        <ul class="plain">
+          <li>キー一覧がなくなる。列がそのままキーになる（A1, A4）</li>
+          <li>列のあいだの「＋」で、そのあいだにキーを足す（D2）</li>
+          <li>ツールは編集中の列の中に浮かぶ。ポインタの移動が短い（B4）</li>
+          <li>編集していない列は、確定のたびに更新する。古い表示のあいだは見出しに印を出す（D6）</li>
+          <li>「あいだ」の列で、補間の途中の形を確かめる</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>長所と短所</h3>
+        <ul class="plain">
+          <li>長所：角度どうしの見比べがいちばんしやすい。Kakudoll の目的に直結する</li>
+          <li>長所：今ある3ビューの仕組み（Main と Sub A・B）を流用できる。実装は中くらい</li>
+          <li>短所：1つのビューは案Aより小さい</li>
+          <li>短所：キーが4つを超えると横スクロールになる</li>
+          <li>短所：今は Main だけが編集できる作りなので、列を切り替えるたびに Main を割り当て直す処理が要る</li>
+          <li>影響：プレビューの要素名は残せる部分が多い。左右のペインに関するテストは書き直し</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案C -->
+  <div class="panel" id="panel-c" role="tabpanel" aria-labelledby="tab-c" hidden>
+    <header>
+      <h3>案C かんたん編集：準備と編集を分ける</h3>
+      <p class="prose">最初に「アバター、直すパーツ、角度」の3つを選ぶ画面を出し、あとは自動で用意します。編集画面にはビュー、キーの切り替え、ツールの3つだけを置きます。それ以外はすべて「詳細」に入れます。</p>
+      <p class="try">試す：「編集をはじめる」で編集画面に移ります。上の角度を押すとキーが切り替わります。「詳細」で隠れている項目を確かめられます。</p>
+    </header>
+    <div class="screen-switch" role="group" aria-label="表示する画面">
+      <span>表示する画面</span>
+      <button type="button" id="c-to-setup" aria-pressed="true">はじめる画面</button>
+      <button type="button" id="c-to-edit" aria-pressed="false">編集画面</button>
+    </div>
+    <div class="mock-scroll">
+      <div class="u-win" id="mockC">
+        <div class="u-top">
+          <span class="u-doc" id="c-doc">新しいファイル</span>
+          <span class="u-sp"></span>
+          <button class="u-btn ghost" type="button" id="c-detail" aria-pressed="false">詳細</button>
+        </div>
+        <div class="u-body" id="c-setup">
+          <div class="setup">
+            <div class="setup-card">
+              <h4>直したい角度を決める</h4>
+              <div class="step"><i>1</i><b>アバター</b>
+                <div class="opts"><button type="button" aria-pressed="true">sample_avatar.vrm<small>元のファイルは書き換えません</small></button><button type="button" class="u-btn ghost">ほかの VRM を開く…</button></div></div>
+              <div class="step"><i>2</i><b>直すパーツ</b>
+                <div class="opts" id="c-parts">
+                  <button type="button" aria-pressed="false">顔<small>Face　4,812 頂点</small></button>
+                  <button type="button" aria-pressed="true">前髪<small>Hair_Front　2,304 頂点</small></button>
+                  <button type="button" aria-pressed="false">後ろ髪<small>Hair_Back　6,120 頂点</small></button>
+                </div></div>
+              <div class="step"><i>3</i><b>形を変えたい角度</b>
+                <div class="opts" id="c-angles">
+                  <button type="button" aria-pressed="true">0°<small>正面</small></button>
+                  <button type="button" aria-pressed="true">45°<small>ななめ</small></button>
+                  <button type="button" aria-pressed="true">90°<small>横</small></button>
+                  <button type="button" aria-pressed="false">−45°<small>反対のななめ</small></button>
+                </div></div>
+              <div><button class="u-btn primary" type="button" id="c-start">編集をはじめる</button> <span class="u-help">角度はあとから足せます</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="u-stage" id="c-edit" hidden>
+          <div class="keys">
+            <span class="u-help">キー</span>
+            <div class="u-seg" id="c-keys"></div>
+            <button class="u-btn ghost" type="button">＋ 角度を足す</button>
+            <span class="u-sp"></span>
+            <button class="u-btn" type="button" id="c-raw" aria-pressed="false">補正前を表示</button>
+          </div>
+          <div class="u-view">
+            <svg id="c-head" viewBox="-100 -84 200 180" aria-hidden="true"></svg>
+            <div class="drawer" id="c-drawer" hidden>
+              <h4>詳細</h4>
+              <p>ファイルの情報<br>アバター名、形式のバージョン</p>
+              <p>効く範囲<br>−15° から 105°</p>
+              <p>BlendShape から形を取り込む</p>
+              <p>検証結果<br>問題なし</p>
+              <p>旧形式（v0.1）の編集<br>旧形式のファイルを開いたときだけ表示</p>
+              <p>性能とリソース</p>
+            </div>
+          </div>
+          <div class="toolbar-c">
+            <div class="u-seg" id="c-tools" role="group" aria-label="ツール">
+              <button type="button" data-tool="view" aria-pressed="false">見る</button>
+              <button type="button" data-tool="select" aria-pressed="false">選ぶ</button>
+              <button type="button" data-tool="move" aria-pressed="true">動かす</button>
+            </div>
+            <label for="c-soft">なじませる範囲<input type="range" id="c-soft" min="0" max="100" value="40"></label>
+            <span class="u-sp"></span>
+            <button class="u-btn" type="button">元に戻す</button>
+          </div>
+        </div>
+        <div class="u-status" id="c-status"></div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="stack">
+        <h3>変わること</h3>
+        <ul class="plain">
+          <li>今の6手順のうち「グループ」「対象Mesh」「キー」の3つが、最初の画面の選択で済む（A2, A6, B5）</li>
+          <li>編集画面に常に出ている操作は、キー、ツール3つ、保存、元に戻すだけになる（B1, B2）</li>
+          <li>手順ガイドの行はなくなる。次にやることはステータスの1行に出す（F1, F2）</li>
+          <li>ふだん使わない項目は「詳細」にまとめる（A7, B3, C2）</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>長所と短所</h3>
+        <ul class="plain">
+          <li>長所：はじめての人が迷う所がいちばん少ない</li>
+          <li>長所：編集画面は今の部品の組み替えで作れる。実装は3案でいちばん軽い</li>
+          <li>短所：キーのあいだの補間や効く範囲は、図では見えないまま（A1 は一部しか解決しない）</li>
+          <li>短所：角度どうしの見比べは、キーを切り替えて行う</li>
+          <li>短所：「詳細」に入れた項目は見つけにくくなる。慣れた人には一手間増える</li>
+          <li>影響：左右のペインがなくなるので、要素名の契約は変わる。プレビューまわりは残る</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="s-cmp">
+  <h2 id="s-cmp">比較と推奨</h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th>観点</th><th>案A 角度レール</th><th>案B 見比べシート</th><th>案C かんたん編集</th></tr>
+    <tr><td>編集ビューの広さ</td><td>広い（1ビュー）</td><td>中（3列に分ける）</td><td>広い（1ビュー）</td></tr>
+    <tr><td>角度とキーの仕組みの伝わりやすさ</td><td>高い</td><td>中</td><td>低い</td></tr>
+    <tr><td>角度どうしの見比べ</td><td>中（小さな絵と留めたビュー）</td><td>高い</td><td>低い（切り替えて見る）</td></tr>
+    <tr><td>はじめての人の迷いにくさ</td><td>中</td><td>中</td><td>高い</td></tr>
+    <tr><td>キーが多いとき（最大16）</td><td>問題なし</td><td>横スクロール</td><td>キーの列が長くなる</td></tr>
+    <tr><td>実装の量</td><td>大</td><td>中</td><td>小から中</td></tr>
+    <tr><td>解決する「高」の指摘</td><td>A1 A2 A3 B1 B2 C1</td><td>A1（一部）A2 A3 B2 C1</td><td>A2 A3 B1 B2 C1</td></tr>
+  </table>
+  </div>
+  <div class="reco prose">
+    <h3>推奨：案Aを骨組みにして、案Cの「はじめる画面」を入口に使う</h3>
+    <p>角度の軸は、指摘 A1・A4・A5・B4・D2 を1つの部品でまとめて解決します。ほかの案では別々の対策が必要になる所です。ブランドの絵と画面がつながるのもこの案だけです。</p>
+    <p>入口には案Cの「はじめる画面」を使います。作るのが軽く、最初のつまずき（A2, A6, B5）を先に取り除けます。案Bの横並びは、あとから案Aのビューを「見比べ表示」に切り替える機能として足せます。</p>
+    <p>進める順番は、共通の改善と「はじめる画面」、角度レール、見比べ表示の順を考えています。各段階のあとで使える状態を保てます。</p>
+  </div>
+</section>
+
+<section aria-labelledby="s-ask">
+  <h2 id="s-ask">決めてほしいこと</h2>
+  <ol class="ask prose">
+    <li>方向はどれにしますか。A、B、C、または上の推奨（A＋Cの入口）。</li>
+    <li>DECISIONS の K-025（UI の要素名と操作経路を契約として維持する）を改訂してよいですか。どの案でも UXML の構造が変わり、UI テストの書き直しが必要になります。</li>
+    <li>旧形式（v0.1 Layer 編集）は、旧形式のファイルを開いたときだけ表示する扱いでよいですか。</li>
+    <li>主に想定する利用者は、はじめてアバターを触る人と、Blender などに慣れた人のどちらですか。ショートカットや「詳細」に隠す範囲の決め方が変わります。</li>
+  </ol>
+  <p class="note prose">モックアップの顔の絵は、角度による見え方を示すための簡単な図です。実際の画面では読み込んだ VRM が表示されます。</p>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var RAD=Math.PI/180;
+  function f(n){return n.toFixed(1);}
+  function $(id){return document.getElementById(id);}
+
+  /* 角度による見え方を示す簡単な顔の図。yaw: 角度、o.fix: 補正の強さ(0-1)、o.sel: 選んだ頂点を描く */
+  function head(yaw,o){
+    o=o||{};
+    var s=Math.sin(yaw*RAD),c=Math.cos(yaw*RAD),fix=o.fix||0,sg=s>=0?1:-1,as=Math.abs(s);
+    function P(az,rad){return {x:rad*Math.sin((az+yaw)*RAD),z:Math.cos((az+yaw)*RAD)};}
+    var back='',front='',h='';
+    [-125,125].forEach(function(az){
+      var p=P(az,80),x=p.x,lean=az<0?-5:5;
+      var g='<path d="M'+f(x-9)+',-36 C'+f(x-27)+',8 '+f(x-21)+',50 '+f(x+lean)+',84 C'+f(x+23)+',48 '+f(x+25)+',6 '+f(x+9)+',-36Z" fill="#232B52"/>'+
+            '<circle cx="'+f(x)+'" cy="-40" r="8" fill="#FF8A3D"/>';
+      if(p.z<0) back+=g; else front+=g;
+    });
+    var hx=-6*s,fx=24*s,rx=44-16*as+3*fix;
+    h+=back+'<circle cx="'+f(hx)+'" cy="-4" r="64" fill="#232B52"/>';
+    h+='<ellipse cx="'+f(fx)+'" cy="12" rx="'+f(rx)+'" ry="40" fill="#FFE4D2"/>';
+    if(fix>0.02&&as>0.15) h+='<circle cx="'+f(fx+(rx-7)*sg)+'" cy="27" r="'+f(10*fix*as)+'" fill="#FFE4D2"/>';
+    [-28,28].forEach(function(az){
+      var p=P(az,42),w=7*p.z;
+      if(w>1.2){var x=8*s+p.x;
+        h+='<ellipse cx="'+f(x)+'" cy="10" rx="'+f(w)+'" ry="10" fill="#232B52"/>'+
+           '<circle cx="'+f(x-w*0.3)+'" cy="6" r="'+f(Math.min(2.2,w*0.5))+'" fill="#FFFFFF"/>';}
+    });
+    [-42,42].forEach(function(az){
+      var p=P(az,40);
+      if(p.z>0.25) h+='<ellipse cx="'+f(8*s+p.x)+'" cy="27" rx="'+f(7*p.z)+'" ry="3.5" fill="#FF8A7A"/>';
+    });
+    var mw=6*c+1,mx=46*s;
+    h+='<path d="M'+f(mx-mw)+',33 Q'+f(mx)+',38 '+f(mx+mw)+',33" fill="none" stroke="#232B52" stroke-width="2.2" stroke-linecap="round"/>';
+    var bl=Math.max(fx-rx-2,hx-57),br=Math.min(fx+rx+2,hx+57),n=6,step=(br-bl)/n,shift=7*fix*sg*as;
+    var d='M'+f(bl)+',-32 L'+f(br)+',-32 L'+f(br)+',-4';
+    for(var i=n-1;i>=0;i--){d+=' L'+f(bl+step*(i+0.5))+',-17 L'+f(bl+step*i+(i>0?shift:0))+',-3';}
+    h+='<path d="'+d+'Z" fill="#232B52"/>'+front;
+    if(o.sel){
+      var bx=fx+(rx-10)*sg,pts=[[0,0,1],[-6,-7,1],[-4,8,1],[-13,-2,.55],[-11,12,.55],[3,-13,.55],[-18,6,.3]];
+      h+='<circle cx="'+f(bx-6*sg)+'" cy="24" r="24" fill="none" stroke="#FFFFFF" stroke-width="1" stroke-dasharray="3 3"/>';
+      pts.forEach(function(p){h+='<circle cx="'+f(bx+p[0]*sg)+'" cy="'+f(24+p[1])+'" r="3" fill="#FF8A3D" fill-opacity="'+p[2]+'" stroke="#FFFFFF" stroke-width=".7"/>';});
+    }
+    return h;
+  }
+  function fixAt(keys,yaw){
+    if(yaw<=keys[0].yaw) return keys[0].fix;
+    for(var i=1;i<keys.length;i++){
+      if(yaw<=keys[i].yaw){var a=keys[i-1],b=keys[i],t=(yaw-a.yaw)/(b.yaw-a.yaw);t=t*t*(3-2*t);return a.fix+(b.fix-a.fix)*t;}
+    }
+    return keys[keys.length-1].fix;
+  }
+  function press(list,match){list.forEach(function(b){b.setAttribute('aria-pressed',match(b)?'true':'false');});}
+  function all(root,sel){return Array.prototype.slice.call(root.querySelectorAll(sel));}
+  var NAMES={0:'正面',45:'ななめ',90:'横'};
+  var TOOLHELP={view:'ドラッグで回します。',select:'クリックやブラシで、動かす頂点を選びます。',move:'選んだ頂点をドラッグして形を変えます。Esc で中止。'};
+
+  /* ---------- タブ ---------- */
+  var tabs=all(document,'[role=tab]');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on?'true':'false');$(x.getAttribute('aria-controls')).hidden=!on;});
+  });});
+
+  /* ---------- 案A ---------- */
+  var A={yaw:45,tool:'move',raw:false,min:-120,max:120,lo:-15,hi:105,
+         keys:[{yaw:0,fix:0},{yaw:45,fix:1},{yaw:90,fix:.7}]};
+  var rail=$('a-rail');
+  function pct(y){return (y-A.min)/(A.max-A.min)*100;}
+  function keyAt(y){for(var i=0;i<A.keys.length;i++){if(Math.abs(A.keys[i].yaw-y)<0.5)return A.keys[i];}return null;}
+  function neighbors(y){var a=null,b=null;A.keys.forEach(function(k){if(k.yaw<y)a=k;if(k.yaw>y&&!b)b=k;});return [a,b];}
+  function drawRail(){
+    var html='<div class="rail-band" style="left:'+pct(A.lo)+'%;width:'+(pct(A.hi)-pct(A.lo))+'%"></div><div class="rail-line"></div>';
+    for(var y=A.min;y<=A.max;y+=15){
+      var major=y%45===0;
+      html+='<div class="rail-tick'+(major?' major':'')+'" style="left:'+pct(y)+'%"></div>';
+      if(major&&y>A.min&&y<A.max) html+='<div class="rail-num" style="left:'+pct(y)+'%">'+y+'°</div>';
+    }
+    A.keys.forEach(function(k,i){
+      var on=Math.abs(k.yaw-A.yaw)<0.5;
+      html+='<div class="rail-thumb'+(on?' on':'')+'" style="left:'+pct(k.yaw)+'%"><svg viewBox="-100 -84 200 180">'+head(k.yaw,{fix:k.fix})+'</svg></div>'+
+            '<button type="button" class="rail-key'+(on?' on':'')+'" data-k="'+i+'" style="left:'+pct(k.yaw)+'%" aria-label="'+k.yaw+'度のキー"></button>';
+    });
+    html+='<div class="rail-play" style="left:'+pct(A.yaw)+'%"></div>';
+    rail.innerHTML=html;
+    rail.setAttribute('aria-valuenow',Math.round(A.yaw));
+    rail.setAttribute('aria-valuetext',Math.round(A.yaw)+'度');
+  }
+  function drawA(){
+    var k=keyAt(A.yaw),fix=A.raw?0:fixAt(A.keys,A.yaw),inRange=A.yaw>A.lo&&A.yaw<A.hi,editing=k&&A.tool!=='view';
+    $('a-head').innerHTML=head(A.yaw,{fix:fix,sel:editing});
+    $('a-pin').innerHTML=head(0,{fix:0});
+    var y=Math.round(A.yaw);
+    if(k){$('a-title').textContent=y+'° のキー';$('a-sub').textContent=A.raw?'補正前の形を表示中':'このキーの形を編集できます';}
+    else{
+      var nb=neighbors(A.yaw);
+      $('a-title').textContent=y+'°';
+      $('a-sub').textContent=!inRange?'効く範囲の外。補正はかかりません':(nb[0]&&nb[1]?nb[0].yaw+'° と '+nb[1].yaw+'° のあいだの形（見るだけ）':'いちばん近いキーの形（見るだけ）');
+    }
+    var add=$('a-add');
+    add.disabled=!!k||!inRange||A.keys.length>=16;
+    $('a-addwhy').textContent=k?'この角度にはもうキーがあります':(!inRange?'効く範囲の外には足せません':'');
+    all($('mockA'),'.u-tool[data-tool]').forEach(function(b){
+      b.setAttribute('aria-pressed',b.dataset.tool===A.tool?'true':'false');
+      b.disabled=!k&&b.dataset.tool!=='view';
+      b.title=b.disabled?'形を直すには、キーのある角度に移動します':'';
+    });
+    $('a-raw').setAttribute('aria-pressed',A.raw?'true':'false');
+    var side='<h4>'+(A.tool==='view'?'見る':A.tool==='select'?'選ぶ':'動かす')+'</h4><p class="u-help">'+TOOLHELP[A.tool]+'</p>';
+    if(A.tool==='select') side+='<div class="u-field">選び方<div class="u-seg"><button type="button">クリック</button><button type="button" aria-pressed="true">ブラシ</button><button type="button">囲む</button></div></div>'+
+      '<div class="u-field"><label for="a-brush">ブラシの太さ　[ ]</label><input type="range" id="a-brush" min="2" max="100" value="18"></div>'+
+      '<div class="u-field"><label><input type="checkbox" id="a-through"> 裏側も選ぶ</label></div>';
+    if(A.tool==='move') side+='<div class="u-field"><label for="a-softr">なじませる範囲</label><input type="range" id="a-softr" min="0" max="100" value="40"></div>'+
+      '<div class="u-field">なじませ方<div class="u-seg"><button type="button" aria-pressed="true">なめらか</button><button type="button">直線</button></div></div>';
+    side+='<div class="u-sp"></div><h4>'+(k?y+'° のキー':'キーなし')+'</h4><p class="u-help">'+(k?(k.fix?'312 頂点を動かしています':'まだ形を変えていません'):'ここにキーを足すと、この角度の形を直せます')+'</p>';
+    $('a-side').innerHTML=side;
+    $('a-status').innerHTML=k?(A.tool==='view'?'<b>'+y+'° のキー</b>　2 か 3 を押すと形を直せます':'<b>'+y+'° のキーを編集中</b>　'+TOOLHELP[A.tool]+'　←→ でとなりのキーへ')
+      :'<b>'+y+'°</b>　キーのあいだを見ています。レールを引くと角度が変わります';
+    drawRail();
+  }
+  function setYawFromX(clientX){
+    var r=rail.getBoundingClientRect(),y=A.min+(clientX-r.left)/r.width*(A.max-A.min);
+    y=Math.max(A.min,Math.min(A.max,y));
+    var best=null;A.keys.forEach(function(k){if(Math.abs(k.yaw-y)<4)best=k;});
+    A.yaw=best?best.yaw:Math.round(y);
+    if(!keyAt(A.yaw)&&A.tool!=='view')A.tool='view';
+    drawA();
+  }
+  var dragging=false;
+  rail.addEventListener('pointerdown',function(e){
+    var kb=e.target.closest('.rail-key');
+    if(kb){A.yaw=A.keys[+kb.dataset.k].yaw;drawA();return;}
+    dragging=true;rail.setPointerCapture(e.pointerId);setYawFromX(e.clientX);
+  });
+  rail.addEventListener('pointermove',function(e){if(dragging)setYawFromX(e.clientX);});
+  ['pointerup','pointercancel'].forEach(function(n){rail.addEventListener(n,function(){dragging=false;});});
+  rail.addEventListener('keydown',function(e){
+    var step=e.key==='ArrowRight'?5:e.key==='ArrowLeft'?-5:0;
+    if(!step)return;
+    e.preventDefault();A.yaw=Math.max(A.min,Math.min(A.max,A.yaw+step));
+    if(!keyAt(A.yaw)&&A.tool!=='view')A.tool='view';
+    drawA();
+  });
+  $('a-add').addEventListener('click',function(){
+    A.keys.push({yaw:A.yaw,fix:fixAt(A.keys,A.yaw)});
+    A.keys.sort(function(a,b){return a.yaw-b.yaw;});A.tool='move';drawA();
+  });
+  all($('mockA'),'.u-tool[data-tool]').forEach(function(b){b.addEventListener('click',function(){A.tool=b.dataset.tool;drawA();});});
+  $('a-raw').addEventListener('click',function(){A.raw=!A.raw;drawA();});
+  drawA();
+
+  /* ---------- 案B ---------- */
+  var B={active:1,tool:'move',between:22,guides:true,keys:[{yaw:0,fix:0},{yaw:45,fix:1},{yaw:90,fix:.7}]};
+  function drawB(){
+    var html='';
+    B.keys.forEach(function(k,i){
+      var on=i===B.active;
+      html+='<div class="col'+(on?' on':'')+'" data-i="'+i+'" role="button" tabindex="0" aria-label="'+k.yaw+'度のキーを編集する">'+
+        '<div class="col-head"><b>'+k.yaw+'°</b><span class="u-help">'+NAMES[k.yaw]+'</span><span class="u-sp"></span>'+(on?'<span class="u-chip key">編集中</span>':'')+'</div>'+
+        '<div class="col-view"><svg viewBox="-100 -84 200 180" aria-hidden="true">'+head(k.yaw,{fix:k.fix,sel:on&&B.tool!=='view'})+'</svg>'+
+        '<div class="palette">'+['view','select','move'].map(function(t){return '<button type="button" data-tool="'+t+'" aria-pressed="'+(B.tool===t)+'">'+(t==='view'?'見る':t==='select'?'選ぶ':'動かす')+'</button>';}).join('')+'</div></div></div>';
+      if(i<B.keys.length-1) html+='<button type="button" class="addcol" aria-label="'+k.yaw+'度と'+B.keys[i+1].yaw+'度のあいだにキーを足す" title="このあいだにキーを足す">＋</button>';
+    });
+    html+='<div class="between"><div class="col-head"><b>あいだ '+B.between+'°</b><span class="u-sp"></span><span class="u-help">見るだけ</span></div>'+
+      '<div class="col-view"><svg viewBox="-100 -84 200 180" aria-hidden="true">'+head(B.between,{fix:fixAt(B.keys,B.between)})+'</svg></div>'+
+      '<input type="range" id="b-between" min="0" max="90" value="'+B.between+'" aria-label="キーのあいだの角度"></div>';
+    if(B.guides) html+='<div class="guide" style="top:47%"></div><div class="guide" style="top:63%"></div>';
+    $('b-sheet').innerHTML=html;
+    $('b-guides').setAttribute('aria-pressed',B.guides?'true':'false');
+    $('b-status').innerHTML='<b>'+B.keys[B.active].yaw+'° のキーを編集中</b>　'+TOOLHELP[B.tool]+'　ほかの列は、手を離したときに更新します';
+  }
+  $('b-sheet').addEventListener('click',function(e){
+    var t=e.target.closest('[data-tool]');
+    if(t){B.tool=t.dataset.tool;drawB();return;}
+    var c=e.target.closest('.col');
+    if(c&&+c.dataset.i!==B.active){B.active=+c.dataset.i;drawB();}
+  });
+  $('b-sheet').addEventListener('keydown',function(e){
+    var c=e.target.closest('.col');
+    if(c&&e.target===c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();B.active=+c.dataset.i;drawB();}
+  });
+  $('b-sheet').addEventListener('input',function(e){
+    if(e.target.id!=='b-between')return;
+    B.between=+e.target.value;
+    var box=e.target.parentNode;
+    box.querySelector('b').textContent='あいだ '+B.between+'°';
+    box.querySelector('svg').innerHTML=head(B.between,{fix:fixAt(B.keys,B.between)});
+  });
+  $('b-guides').addEventListener('click',function(){B.guides=!B.guides;drawB();});
+  drawB();
+
+  /* ---------- 案C ---------- */
+  var C={screen:'setup',key:1,tool:'move',raw:false,drawer:false,keys:[{yaw:0,fix:0},{yaw:45,fix:1},{yaw:90,fix:.7}]};
+  function drawC(){
+    var edit=C.screen==='edit';
+    $('c-setup').hidden=edit;$('c-edit').hidden=!edit;
+    $('c-to-setup').setAttribute('aria-pressed',edit?'false':'true');
+    $('c-to-edit').setAttribute('aria-pressed',edit?'true':'false');
+    $('c-doc').textContent=edit?'front_hair.vlat.json':'新しいファイル';
+    $('c-detail').hidden=!edit;
+    if(!edit){$('c-status').innerHTML='<b>はじめに</b>　アバター、直すパーツ、角度を選びます';return;}
+    var k=C.keys[C.key];
+    $('c-keys').innerHTML=C.keys.map(function(x,i){return '<button type="button" data-i="'+i+'" aria-pressed="'+(i===C.key)+'">'+x.yaw+'°</button>';}).join('');
+    $('c-head').innerHTML=head(k.yaw,{fix:C.raw?0:k.fix,sel:C.tool!=='view'});
+    press(all($('c-tools'),'button'),function(b){return b.dataset.tool===C.tool;});
+    $('c-raw').setAttribute('aria-pressed',C.raw?'true':'false');
+    $('c-drawer').hidden=!C.drawer;
+    $('c-detail').setAttribute('aria-pressed',C.drawer?'true':'false');
+    $('c-status').innerHTML='<b>'+k.yaw+'° の形を編集中</b>　'+TOOLHELP[C.tool];
+  }
+  $('c-start').addEventListener('click',function(){C.screen='edit';drawC();});
+  $('c-to-setup').addEventListener('click',function(){C.screen='setup';C.drawer=false;drawC();});
+  $('c-to-edit').addEventListener('click',function(){C.screen='edit';drawC();});
+  $('c-keys').addEventListener('click',function(e){var b=e.target.closest('button');if(b){C.key=+b.dataset.i;drawC();}});
+  $('c-tools').addEventListener('click',function(e){var b=e.target.closest('button');if(b){C.tool=b.dataset.tool;drawC();}});
+  $('c-raw').addEventListener('click',function(){C.raw=!C.raw;drawC();});
+  $('c-detail').addEventListener('click',function(){C.drawer=!C.drawer;drawC();});
+  $('c-parts').addEventListener('click',function(e){var b=e.target.closest('button');if(b)press(all($('c-parts'),'button'),function(x){return x===b;});});
+  $('c-angles').addEventListener('click',function(e){var b=e.target.closest('button');if(b)b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true');});
+  drawC();
+})();
+</script>

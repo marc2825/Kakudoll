@@ -123,3 +123,21 @@ Keyform v0.2の定義・段階実装を開始することが明示された。
 - パッケージID `jp.vlat.core`、名前空間 `VLat.*`、asmdef名、クラス名 `Vlat*`、フォルダ `VLatProject`、Recovery の保存先
   `Library/VLat`、Profiler marker、CI変数も維持する。asmdef名は 03_ARCHITECTURE で定めており、変更は利用者のプロジェクト参照・
   保存済みのRecoveryにも影響するため、必要になったら別の判断として扱う。凍結済みの実験ファイルは変更しない。
+
+## 2026-11-24 — Editor UI の作り直し（所有者の承認: 案A＋案Cの入口）
+
+- K-037: Kakudoll Editor の画面を「角度レールを骨組みにし、新しいファイルでは『はじめる画面』から入る」構成にする
+  （[見直しの記録](EDITOR_UI_REVIEW.md)）。K-025 の「要素name・型・操作経路を契約として維持」を次のように改める。
+  - 操作が残る要素は name と型を引き継ぐ（保存・開く・元に戻す、頂点選択の各設定、プレビュー画像、キーの角度欄、BlendShape取込など）。
+    `geometry-selection-toggle` は「選ぶ」、`keyform-drag-toggle` は「動かす」のツールとして、3つのうち1つだけが選ばれる。
+  - なくした要素（キー一覧・グループ一覧・作業手順の行・ドキュメント設定ボタン）を使う試験は、新しい操作経路
+    （`VlatEditorWindow.SelectKey`＝レールのひし形と同じ処理）に書き換えた。`preview-yaw` は Slider から FloatField に変えた。
+  - グループは1つだけなので、ファイル全体を選んでいるときもPreviewはそのグループの補正を表示する（Open後に選び直さなくてよい）。
+  - 直すパーツはプレビュー用VRMの複製から指定できる。Previewは表示用の一時Meshへ差し替えるため、Captureには差し替え前の
+    `VlatVertexSelectionTarget.SourceMesh` を渡す。シーンのアバターで指定する経路は「詳細」に残す。
+  - 「編集をはじめる」はグループ作成・パーツ指定・キー作成を `Undo.CollapseUndoOperations` で1回の元に戻すにまとめる。
+  - 旧形式（v0.1）の Layer 編集は削除せず、旧形式のファイルのときだけ出す。新しく作る入口は「はじめる画面」の「ほかの始め方」に残す
+    （ゲーム実行中の再生は今は v0.1 だけのため）。
+  - 足す色はキーと効く範囲のオレンジ1色。背景・枠・文字はUnityのテーマ変数とし、文字は11px以上、不透明度で薄くしない。
+  - 操作の結果は `LastMessage`/`DragStatus` の通し番号（`MessageSequence`/`DragStatusSequence`）で新しさを判定し、ステータス行の1か所に出す。
+    ドラッグ中止の理由は、実際にドラッグを止めたときだけ出す。
