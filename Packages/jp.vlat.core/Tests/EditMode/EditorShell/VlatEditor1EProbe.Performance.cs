@@ -108,7 +108,7 @@ namespace VLat.Tests.Edit
                             Assert.That(s.ImportKeyformPositions(0,key,f.Source.gameObject,f.SourceRenderer,key%2),Is.True,s.LastMessage);
                         }
                         f.Adopt(p);window.CreateGUI();yield return null;
-                        window.rootVisualElement.Q<ListView>("keyform-list").selectedIndex=0;
+                        window.SelectKey(0,false);
                         for(var i=0;i<3;i++) {p.GetViewState((VlatPreviewView)i).SetFramingDistance(2.5f);p.ResizeView((VlatPreviewView)i,256,256,1);}
                         var render=new Samples();var angle=0;
                         Action renderAction=()=>{p.SetAngles(VlatPreviewView.Main,angle++%90,0);p.RenderIfNeeded();};

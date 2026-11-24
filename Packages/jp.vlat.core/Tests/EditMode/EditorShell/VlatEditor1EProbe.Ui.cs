@@ -36,23 +36,47 @@ namespace VLat.Tests.Edit
                 f.Adopt(p); window.CreateGUI();
                 for (var i = 0; i < 4; i++) yield return null;
                 Capture(window, "02-vrm-loaded", shots);
+                var part = window.rootVisualElement.Q<Button>("start-part-0");
+                if (part != null)
+                {
+                    Click(window, "start-part-0");
+                    for (var i = 0; i < 4; i++) yield return null;
+                    Capture(window, "02b-start-part-selected", shots);
+                }
                 Assert.That(s.AddKeyformGroup(), Is.True);
                 Assert.That(s.BindKeyformTarget(0, f.Source.gameObject, f.SourceRenderer), Is.True, s.LastMessage);
                 Assert.That(s.AddKeyform(0, 45), Is.True); Assert.That(s.AddKeyform(0, 90), Is.True);
                 Assert.That(s.ImportKeyformPositions(0, 1, f.Source.gameObject, f.SourceRenderer, 0), Is.True, s.LastMessage);
                 window.CreateGUI();
-                window.rootVisualElement.Q<ListView>("keyform-list").selectedIndex = 1;
+                window.SelectKey(1);
                 for (var i = 0; i < 4; i++) yield return null;
                 Capture(window, "03-key-selected", shots);
                 window.rootVisualElement.Q<Toggle>("geometry-selection-toggle").value = true;
-                PrepareBenchSelection(p, 30);
+                PrepareUiSelection(p, 30);
                 for (var i = 0; i < 4; i++) yield return null;
                 Capture(window, "04-vertex-selection", shots);
                 window.rootVisualElement.Q<Toggle>("keyform-drag-toggle").value = true;
                 for (var i = 0; i < 4; i++) yield return null;
                 Capture(window, "05-drag-mode", shots);
+                window.SetTool(VlatEditorTool.View);
+                window.rootVisualElement.Q<FloatField>("preview-yaw").value = 65;
+                Click(window, "details-button");
+                for (var i = 0; i < 4; i++) yield return null;
+                Capture(window, "06-between-keys-details", shots);
             }
             finally { window.DiscardChanges(); window.Close(); }
+        }
+
+        // 編集ビューの大きさはWindowで変わるので、実際の画像の中央を四角で囲んで選ぶ（PrepareBenchSelectionは256px前提）。
+        private static void PrepareUiSelection(VlatPreviewController p, int pixels)
+        {
+            var texture = p.GetTexture(VlatPreviewView.Main);
+            var center = new Vector2(texture.width * .5f, texture.height * .5f);
+            p.SetVertexVisibilityMode(VlatVertexVisibilityMode.SelectThrough); p.SetVertexSoftRadius(.035f);
+            p.SetVertexSelectionTool(VlatVertexSelectionTool.Rectangle); p.RenderIfNeeded();
+            p.BeginVertexSelection(center - Vector2.one * pixels, VlatVertexSelectionOperation.Replace);
+            p.EndVertexSelection(center + Vector2.one * pixels);
+            Assert.That(p.VertexSelection.SelectedCount, Is.GreaterThan(0), p.VertexSelectionDiagnostic);
         }
 
         private static void Capture(EditorWindow window, string name, JArray shots)

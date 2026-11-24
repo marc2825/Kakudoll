@@ -35,7 +35,7 @@ namespace VLat.Tests.Edit
             _window.position = new Rect(100, 100, 1200, 1000); _window.Show(); _window.Focus(); yield return null;
             _f.Seed(_window.DocumentController, true); _f.Adopt(_window.PreviewController);
             _window.CreateGUI(); yield return null;
-            _window.rootVisualElement.Q<ListView>("keyform-list").selectedIndex = 0;
+            _window.SelectKey(0);
             _window.rootVisualElement.Q<Toggle>("geometry-selection-toggle").value = true;
             yield return null;
             var p = _window.PreviewController;

@@ -15,6 +15,8 @@ namespace VLat.Editor.Authoring
     {
         private const string UxmlPath = "Packages/jp.vlat.core/Editor/UI/VlatEditorWindow.uxml";
         private const string UssPath = "Packages/jp.vlat.core/Editor/UI/VlatEditorWindow.uss";
+        private static readonly Vector2 MinimumWindowSize = new Vector2(760.0f, 560.0f);
+        private static readonly Vector2 DefaultWindowSize = new Vector2(1180.0f, 760.0f);
 
         private readonly List<DiagnosticDisplayItem> _diagnosticItems = new List<DiagnosticDisplayItem>();
         private readonly List<VlatAuthoringModifier> _emptyModifiers = new List<VlatAuthoringModifier>();
@@ -22,19 +24,19 @@ namespace VLat.Editor.Authoring
         private readonly List<string> _vertexTargetChoices = new List<string>();
         private readonly List<string> _vertexToolChoices = new List<string>
         {
-            "クリック (Single)",
-            "ブラシ (Brush)",
-            "矩形 (Rectangle)",
+            "クリック",
+            "ブラシ",
+            "四角で囲む",
         };
         private readonly List<string> _vertexVisibilityChoices = new List<string>
         {
-            "見えている面のみ (Visible Only)",
-            "裏側も選択 (Select Through)",
+            "見えている面だけ",
+            "裏側も選ぶ",
         };
         private readonly List<string> _vertexFalloffChoices = new List<string>
         {
-            "なめらか (Smoothstep)",
-            "直線 (Linear)",
+            "なめらか",
+            "まっすぐ",
         };
         private readonly PreviewPointerState[] _previewPointerStates =
         {
@@ -53,7 +55,7 @@ namespace VLat.Editor.Authoring
         private Label _statusLabel;
         private Image[] _previewImages;
         private Image _vertexSelectionOverlay;
-        private Slider _previewYaw;
+        private FloatField _previewYaw;
         private Slider _previewPitch;
         private Toggle _previewAfterToggle;
         private DropdownField _expressionDropdown;
@@ -74,6 +76,8 @@ namespace VLat.Editor.Authoring
         private Label _vertexSelectionPerformance;
         private Label _previewHelpLabel;
         private int _selectedExpressionIndex = -1;
+        // Inspector/詳細を組み立てるときの追加先（BuildInspector中だけ切り替える）。
+        private VisualElement _buildTarget;
         private bool _refreshing;
         private bool _assemblyReloading;
         private bool _closeApproved;
@@ -93,15 +97,20 @@ namespace VLat.Editor.Authoring
         {
             var window = GetWindow<VlatEditorWindow>();
             window.titleContent = new GUIContent("Kakudoll");
-            window.minSize = new Vector2(900.0f, 760.0f);
+            window.minSize = MinimumWindowSize;
+            // 初めて開いたときだけ、編集ビューと角度レールが十分に入る大きさにする。
+            var position = window.position;
+            if (position.width < DefaultWindowSize.x || position.height < DefaultWindowSize.y)
+                window.position = new Rect(position.x, position.y,
+                    Mathf.Max(position.width, DefaultWindowSize.x), Mathf.Max(position.height, DefaultWindowSize.y));
             window.Show();
         }
 
         private void OnEnable()
         {
             titleContent = new GUIContent("Kakudoll");
-            minSize = new Vector2(900.0f, 760.0f);
-            saveChangesMessage = "Kakudollドキュメントに未保存の変更があります。";
+            minSize = MinimumWindowSize;
+            saveChangesMessage = "Kakudoll のファイルに、保存していない変更があります。";
             _assemblyReloading = false;
             _closeApproved = false;
             if (string.IsNullOrEmpty(_recoveryDirectory)) _recoveryDirectory = _creatingRecoveryDirectory;
@@ -129,7 +138,7 @@ namespace VLat.Editor.Authoring
             if (visualTree == null)
             {
                 rootVisualElement.Add(new HelpBox(
-                    "VlatEditorWindow.uxmlを読み込めません。",
+                    "画面の定義（VlatEditorWindow.uxml）を読み込めません。パッケージを入れ直してください。",
                     HelpBoxMessageType.Error));
                 return;
             }
@@ -147,6 +156,8 @@ namespace VLat.Editor.Authoring
             ConfigureLists();
             WireCommands();
             ConfigureKeyformUi();
+            ConfigureTools();
+            ConfigureStartScreen();
             ConfigureKeyformDragUi();
             RefreshAll();
         }
@@ -246,7 +257,8 @@ namespace VLat.Editor.Authoring
                 RequireElement<Image>("preview-sub-b"),
             };
             _vertexSelectionOverlay = RequireElement<Image>("selection-overlay");
-            _previewYaw = RequireElement<Slider>("preview-yaw");
+            _previewYaw = RequireElement<FloatField>("preview-yaw");
+            _previewYaw.isDelayed = true;
             _previewPitch = RequireElement<Slider>("preview-pitch");
             _previewAfterToggle = RequireElement<Toggle>("preview-after-toggle");
             _expressionDropdown = RequireElement<DropdownField>("expression-dropdown");
@@ -312,7 +324,7 @@ namespace VLat.Editor.Authoring
                 var label = (Label)element;
                 label.text = FormatDiagnosticLevel(diagnostic.Level) + "  " + diagnostic.Message +
                     "  (" + diagnostic.Path + ")";
-                label.tooltip = "クリックすると該当箇所を選択します。\n" + diagnostic.Path;
+                label.tooltip = diagnostic.Message + "\n" + diagnostic.Path + "\n押すと、該当する項目を選びます。";
                 label.EnableInClassList("vlat-diagnostic-error", diagnostic.Level == DiagnosticDisplayLevel.Error);
                 label.EnableInClassList("vlat-diagnostic-warning", diagnostic.Level == DiagnosticDisplayLevel.Warning);
                 label.EnableInClassList("vlat-diagnostic-info", diagnostic.Level == DiagnosticDisplayLevel.Info);
@@ -328,11 +340,6 @@ namespace VLat.Editor.Authoring
             RequireElement<Button>("save-as-button").clicked += SaveDocumentAs;
             RequireElement<Button>("undo-button").clicked += Undo.PerformUndo;
             RequireElement<Button>("redo-button").clicked += Undo.PerformRedo;
-            RequireElement<Button>("document-button").clicked += () =>
-            {
-                _controller.SelectDocument();
-                RefreshAll();
-            };
 
             RequireElement<Button>("add-band-button").clicked += () =>
             {
@@ -358,6 +365,7 @@ namespace VLat.Editor.Authoring
             RequireElement<Button>("modifier-down-button").clicked += () => MoveSelectedModifier(1);
 
             RequireElement<Button>("select-vrm-button").clicked += SelectVrm;
+            RequireElement<Button>("viewport-open-vrm-button").clicked += SelectVrm;
             RequireElement<Button>("clear-vrm-button").clicked += ClearVrm;
             RequireElement<Button>("reset-main-view-button").clicked += () =>
                 ResetPreviewView(VlatPreviewView.Main);
@@ -422,16 +430,6 @@ namespace VLat.Editor.Authoring
                 RenderAndRefreshPreview();
             });
 
-            _geometrySelectionToggle.RegisterValueChangedCallback(evt =>
-            {
-                if (_refreshing)
-                {
-                    return;
-                }
-
-                _preview.SetGeometrySelectionEnabled(evt.newValue);
-                RenderAndRefreshPreview();
-            });
             _vertexTargetDropdown.RegisterValueChangedCallback(evt =>
             {
                 if (_refreshing)
@@ -556,7 +554,9 @@ namespace VLat.Editor.Authoring
                 _preview.CancelKeyformDrag();
                 _preview.SetDocument(_controller.Document);
                 _preview.SetKeyformEditingSelection(_controller);
-                _preview.SetKeyformGroupSelection(_controller.Selection.FindKeyformGroupIndex(_controller.Document));
+                // グループは1つだけなので、ファイル全体を選んでいるときもそのグループの補正を表示する。
+                _preview.SetKeyformGroupSelection(DisplayGroupIndex());
+                RefreshDetailsVisibility();
                 RenderAndRefreshPreview();
             }
             finally
@@ -616,15 +616,34 @@ namespace VLat.Editor.Authoring
                 modifierIndex + 1 < _controller.Document.Layers[layerIndex].Modifiers.Count);
         }
 
+        // 右の列（いま選んでいるキー、旧形式では選んだ項目）と、「詳細」の動的な部分を作り直す。
         private void BuildInspector()
         {
             _inspector.Clear();
+            _detailsDynamic.Clear();
+            _buildTarget = _inspector;
+            try
+            {
+                BuildSideInspector();
+                _buildTarget = _detailsDynamic;
+                BuildDetails();
+            }
+            finally
+            {
+                _buildTarget = _inspector;
+            }
+        }
+
+        private void BuildSideInspector()
+        {
+            if (!IsLegacyDocument(_controller.Document))
+            {
+                BuildKeyformInspector();
+                return;
+            }
+
             switch (_controller.Selection.Kind)
             {
-                case VlatEditorSelectionKind.KeyformGroup:
-                case VlatEditorSelectionKind.Keyform:
-                    BuildKeyformInspector();
-                    break;
                 case VlatEditorSelectionKind.Band:
                     BuildBandInspector();
                     break;
@@ -635,19 +654,17 @@ namespace VLat.Editor.Authoring
                     BuildModifierInspector();
                     break;
                 default:
-                    BuildDocumentInspector();
+                    AddHeading("項目を選んでいません");
+                    AddNote("上の一覧で Band・Layer・Modifier を選ぶと、ここで値を変えられます。");
                     break;
             }
         }
 
-        private void BuildDocumentInspector()
+        // 「詳細」の「ファイルの情報」。どの種類のファイルでも同じ内容を出す。
+        private void BuildDocumentDetails()
         {
-            AddHeading("ドキュメント設定");
             var document = _controller.Document;
-            if (document.KeyformGroups.Count == 0 && document.Bands.Count == 0 && document.Layers.Count == 0)
-                _inspector.Add(new HelpBox("空のドキュメントです。左の「Yaw Keyform」で「+」を押してグループを作成すると、" +
-                    "視点別の形状キーを編集できます。", HelpBoxMessageType.Info));
-            AddSection("メタデータ");
+            AddDetailsFoldout("details-document", "ファイルの情報", false);
             var metadata = document.Metadata;
             AddDelayedText("Version", metadata.Version, value =>
                 ApplyChange(() => _controller.SetMetadata(
@@ -673,19 +690,18 @@ namespace VLat.Editor.Authoring
                     metadata.Generator,
                     metadata.AvatarName,
                     value)));
-            AddSection("Mesh Binding");
-            AddNote("Keyformの対象Meshはグループの「対象Mesh」から設定します。texturesは読み取り専用です。");
+            AddSection("パーツとテクスチャ");
+            AddNote("直すパーツは、右の列の「直すパーツ」か、この上の「シーンのアバターでパーツを指定」で決めます。テクスチャは読むだけで、ここでは変えられません。");
             AddNote(
-                "Mesh bindings: " + metadata.MeshBindings.Count +
-                " / Textures: " + _controller.Document.Textures.Count);
+                "パーツ " + metadata.MeshBindings.Count +
+                " 件、テクスチャ " + _controller.Document.Textures.Count + " 件");
             for (var index = 0; index < metadata.MeshBindings.Count; index++)
             {
                 var binding = metadata.MeshBindings[index];
                 AddNote(
                     "[" + index + "] " + binding.HierarchyPath +
-                    " / " + binding.MeshName +
-                    " / vertices: " + binding.VertexCount +
-                    " / materials: " + binding.Materials.Count);
+                    "（" + binding.MeshName + "、" + binding.VertexCount.ToString("N0", CultureInfo.InvariantCulture) +
+                    " 頂点、マテリアル " + binding.Materials.Count + "）");
             }
         }
 
@@ -695,7 +711,7 @@ namespace VLat.Editor.Authoring
             if (index < 0)
             {
                 _controller.SelectDocument();
-                BuildDocumentInspector();
+                BuildSideInspector();
                 return;
             }
 
@@ -733,7 +749,7 @@ namespace VLat.Editor.Authoring
             if (index < 0)
             {
                 _controller.SelectDocument();
-                BuildDocumentInspector();
+                BuildSideInspector();
                 return;
             }
 
@@ -757,7 +773,7 @@ namespace VLat.Editor.Authoring
             if (layerIndex < 0 || modifierIndex < 0)
             {
                 _controller.Selection.Reconcile(_controller.Document);
-                BuildInspector();
+                BuildSideInspector();
                 return;
             }
 
@@ -782,7 +798,7 @@ namespace VLat.Editor.Authoring
                         modifierIndex,
                         vertex.MeshBinding,
                         value)));
-                AddNote("Vertex deltas: " + vertex.Deltas.Count + "（Phase 2Bでは読み取り専用）");
+                AddNote("頂点の差分 " + vertex.Deltas.Count + " 件（ここでは変えられません）");
                 return;
             }
 
@@ -894,7 +910,8 @@ namespace VLat.Editor.Authoring
                         }
                         else
                         {
-                            _statusLabel.text = "Componentsはカンマ区切りの有限数で入力してください。";
+                            _statusMessage = "Components は、数をカンマで区切って入力してください（例: 1, 0.5, 0）。";
+                            _statusLabel.text = _statusMessage;
                         }
                     });
             }
@@ -1120,7 +1137,7 @@ namespace VLat.Editor.Authoring
         private void OpenDocument()
         {
             var path = OpenDocumentPathProvider != null ? OpenDocumentPathProvider() :
-                EditorUtility.OpenFilePanel("Open Kakudoll Document", string.Empty, "json");
+                EditorUtility.OpenFilePanel("Kakudoll のファイルを開く", string.Empty, "json");
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
@@ -1169,11 +1186,11 @@ namespace VLat.Editor.Authoring
             }
 
             var result = EditorUtility.DisplayDialogComplex(
-                "Unsaved Kakudoll Document",
-                "現在の変更を保存しますか？",
-                "Save",
-                "Cancel",
-                "Discard");
+                "保存していない変更があります",
+                "今のファイルの変更を保存しますか？",
+                "保存する",
+                "キャンセル",
+                "保存しない");
             if (result == 1)
             {
                 decision = VlatCloseDecision.Cancel;
@@ -1200,7 +1217,7 @@ namespace VLat.Editor.Authoring
         {
             if (SaveDocumentPathProvider != null) return SaveDocumentPathProvider();
             var path = EditorUtility.SaveFilePanel(
-                "Save Kakudoll Document",
+                "Kakudoll のファイルを保存",
                 string.Empty,
                 "document.vlat.json",
                 "json");
@@ -1351,7 +1368,7 @@ namespace VLat.Editor.Authoring
 
         private async void SelectVrm()
         {
-            var path = EditorUtility.OpenFilePanel("Open VRM 1.0 Preview", string.Empty, "vrm");
+            var path = EditorUtility.OpenFilePanel("プレビューする VRM 1.0 を開く", string.Empty, "vrm");
             if (string.IsNullOrWhiteSpace(path) || _preview == null)
             {
                 return;
@@ -1365,6 +1382,8 @@ namespace VLat.Editor.Authoring
             }
 
             _selectedExpressionIndex = loaded && _preview.ExpressionNames.Count > 0 ? 0 : -1;
+            _startPartTarget = -1;
+            if (loaded) _statusMessage = Path.GetFileName(path) + " を開きました（プレビュー用の複製です）。";
             RenderAndRefreshPreview();
         }
 
@@ -1372,6 +1391,7 @@ namespace VLat.Editor.Authoring
         {
             _preview.ClearAvatar();
             _selectedExpressionIndex = -1;
+            _startPartTarget = -1;
             RefreshPreviewUi();
         }
 
@@ -1457,7 +1477,7 @@ namespace VLat.Editor.Authoring
                 {
                     if (TryMapMainPreviewPoint(evt.position, out var screenPosition, true))
                         _preview.UpdateKeyformDrag(screenPosition);
-                    else _preview.CancelKeyformDrag("Pointer座標を変換できません。");
+                    else _preview.CancelKeyformDrag("ポインタの位置を編集ビューの座標にできなかったため、ドラッグを中止しました。");
                     _preview.RenderIfNeeded();
                     // 固定gesture中はtextureの内容だけが変わる。対象/表情一覧と診断文字列を
                     // MouseMoveごとに再構築しない。開始/確定/中止境界では従来どおり全UIを更新する。
@@ -1499,7 +1519,7 @@ namespace VLat.Editor.Authoring
                 {
                     if (TryMapMainPreviewPoint(evt.position, out var screenPosition, true))
                         _preview.CommitKeyformDrag(screenPosition);
-                    else _preview.CancelKeyformDrag("Pointer座標を変換できません。");
+                    else _preview.CancelKeyformDrag("ポインタの位置を編集ビューの座標にできなかったため、ドラッグを中止しました。");
                     RefreshAll();
                 }
                 state.Action = PreviewPointerAction.None;
@@ -1525,7 +1545,7 @@ namespace VLat.Editor.Authoring
 
                 if (state.Action == PreviewPointerAction.Deform)
                 {
-                    _preview.CancelKeyformDrag("Pointer captureが失われました。");
+                    _preview.CancelKeyformDrag("ポインタが編集ビューから外れたため、ドラッグを中止しました。");
                     RenderAndRefreshPreview();
                 }
                 state.Dragging = false;
@@ -1568,7 +1588,7 @@ namespace VLat.Editor.Authoring
             _previewAfterToggle.SetValueWithoutNotify(_preview.ApplicationEnabled);
             _previewAvatarLabel.text = _preview.HasAvatar
                 ? Path.GetFileName(_preview.AvatarPath)
-                : _preview.IsLoading ? "読込中…" : "VRM未読込";
+                : _preview.IsLoading ? "読み込んでいます…" : "まだ開いていません";
             _previewAvatarLabel.tooltip = _preview.HasAvatar ? _preview.AvatarPath : string.Empty;
             _previewDiagnosticLabel.text = _preview.DiagnosticSummary;
             _previewPerformanceLabel.text = _preview.PerformanceSummary;
@@ -1581,6 +1601,10 @@ namespace VLat.Editor.Authoring
             }
 
             _expressionDropdown.choices = _expressionChoices;
+            if (_selectedExpressionIndex < 0 && _expressionChoices.Count > 0) _selectedExpressionIndex = 0;
+            // 表情のないVRMでは、使えない欄を出さない。
+            RequireElement<VisualElement>("expression-control-group").style.display =
+                _expressionChoices.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             if (_selectedExpressionIndex >= _expressionChoices.Count)
             {
                 _selectedExpressionIndex = _expressionChoices.Count - 1;
@@ -1601,7 +1625,11 @@ namespace VLat.Editor.Authoring
             // VRM読込/clearはInspectorを再構築しないので、既存のキーボタンの状態も同期する。
             for (var view = 0; view < 3; view++)
                 _inspector?.Q<Button>("keyform-camera-" + (VlatPreviewView)view)?.SetEnabled(_preview.HasAvatar);
+            SyncVertexTargetToBinding();
             RefreshVertexSelectionUi(true);
+            RefreshRail();
+            RefreshViewportUi();
+            RefreshStartScreen();
         }
 
         private void RefreshVertexSelectionUi(bool refreshTargets = false)
@@ -1612,7 +1640,6 @@ namespace VLat.Editor.Authoring
             }
 
             _vertexSelectionOverlay.image = _preview.KeyformDragEnabled ? null : _preview.GetVertexSelectionOverlay();
-            _geometrySelectionToggle.SetValueWithoutNotify(_preview.GeometrySelectionEnabled);
             if (refreshTargets || _vertexTargetChoices.Count != _preview.VertexTargets.Count)
             {
                 _vertexTargetChoices.Clear();
@@ -1637,7 +1664,16 @@ namespace VLat.Editor.Authoring
                 _vertexFalloffChoices[(int)_preview.VertexFalloff]);
             _vertexBrushRadius.SetValueWithoutNotify(_preview.VertexBrushRadius);
             _vertexSoftRadius.SetValueWithoutNotify(_preview.VertexSoftRadius);
-            _vertexSelectionStatus.text = _preview.VertexSelectionStatus;
+            // 内部の要約（英語）はツールチップに残し、表示は利用者の言葉にする。
+            var targetIndexForStatus = _preview.VertexTargetIndex;
+            var targetName = targetIndexForStatus >= 0 && targetIndexForStatus < _preview.VertexTargets.Count
+                ? _preview.VertexTargets[targetIndexForStatus].Renderer.name : string.Empty;
+            var selectedCount = _preview.VertexSelection.SelectedCount;
+            _vertexSelectionStatus.text = !_preview.GeometrySelectionEnabled ? string.Empty
+                : selectedCount == 0 ? "まだ頂点を選んでいません。"
+                : selectedCount.ToString("N0", CultureInfo.InvariantCulture) + " 頂点を選んでいます" +
+                    (targetName.Length == 0 ? "。" : "（" + targetName + "）。");
+            _vertexSelectionStatus.tooltip = _preview.VertexSelectionStatus;
             _vertexSelectionDiagnostic.text = _preview.VertexSelectionDiagnostic;
             _vertexSelectionPerformance.text = _preview.VertexSelectionPerformance;
             var controlsEnabled = _preview.GeometrySelectionEnabled && _preview.HasAvatar;
@@ -1648,11 +1684,11 @@ namespace VLat.Editor.Authoring
             _vertexBrushRadius.SetEnabled(controlsEnabled);
             _vertexSoftRadius.SetEnabled(controlsEnabled);
             RequireElement<Button>("clear-vertex-selection-button").SetEnabled(controlsEnabled);
-            _geometrySelectionToggle.SetEnabled(_preview.HasAvatar);
             _previewHelpLabel.text = _preview.GeometrySelectionEnabled
-                ? "左: 選択 / Shift: 追加 / Ctrl・Cmd: 除外 / Alt+左: 回転 / 中: 移動 / ホイール: ズーム"
-                : "左ドラッグ: 回転 / 中ドラッグ: 移動 / ホイール: ズーム";
+                ? "左: 選ぶ　Shift: 足す　Ctrl: 外す　Alt+左: 回す　中: 視点をずらす　ホイール: 寄る"
+                : "左ドラッグ: 回す　中ドラッグ: 視点をずらす　ホイール: 寄る";
             RefreshKeyformDragUi();
+            RefreshToolUi();
             RefreshPreviewMessages();
             RefreshWorkflowGuide();
         }
@@ -1727,14 +1763,14 @@ namespace VLat.Editor.Authoring
         {
             var label = new Label(text);
             label.AddToClassList("vlat-inspector-heading");
-            _inspector.Add(label);
+            _buildTarget.Add(label);
         }
 
         private void AddNote(string text)
         {
             var label = new Label(text);
-            label.AddToClassList("vlat-inspector-note");
-            _inspector.Add(label);
+            label.AddToClassList("vlat-note");
+            _buildTarget.Add(label);
         }
 
         private void AddDelayedText(string label, string value, Action<string> changed)
@@ -1745,7 +1781,7 @@ namespace VLat.Editor.Authoring
                 value = value ?? string.Empty,
             };
             field.RegisterValueChangedCallback(evt => changed(evt.newValue));
-            _inspector.Add(field);
+            _buildTarget.Add(field);
         }
 
         private void AddDelayedInteger(string label, int value, Action<int> changed)
@@ -1756,7 +1792,7 @@ namespace VLat.Editor.Authoring
                 value = value,
             };
             field.RegisterValueChangedCallback(evt => changed(evt.newValue));
-            _inspector.Add(field);
+            _buildTarget.Add(field);
         }
 
         private void AddDelayedDouble(string label, double value, Action<double> changed)
@@ -1767,14 +1803,14 @@ namespace VLat.Editor.Authoring
                 value = value,
             };
             field.RegisterValueChangedCallback(evt => changed(evt.newValue));
-            _inspector.Add(field);
+            _buildTarget.Add(field);
         }
 
         private void AddToggle(string label, bool value, Action<bool> changed)
         {
             var field = new Toggle(label) { value = value };
             field.RegisterValueChangedCallback(evt => changed(evt.newValue));
-            _inspector.Add(field);
+            _buildTarget.Add(field);
         }
 
         private static VisualElement MakeListLabel()

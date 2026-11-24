@@ -159,7 +159,7 @@ namespace VLat.Tests.Edit
             }
         }
 
-        /// <summary>作業手順ガイド・状態バッジ・旧Layer折りたたみが文書状態に追従し、Documentを変更しません。</summary>
+        /// <summary>はじめる画面・次の手順の案内・状態の印・旧形式の一覧が文書状態に追従し、Documentを変更しません。</summary>
         [Test]
         public void Window_WorkflowGuideAndStatusTrackDocumentState()
         {
@@ -170,27 +170,32 @@ namespace VLat.Tests.Edit
                 window.CreateGUI();
                 var root = window.rootVisualElement;
                 var session = window.DocumentController;
-                Assert.That(root.Q<Label>("workflow-step-vrm").ClassListContains("vlat-step-current"), Is.True);
+                Assert.That(root.Q<VisualElement>("start-screen").style.display.value, Is.EqualTo(DisplayStyle.Flex));
+                Assert.That(root.Q<VisualElement>("editor-stage").style.display.value, Is.EqualTo(DisplayStyle.None));
+                Assert.That(root.Q<Button>("start-editing-button").enabledSelf, Is.False, "VRMとパーツを選ぶまで始められない");
                 Assert.That(root.Q<Label>("workflow-hint").text, Does.Contain("VRM"));
                 Assert.That(root.Q<Label>("dirty-label").ClassListContains("vlat-dirty-modified"), Is.False);
-                Assert.That(root.Q<Foldout>("legacy-section").value, Is.False);
-                Assert.That(root.Q<Foldout>("keyform-section").value, Is.True);
+                Assert.That(root.Q<VisualElement>("legacy-section").style.display.value, Is.EqualTo(DisplayStyle.None));
                 var revision = session.Document.Revision;
                 window.CreateGUI();
                 Assert.That(session.Document.Revision, Is.EqualTo(revision), "表示更新はDocumentを変更しない");
 
                 Assert.That(session.AddKeyformGroup(), Is.True);
                 window.CreateGUI();
-                Assert.That(root.Q<Label>("workflow-step-group").ClassListContains("vlat-step-done"), Is.True);
-                Assert.That(root.Q<Label>("workflow-step-target").ClassListContains("vlat-step-done"), Is.False);
+                Assert.That(root.Q<VisualElement>("start-screen").style.display.value, Is.EqualTo(DisplayStyle.None));
+                Assert.That(root.Q<VisualElement>("editor-stage").style.display.value, Is.EqualTo(DisplayStyle.Flex));
+                Assert.That(root.Q<Label>("workflow-hint").text, Does.Contain("直すパーツ"));
+                Assert.That(root.Q<Toggle>("keyform-drag-toggle").enabledSelf, Is.False, "パーツとキーが決まるまで動かせない");
+                Assert.That(root.Q<Toggle>("keyform-drag-toggle").tooltip, Does.Contain("VRM"));
                 Assert.That(root.Q<Label>("dirty-label").ClassListContains("vlat-dirty-modified"), Is.True);
                 Assert.That(root.Q<Label>("validation-summary").text, Does.Contain("エラー"));
 
                 Assert.That(session.NewDocument(VlatCloseDecision.Discard), Is.True);
                 session.AddBand(); session.AddLayer();
                 window.CreateGUI();
-                Assert.That(root.Q<Foldout>("legacy-section").value, Is.True);
-                Assert.That(root.Q<VisualElement>("workflow-steps").style.display.value, Is.EqualTo(DisplayStyle.None));
+                Assert.That(root.Q<VisualElement>("legacy-section").style.display.value, Is.EqualTo(DisplayStyle.Flex));
+                Assert.That(root.Q<VisualElement>("tool-strip").style.display.value, Is.EqualTo(DisplayStyle.None));
+                Assert.That(root.Q<VisualElement>("start-screen").style.display.value, Is.EqualTo(DisplayStyle.None));
                 Assert.That(root.Q<Label>("workflow-hint").text, Does.Contain("v0.1"));
             }
             finally

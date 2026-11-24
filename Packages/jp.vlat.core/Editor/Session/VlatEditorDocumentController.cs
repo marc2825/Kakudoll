@@ -49,7 +49,21 @@ namespace VLat.Editor.Authoring
             (_sourceConflict || (_savedContent != null ? _savedContent != _currentContent : Document.Revision != _savedRevision));
         internal string ContentFingerprint => _currentContent;
         internal bool SourceConflict => _sourceConflict;
-        internal string LastMessage { get; private set; } = string.Empty;
+        private string _lastMessage = string.Empty;
+
+        /// <summary>最後の操作の結果。設定するたびにMessageSequenceが増えます（同じ文言が続いても新しい結果と分かるように）。</summary>
+        internal string LastMessage
+        {
+            get => _lastMessage;
+            private set
+            {
+                _lastMessage = value ?? string.Empty;
+                MessageSequence++;
+            }
+        }
+
+        /// <summary>LastMessageを設定した回数。画面は、この値が変わったときだけ結果を出し直します。</summary>
+        internal int MessageSequence { get; private set; }
 
         internal bool TryRestore()
         {
@@ -76,7 +90,7 @@ namespace VLat.Editor.Authoring
                 state.SelectionParentIdentity);
             Selection.Reconcile(Document);
             ValidateEditing();
-            LastMessage = "前回のKakudollセッションを復元しました。";
+            LastMessage = "前回の、保存していない編集を復元しました。";
             PersistRecovery();
             return true;
         }
@@ -93,7 +107,7 @@ namespace VLat.Editor.Authoring
 
             var document = VlatAuthoringPersistence.CreateNew();
             ReplaceDocument(document, document.Revision);
-            LastMessage = "新しいKakudollドキュメントを作成しました。";
+            LastMessage = "新しいファイルを作りました。";
             return true;
         }
 
@@ -108,7 +122,7 @@ namespace VLat.Editor.Authoring
             if (!loadResult.Success)
             {
                 _diagnostics = loadResult.Diagnostics;
-                LastMessage = "Kakudollドキュメントを開けませんでした。現在の編集内容は保持されています。";
+                LastMessage = "ファイルを開けませんでした。今の編集はそのまま残っています。理由は「詳細」の検証結果にあります。";
                 return false;
             }
 
@@ -122,7 +136,7 @@ namespace VLat.Editor.Authoring
             // diagnostics/LastMessageはRecovery対象外なので、同一snapshotを二重に書かない。
             ReplaceDocument(loadResult.Document, loadResult.Document.Revision);
             _diagnostics = loadResult.Diagnostics;
-            LastMessage = "Kakudollドキュメントを開きました。";
+            LastMessage = "ファイルを開きました。";
             return true;
         }
 
@@ -131,7 +145,7 @@ namespace VLat.Editor.Authoring
             RequireDocument();
             if (string.IsNullOrWhiteSpace(SourcePath))
             {
-                LastMessage = "保存先が未指定です。Save Asを使用してください。";
+                LastMessage = "保存先が決まっていません。「別名で保存…」で保存してください。";
                 return false;
             }
 
@@ -143,7 +157,7 @@ namespace VLat.Editor.Authoring
             RequireDocument();
             if (string.IsNullOrWhiteSpace(path))
             {
-                LastMessage = "保存先が未指定です。";
+                LastMessage = "保存先が決まっていません。";
                 return false;
             }
 
@@ -161,7 +175,7 @@ namespace VLat.Editor.Authoring
             _recoveryStore.Clear();
             ReleaseDocument();
             _diagnostics = Array.Empty<VlatDiagnostic>();
-            LastMessage = "Kakudollセッションを閉じました。";
+            LastMessage = "ファイルを閉じました。";
             return true;
         }
 
@@ -181,8 +195,8 @@ namespace VLat.Editor.Authoring
             Selection.Reconcile(Document);
             ValidateEditing();
             LastMessage = IsDirty
-                ? "Undo/Redoを適用しました。未保存の変更があります。"
-                : "Undo/Redoで保存点に戻りました。";
+                ? "元に戻す・やり直しをしました。保存していない変更があります。"
+                : "元に戻す・やり直しで、保存した時点の状態になりました。";
             PersistRecovery();
         }
 
@@ -543,8 +557,8 @@ namespace VLat.Editor.Authoring
             {
                 _sourceConflict = true;
                 _diagnostics = new[] { VlatAuthoringResultUtility.Error("$",
-                    "保存元が変更・削除されています。Openで確認するか、別名で保存してください。") };
-                LastMessage = "競合があるため保存元へ上書きしていません。";
+                    "保存したファイルがほかで変更されたか、消されています。「開く…」で確かめるか、「別名で保存…」で保存してください。") };
+                LastMessage = "ほかの変更と食い違うため、上書きしませんでした。";
                 PersistRecovery();
                 return false;
             }
@@ -553,7 +567,7 @@ namespace VLat.Editor.Authoring
             _diagnostics = result.Diagnostics;
             if (!result.Success)
             {
-                LastMessage = "検証または書き込みに失敗したため保存していません。";
+                LastMessage = "保存できませんでした。理由は「詳細」の検証結果にあります。";
                 PersistRecovery();
                 return false;
             }
@@ -565,7 +579,7 @@ namespace VLat.Editor.Authoring
             ValidateEditing();
             _savedContent = _currentContent;
             Document.MarkSaved(_sourcePath);
-            LastMessage = "Kakudollドキュメントを保存しました。";
+            LastMessage = "保存しました。";
             PersistRecovery();
             return true;
         }
@@ -621,12 +635,12 @@ namespace VLat.Editor.Authoring
             Selection.SelectDocument();
         }
 
-        private void CommitChange()
+        private void CommitChange(string message = null)
         {
             Document.EnsureEditorIdentities();
             Selection.Reconcile(Document);
             ValidateEditing();
-            LastMessage = "編集内容を反映しました。";
+            LastMessage = message ?? "変更しました。";
             PersistRecovery();
         }
 
@@ -642,7 +656,7 @@ namespace VLat.Editor.Authoring
             Document.SetSourcePath(_sourcePath);
             if (IsDirty) Document.MarkDirty(); else Document.MarkSaved(_sourcePath);
             var all = new List<VlatDiagnostic>(diagnostics);
-            if (_sourceConflict) all.Add(VlatAuthoringResultUtility.Error("$", "保存元とRecoveryが競合しています。別名保存またはOpenで確認してください。"));
+            if (_sourceConflict) all.Add(VlatAuthoringResultUtility.Error("$", "保存したファイルと、自動で残した未保存の内容（Recovery）が食い違っています。「別名で保存…」で保存するか、「開く…」で確かめてください。"));
             if (!string.IsNullOrEmpty(_recoveryNotice)) all.Add(new VlatDiagnostic(
                 VlatDiagnosticSeverity.Warning, "$", 0, 0, _recoveryNotice));
             _diagnostics = all.AsReadOnly();

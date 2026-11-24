@@ -65,11 +65,11 @@ clone したリポジトリを使う場合は、3 行目を `"jp.vlat.core": "fi
 ## 使い方
 
 1. メニューの **Kakudoll > Editor** を開く
-2. 「VRMを開く…」でアバターを読み込む（編集するのはプレビュー用の複製です）
-3. 顔などのメッシュを選んでグループを作る
-4. 0°、45°、90° など、形を変えたい角度にキーを足す
-5. 頂点を選び、メインビューでドラッグする
-6. サブビューで角度ごとの見え方を確かめて「保存」する
+2. 「VRM を開く…」でアバターを読み込む（編集するのはプレビュー用の複製です）
+3. 直すパーツ（前髪や顔のメッシュ）と、形を変えたい角度を選んで「編集をはじめる」を押す
+4. 「選ぶ」（キー 2）で頂点を選び、「動かす」（キー 3）で編集ビューの中をドラッグする
+5. 下の角度レールを引いて、角度ごとの見え方を確かめる（← → でとなりのキーへ移れます）
+6. 「保存」する
 
 保存すると `.vlat.json` と `.vlat.bin` の 2 つのファイルができます。
 
@@ -150,8 +150,8 @@ It is in pre-beta and runs only inside the Unity Editor. It does not work in VRC
 If the project was not made from Unity Hub's 3D template, also add `"com.unity.test-framework": "1.1.33"`.
 To uninstall, remove the `jp.vlat.core` line and delete the project's `Library/VLat/` folder.
 
-**Use:** open **Kakudoll > Editor**, load a VRM 1.0 avatar, add keys at angles such as 0°, 45° and 90°, drag vertices
-in the main view, and save. Saving overwrites the file, so keep backups.
+**Use:** open **Kakudoll > Editor**, load a VRM 1.0 avatar, pick the mesh to fix and the angles (such as 0°, 45° and 90°),
+select vertices with Select (2), drag them with Move (3), check each angle on the angle rail, and save. Saving overwrites the file, so keep backups.
 
 **License:** [PolyForm Strict 1.0.0](LICENSE) while in development. You may use it for noncommercial purposes, but you may
 not distribute it or modified versions, or use it commercially. Changes made to send a pull request are fine.
