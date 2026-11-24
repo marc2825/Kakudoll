@@ -5,15 +5,9 @@ namespace VLat.Editor.Authoring
 {
     internal sealed partial class VlatEditorWindow
     {
+        // 「動かす」ツールの切り替えはTools.cs。ここではドラッグの中止（ボタン、Esc、フォーカスが外れたとき）だけを扱う。
         private void ConfigureKeyformDragUi()
         {
-            RequireElement<Toggle>("keyform-drag-toggle").RegisterValueChangedCallback(evt =>
-            {
-                if (_refreshing) return;
-                _preview.SetKeyformEditingSelection(_controller);
-                _preview.SetKeyformDragEnabled(evt.newValue);
-                RenderAndRefreshPreview();
-            });
             RequireElement<Button>("cancel-keyform-drag-button").clicked += CancelWindowDrag;
             // CreateGUI再生成時にrootへのcallbackが重複しないよう先に解除する。
             rootVisualElement.UnregisterCallback<KeyDownEvent>(OnDragKeyDown, TrickleDown.TrickleDown);
@@ -27,7 +21,7 @@ namespace VLat.Editor.Authoring
             evt.StopImmediatePropagation();
         }
 
-        private void OnLostFocus() { CancelWindowDrag(); }
+        private void OnLostFocus() { CancelWindowDrag(); EndSpaceHold(); }
         private void OnEditorSelectionChanged() { CancelWindowDrag(); }
 
         private void CancelWindowDrag()
@@ -46,14 +40,10 @@ namespace VLat.Editor.Authoring
 
         private void RefreshKeyformDragUi()
         {
-            var toggle = rootVisualElement.Q<Toggle>("keyform-drag-toggle");
-            if (toggle == null) return;
-            toggle.SetValueWithoutNotify(_preview.KeyformDragEnabled);
-            toggle.SetEnabled(_preview.GeometrySelectionEnabled && _controller.Selection.FindKeyformIndex(_controller.Document) >= 0);
+            if (_previewHelpLabel == null) return;
             RequireElement<Button>("cancel-keyform-drag-button").SetEnabled(_preview.IsDragging);
-            RequireElement<Label>("keyform-drag-status").text = _preview.DragStatus;
             if (_preview.KeyformDragEnabled)
-                _previewHelpLabel.text = "Main: 選択キーを直接編集 / 左: 変形 / Alt+左: 回転 / 中: 移動 / Esc: 中止";
+                _previewHelpLabel.text = "左ドラッグ: 形を動かす　Alt+左: 回す　中: 視点をずらす　Esc: 中止";
             var editable = _preview.GeometrySelectionEnabled && !_preview.KeyformDragEnabled;
             _vertexToolDropdown.SetEnabled(editable); _vertexVisibilityDropdown.SetEnabled(editable);
             _vertexSoftRadius.SetEnabled(editable); _vertexFalloffDropdown.SetEnabled(editable);

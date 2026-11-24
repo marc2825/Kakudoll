@@ -57,7 +57,7 @@ namespace VLat.Tests.Edit
                 for(var key=0;key<3;key++)
                 {
                     if(key>0) { Click(window,"add-keyform-button"); window.rootVisualElement.Q<DoubleField>("keyform-yaw").value=key*45; }
-                    window.rootVisualElement.Q<ListView>("keyform-list").selectedIndex=key;
+                    window.SelectKey(key,false);
                     window.rootVisualElement.Q<DropdownField>("keyform-shape").index=key+1;
                     Click(window,"import-keyform-button");
                     Assert.That(s.Document.KeyformGroups[0].Keys[key].Deltas.Count,Is.GreaterThan(0),s.LastMessage);
@@ -67,7 +67,7 @@ namespace VLat.Tests.Edit
                 var edits=new JArray();
                 for(var key=0;key<3;key++)
                 {
-                    window.rootVisualElement.Q<ListView>("keyform-list").selectedIndex=key;
+                    window.SelectKey(key,false);
                     Click(window,"keyform-camera-Main"); yield return null;
                     yield return AvatarDrag(window,target.HierarchyPath,new Vector2(4+key,2),edits,true);
                 }
@@ -78,7 +78,7 @@ namespace VLat.Tests.Edit
                 Report["expressions"]=JArray.FromObject(p.ExpressionNames);
                 window.SaveDocumentPathProvider=()=>savedPath; Click(window,"save-as-button");
                 Assert.That(s.IsDirty,Is.False,s.LastMessage); var saved=s.ContentFingerprint; var savedHash=FileHash(savedPath);
-                window.rootVisualElement.Q<ListView>("keyform-list").selectedIndex=0;
+                window.SelectKey(0,false);
                 yield return AvatarDrag(window,target.HierarchyPath,new Vector2(-3,2),edits,false);
                 Assert.That(s.IsDirty,Is.True); var recovery=s.ContentFingerprint;
                 p.SetGeometrySelectionEnabled(false); p.ResetExpressions(); Views(p);
@@ -102,11 +102,9 @@ namespace VLat.Tests.Edit
                 p.ResetExpressions();Views(p);Snapshot(p,"recovered",Output);Report["recoveryImages"]=Compare(p,"recovery",stateDirectory);
                 Assert.That(s.Open(savedPath,VlatCloseDecision.Discard),Is.True);window.CreateGUI();yield return null;
                 Assert.That(s.ContentFingerprint,Is.EqualTo((string)state["savedContent"])); Assert.That(s.IsDirty,Is.False);
-                // OpenはDocument選択へ戻る仕様。保存時と同じ比較条件にするためUIからGroupを再選択する。
-                window.rootVisualElement.Q<ListView>("keyform-group-list").selectedIndex=0;
+                // OpenはDocument選択へ戻る仕様。グループは1つだけなので、Previewはファイル選択のままそのグループを表示する。
                 p.ResetExpressions();Views(p);Snapshot(p,"reopened",Output);Report["savedImages"]=Compare(p,"saved",stateDirectory);
                 if(p.ExpressionNames.Count>0) { p.SetExpressionWeight(0,.7f);p.RenderIfNeeded();Report["expressionImages"]=Compare(p,"expression",stateDirectory);p.ResetExpressions(); }
-                window.rootVisualElement.Q<ListView>("keyform-group-list").selectedIndex=0;
                 Click(window,"remove-keyform-group-button");Assert.That(s.Document.KeyformGroups.Count,Is.Zero);
                 Views(p); Snapshot(p,"removed",Output); Report["removeData"]= "PASS";
                 window.DiscardChanges();window.Close();

@@ -57,7 +57,7 @@ namespace VLat.Editor.Authoring
             _committedMesh = renderer.sharedMesh;
             _pointerStart = pointerStart;
             _width = camera.pixelWidth; _height = camera.pixelHeight; _cameraRect = camera.rect;
-            if (_cameraRect != new Rect(0, 0, 1, 1)) throw new ArgumentException("Main Preview全体を使用するCameraだけが編集可能です。");
+            if (_cameraRect != new Rect(0, 0, 1, 1)) throw new ArgumentException("編集ビューのカメラ設定が想定と違うため動かせません。ウィンドウを開き直してください。");
             _view = camera.worldToCameraMatrix; _projection = camera.projectionMatrix;
             _inverseVP = RequireInverse(_projection * _view);
             _rootMatrix = root.localToWorldMatrix; _headMatrix = head.localToWorldMatrix;
@@ -65,7 +65,7 @@ namespace VLat.Editor.Authoring
             RequireInverse(_rootMatrix); RequireInverse(_headMatrix); RequireInverse(_rendererMatrix);
             RequireFinite(pointerStart.x); RequireFinite(pointerStart.y);
             if (_width <= 0 || _height <= 0 || selection.SelectedCount == 0 || selection.Weights.Count != source.vertexCount)
-                throw new ArgumentException("頂点を選択し、有効なMain Previewでドラッグしてください。");
+                throw new ArgumentException("頂点を選んでいないため動かせません。「選ぶ」で頂点を選んでから、編集ビューでドラッグしてください。");
             VlatAuthoringPackResult pack;
             using (VlatEditorProfiling.Measure(VlatEditorPhase.DragBeginPack))
                 pack = VlatAuthoringPersistence.PackForEditing(document);
@@ -98,7 +98,7 @@ namespace VLat.Editor.Authoring
             {
                 _selected[i] = selection.IsSelected(i);
                 _weights[i] = selection.Weights[i];
-                if (!Finite(_weights[i]) || _weights[i] < 0 || _weights[i] > 1) throw new ArgumentException("Soft Selection weightが不正です。");
+                if (!Finite(_weights[i]) || _weights[i] < 0 || _weights[i] > 1) throw new ArgumentException("なじませる範囲の計算に失敗しました。選択をすべて外してから選び直してください。");
                 _deltas[i] = _initialDeltas[i]; _positions[i] = _sourcePositions[i] + _deltas[i];
                 RequireFinite(_deltas[i]); RequireFinite(_positions[i]);
                 if (_weights[i] > 0) affectedCount++;
@@ -180,7 +180,7 @@ namespace VLat.Editor.Authoring
                     _worldToBind[i] = RequireBlockInverse(_worldToBind[i]);
                     var clip = vp * new Vector4(_world[i].x, _world[i].y, _world[i].z, 1);
                     if (!Finite(clip.w) || Mathf.Abs(clip.w) < 1e-6f || -_view.MultiplyPoint3x4(_world[i]).z <= nearClipPlane)
-                        throw new ArgumentException("選択頂点を安全に逆投影できません（カメラの背面/near plane）。");
+                        throw new ArgumentException("選んだ頂点がカメラの後ろか近すぎる所にあるため動かせません。ホイールで少し離れてからやり直してください。");
                     _ndc[i] = new Vector3(clip.x, clip.y, clip.z) / clip.w;
                     RequireFinite(_ndc[i]);
                 }
@@ -208,7 +208,7 @@ namespace VLat.Editor.Authoring
                 if (!zero)
                 {
                     var homogeneous = _affectedHomogeneous[affected] + screenOffset;
-                    if (!Finite(homogeneous.w) || Mathf.Abs(homogeneous.w) < 1e-6f) throw new ArgumentException("逆投影が特異です。");
+                    if (!Finite(homogeneous.w) || Mathf.Abs(homogeneous.w) < 1e-6f) throw new ArgumentException("この視点からは動かせません。視点を少し回してからやり直してください。");
                     var world = new Vector3(homogeneous.x, homogeneous.y, homogeneous.z) / homogeneous.w;
                     // 元screenの逆投影は開始時に同じ式で計算済み。移動量0では差分を作らない。
                     _deltas[i] += _worldToBind[i].MultiplyVector(world - _affectedInitialWorld[affected]) * _weights[i];
@@ -345,7 +345,7 @@ namespace VLat.Editor.Authoring
             double c02 = (double)a10 * a21 - (double)a11 * a20;
             var determinant = a00 * c00 + a01 * c01 + a02 * c02;
             if (determinant == 0 || double.IsNaN(determinant) || double.IsInfinity(determinant))
-                throw new ArgumentException("変換行列が特異または不安定です。Scale/Poseを確認してください。");
+                throw new ArgumentException("アバターの拡大率や姿勢が極端なため動かせません。Scale と Pose を確かめてください。");
             var r = 1.0 / determinant;
             var i00 = (float)(c00 * r);
             var i01 = (float)(((double)a02 * a21 - (double)a01 * a22) * r);
@@ -360,7 +360,7 @@ namespace VLat.Editor.Authoring
             var norm = Mathf.Max(1f, MaxAbs(a00, a01, a02, a10, a11, a12, a20, a21, a22));
             var inverseNorm = Mathf.Max(1f, MaxAbs(i00, i01, i02, i10, i11, i12, i20, i21, i22));
             if (!Finite(norm * inverseNorm) || norm * inverseNorm > 1000000f)
-                throw new ArgumentException("変換行列の条件数が大きすぎます。Scale/Pose/位置を確認してください。");
+                throw new ArgumentException("アバターの拡大率や姿勢が極端なため動かせません。Scale と Pose を確かめてください。");
             if (!Finite(i00) || !Finite(i01) || !Finite(i02) || !Finite(i10) || !Finite(i11) || !Finite(i12) ||
                 !Finite(i20) || !Finite(i21) || !Finite(i22) ||
                 !NearIdentity(a00 * i00 + a01 * i10 + a02 * i20, 1) || !NearIdentity(a00 * i01 + a01 * i11 + a02 * i21, 0) ||
@@ -368,7 +368,7 @@ namespace VLat.Editor.Authoring
                 !NearIdentity(a10 * i01 + a11 * i11 + a12 * i21, 1) || !NearIdentity(a10 * i02 + a11 * i12 + a12 * i22, 0) ||
                 !NearIdentity(a20 * i00 + a21 * i10 + a22 * i20, 0) || !NearIdentity(a20 * i01 + a21 * i11 + a22 * i21, 0) ||
                 !NearIdentity(a20 * i02 + a21 * i12 + a22 * i22, 1))
-                throw new ArgumentException("変換行列が特異または不安定です。Scale/Poseを確認してください。");
+                throw new ArgumentException("アバターの拡大率や姿勢が極端なため動かせません。Scale と Pose を確かめてください。");
             var inverse = Matrix4x4.identity;
             inverse.m00 = i00; inverse.m01 = i01; inverse.m02 = i02;
             inverse.m10 = i10; inverse.m11 = i11; inverse.m12 = i12;
@@ -390,10 +390,10 @@ namespace VLat.Editor.Authoring
             var norm = 0f; var inverseNorm = 0f;
             for (var i = 0; i < 16; i++) { norm = Mathf.Max(norm, Mathf.Abs(matrix[i])); inverseNorm = Mathf.Max(inverseNorm, Mathf.Abs(inverse[i])); }
             if (!Finite(norm * inverseNorm) || norm * inverseNorm > 1000000f)
-                throw new ArgumentException("変換行列の条件数が大きすぎます。Scale/Pose/位置を確認してください。");
+                throw new ArgumentException("アバターの拡大率や姿勢が極端なため動かせません。Scale と Pose を確かめてください。");
             for (var i = 0; i < 16; i++)
                 if (!Finite(inverse[i]) || !Finite(product[i]) || Mathf.Abs(product[i] - Matrix4x4.identity[i]) > .001f)
-                    throw new ArgumentException("変換行列が特異または不安定です。Scale/Poseを確認してください。");
+                    throw new ArgumentException("アバターの拡大率や姿勢が極端なため動かせません。Scale と Pose を確かめてください。");
             return inverse;
         }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);

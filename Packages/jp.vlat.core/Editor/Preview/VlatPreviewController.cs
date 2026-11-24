@@ -98,6 +98,8 @@ namespace VLat.Editor.Authoring
         }
 
         internal bool HasAvatar => _avatar != null;
+        /// <summary>プレビュー用に読み込んだアバター（複製）のルート。読み込んでいなければnull。</summary>
+        internal GameObject AvatarRoot => _avatar == null ? null : _avatar.gameObject;
         internal bool IsLoading { get; private set; }
         internal string AvatarPath { get; private set; } = string.Empty;
         internal bool ApplicationEnabled => _applicationEnabled;

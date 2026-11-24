@@ -1,79 +1,134 @@
+using System;
+using System.Globalization;
 using System.IO;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using VLat.Core.Validation;
 
 namespace VLat.Editor.Authoring
 {
-    // 表示専用の状態同期(作業手順、状態バッジ、メッセージ表示)。Document/Undo/Previewの状態は変更しない。
+    // 表示だけの状態同期（画面の切り替え、ビュー上の表示、状態の印、ステータス行）。Document/Undo/Previewは変更しない。
     internal sealed partial class VlatEditorWindow
     {
-        private static readonly string[] WorkflowStepNames =
-        {
-            "workflow-step-vrm", "workflow-step-group", "workflow-step-target",
-            "workflow-step-key", "workflow-step-select", "workflow-step-drag",
-        };
+        private const string LegacyHint =
+            "旧形式（v0.1）のファイルを編集しています。右の一覧で Band・Layer・Modifier を選び、その下で値を変えます。";
 
-        private static readonly string[] WorkflowHints =
-        {
-            "次: プレビュー上部の「VRMを開く…」でVRM 1.0を読み込みます（元ファイル・元アセットは変更しません）。",
-            "次: 左の「Yaw Keyform」の「+」でグループを作成します（空のドキュメントで作成できます）。",
-            "次: 右の「対象Mesh」で、シーン上のアバターRootとRendererを指定して「対象に設定」を押します。",
-            "次: 左の「Yawキー」から編集するキーを選びます。「+」で空いている角度にキーを追加できます。",
-            "次: プレビュー上部の「頂点選択」をオンにし、Mainビューで動かしたい頂点を選びます。",
-            "次: 「2Dドラッグ」をオンにし、Mainビューを左ドラッグして形を動かします（Escで中止）。",
-        };
-
-        private const string WorkflowDoneHint =
-            "Mainビューを左ドラッグして編集できます。Sub A/Bは確定後の補間結果です。1回のドラッグは「元に戻す」1回で戻ります。";
-
-        private const string LegacyWorkflowHint =
-            "v0.1 Layer文書を編集中です。左の「Layer編集」でBand/Layer/Modifierを選び、右側で値を編集します。";
-
-        private readonly Label[] _workflowSteps = new Label[6];
-        private readonly bool[] _workflowDone = new bool[6];
-        private VisualElement _workflowStepRow;
         private Label _workflowHint;
         private Label _documentTitleLabel;
         private Label _validationSummary;
-        private Foldout _keyformSection;
-        private Foldout _legacySection;
+        private VisualElement _legacySection;
+        private VisualElement _toolOptions;
+        private VisualElement _viewControlGroup;
         private VisualElement _selectionControlGroup;
+        private VisualElement _moveControlGroup;
+        private VisualElement _detailsPane;
+        private VisualElement _detailsDynamic;
+        private Foldout _detailsValidation;
+        private Button _detailsButton;
+        private VisualElement _viewTag;
+        private Label _viewTagTitle;
+        private Label _viewTagDetail;
+        private VisualElement _compareViews;
+        private Label _compareALabel;
+        private Label _compareBLabel;
+        private VisualElement _viewportPlaceholder;
+        private Label _viewportPlaceholderLabel;
+        private Label _viewportMessage;
+        private Label _moveSelectionStatus;
+        private bool _viewportTiny;
         private Label[] _messageLabels;
         private bool? _legacySectionsShown;
+        [SerializeField] private bool _detailsOpen;
+        private int _shownMessageSequence = -1;
+        private int _shownDragSequence = -1;
+        private string _statusMessage = string.Empty;
 
         private void ConfigureLayout()
         {
-            // Personal(ライト)テーマでは強調色だけをUSSで上書きする。
+            // Personal(ライト)テーマでは、強調色だけをUSSで上書きする。
             rootVisualElement.EnableInClassList("vlat-light", !EditorGUIUtility.isProSkin);
-            for (var index = 0; index < WorkflowStepNames.Length; index++)
-                _workflowSteps[index] = RequireElement<Label>(WorkflowStepNames[index]);
-            _workflowStepRow = RequireElement<VisualElement>("workflow-steps");
+            rootVisualElement.focusable = true;
             _workflowHint = RequireElement<Label>("workflow-hint");
             _documentTitleLabel = RequireElement<Label>("document-title-label");
             _validationSummary = RequireElement<Label>("validation-summary");
-            _keyformSection = RequireElement<Foldout>("keyform-section");
-            _legacySection = RequireElement<Foldout>("legacy-section");
+            _legacySection = RequireElement<VisualElement>("legacy-section");
+            _toolOptions = RequireElement<VisualElement>("tool-options");
+            _viewControlGroup = RequireElement<VisualElement>("view-control-group");
             _selectionControlGroup = RequireElement<VisualElement>("selection-control-group");
+            _moveControlGroup = RequireElement<VisualElement>("move-control-group");
+            _detailsPane = RequireElement<VisualElement>("details-pane");
+            _detailsDynamic = RequireElement<VisualElement>("details-dynamic");
+            _detailsValidation = RequireElement<Foldout>("details-validation");
+            _detailsButton = RequireElement<Button>("details-button");
+            _viewTag = RequireElement<VisualElement>("view-tag");
+            _viewTagTitle = RequireElement<Label>("view-tag-title");
+            _viewTagDetail = RequireElement<Label>("view-tag-detail");
+            _compareViews = RequireElement<VisualElement>("compare-views");
+            _compareALabel = RequireElement<Label>("compare-a-label");
+            _compareBLabel = RequireElement<Label>("compare-b-label");
+            _viewportPlaceholder = RequireElement<VisualElement>("viewport-placeholder");
+            _viewportPlaceholderLabel = RequireElement<Label>("viewport-placeholder-label");
+            _viewportMessage = RequireElement<Label>("viewport-message");
+            _moveSelectionStatus = RequireElement<Label>("move-selection-status");
             _messageLabels = new[]
             {
-                RequireElement<Label>("keyform-drag-status"),
                 RequireElement<Label>("vertex-selection-diagnostic"),
-                RequireElement<Label>("preview-diagnostic-label"),
+                RequireElement<Label>("viewport-message"),
+                RequireElement<Label>("start-message"),
             };
+            _buildTarget = RequireElement<ScrollView>("inspector-pane");
+            // 編集ビューが狭いときは比較ビューを小さくし、さらに狭ければ隠して、編集ビューを優先する。
+            var viewport = RequireElement<VisualElement>("viewport");
+            viewport.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                var width = evt.newRect.width;
+                viewport.EnableInClassList("vlat-viewport-narrow", width < 600f);
+                var tiny = width < 420f;
+                if (tiny == _viewportTiny) return;
+                _viewportTiny = tiny;
+                RefreshViewportUi();
+                RefreshRail();
+            });
+            _detailsButton.clicked += () =>
+            {
+                _detailsOpen = !_detailsOpen;
+                RefreshDetailsVisibility();
+            };
+            // 検証結果の印を押すと、詳細の検証結果を開く。
+            _validationSummary.RegisterCallback<ClickEvent>(_ =>
+            {
+                _detailsOpen = true;
+                _detailsValidation.value = true;
+                RefreshDetailsVisibility();
+            });
             _legacySectionsShown = null;
+            _shownMessageSequence = -1;
+            _shownDragSequence = -1;
         }
 
-        // Keyform/Layerの文書種別が変わった時だけ折りたたみを切り替え、利用者の開閉操作を上書きし続けない。
+        // 比較ビューは、VRMがあり、編集ビューが狭すぎないときだけ出す（レールのA・Bの印も同じ）。
+        private bool CompareViewsVisible => _preview != null && _preview.HasAvatar && !_viewportTiny;
+
+        private static bool IsLegacyDocument(VlatAuthoringDocument document) =>
+            document != null && (document.Bands.Count != 0 || document.Layers.Count != 0);
+
+        // 旧形式のファイルのときだけ、旧形式の一覧を出す。キーの道具は隠す。
         private void RefreshDocumentSections()
         {
             if (_legacySection == null || _controller?.Document == null) return;
-            var document = _controller.Document;
-            var legacy = document.Bands.Count != 0 || document.Layers.Count != 0;
+            var legacy = IsLegacyDocument(_controller.Document);
             if (_legacySectionsShown == legacy) return;
             _legacySectionsShown = legacy;
-            _legacySection.value = legacy;
-            _keyformSection.value = !legacy || document.KeyformGroups.Count != 0;
+            _legacySection.style.display = legacy ? DisplayStyle.Flex : DisplayStyle.None;
+            RequireElement<VisualElement>("tool-strip").style.display = legacy ? DisplayStyle.None : DisplayStyle.Flex;
+        }
+
+        private void RefreshDetailsVisibility()
+        {
+            if (_detailsPane == null) return;
+            _detailsPane.style.display = _detailsOpen ? DisplayStyle.Flex : DisplayStyle.None;
+            _detailsButton.EnableInClassList("vlat-toggle-on", _detailsOpen);
         }
 
         private void RefreshStatusPresentation(int errorCount, int warningCount)
@@ -81,67 +136,184 @@ namespace VLat.Editor.Authoring
             if (_documentTitleLabel == null) return;
             var path = _controller.SourcePath;
             var untitled = string.IsNullOrWhiteSpace(path);
-            SetTextIfChanged(_documentTitleLabel, untitled ? "無題のドキュメント" : Path.GetFileName(path));
-            _documentTitleLabel.tooltip = untitled ? "まだ保存されていません。" : path;
-            SetTextIfChanged(_dirtyLabel, _controller.IsDirty ? "● 未保存の変更" : "保存済み");
+            SetTextIfChanged(_documentTitleLabel, untitled ? "無題のファイル" : Path.GetFileName(path));
+            _documentTitleLabel.tooltip = untitled ? "まだ保存していません。" : path;
+            SetTextIfChanged(_dirtyLabel, _controller.IsDirty ? "未保存の変更" : "保存済み");
             _dirtyLabel.EnableInClassList("vlat-dirty-modified", _controller.IsDirty);
             SetTextIfChanged(_validationSummary, errorCount != 0
                 ? "エラー " + errorCount + " / 警告 " + warningCount
                 : warningCount != 0 ? "警告 " + warningCount : "問題なし");
             _validationSummary.EnableInClassList("vlat-validation-error", errorCount != 0);
             _validationSummary.EnableInClassList("vlat-validation-warning", errorCount == 0 && warningCount != 0);
-            SetTextIfChanged(_statusLabel, _controller.LastMessage ?? string.Empty);
-            _statusLabel.tooltip = untitled ? "無題のドキュメント" : path;
+            if (_controller.MessageSequence != _shownMessageSequence)
+            {
+                _shownMessageSequence = _controller.MessageSequence;
+                _statusMessage = _controller.LastMessage ?? string.Empty;
+            }
+
+            RefreshStatusLine();
         }
 
+        // ステータス行の右側。最後に起きたこと（ファイルの操作、編集、ドラッグ、VRMの読み込み）を1つだけ出す。
+        private void RefreshStatusLine()
+        {
+            if (_statusLabel == null) return;
+            if (_preview != null && _preview.DragStatusSequence != _shownDragSequence)
+            {
+                _shownDragSequence = _preview.DragStatusSequence;
+                if (!string.IsNullOrEmpty(_preview.DragStatus)) _statusMessage = _preview.DragStatus;
+            }
+
+            SetTextIfChanged(_statusLabel, _statusMessage);
+            _statusLabel.tooltip = _statusMessage;
+        }
+
+        // ステータス行の左側。今の状態から、次にすることを1文で出す（手順の「済み」は持たない）。
         private void RefreshWorkflowGuide()
         {
             if (_workflowHint == null || _controller?.Document == null || _preview == null) return;
+            SetTextIfChanged(_workflowHint, BuildGuide());
+        }
+
+        private string BuildGuide()
+        {
             var document = _controller.Document;
-            var legacy = document.Bands.Count != 0 || document.Layers.Count != 0;
-            _workflowStepRow.style.display = legacy ? DisplayStyle.None : DisplayStyle.Flex;
-            if (legacy)
+            if (IsLegacyDocument(document)) return LegacyHint;
+            if (document.KeyformGroups.Count == 0)
             {
-                SetTextIfChanged(_workflowHint, LegacyWorkflowHint);
+                if (_preview.IsLoading) return "VRM を読み込んでいます…";
+                if (!_preview.HasAvatar) return "はじめに VRM を開きます。元のファイルは書き換えません。";
+                if (_startPartTarget < 0) return "形を変えたいパーツを選びます。";
+                return "形を変えたい角度を選んで、「編集をはじめる」を押します。";
+            }
+
+            var g = DisplayGroupIndex();
+            if (!IsGroupBound(g)) return "直すパーツが決まっていません。右の「直すパーツ」か「詳細」で指定します。";
+            if (!_preview.HasAvatar) return "VRM を開くと、形を見ながら直せます。";
+            var k = _controller.Selection.FindKeyformIndex(document);
+            if (k < 0) return "レールのひし形を押すか、← → でキーを選びます。";
+            var yaw = FormatYaw(document.KeyformGroups[g].Keys[k].Yaw);
+            switch (CurrentTool)
+            {
+                case VlatEditorTool.Select:
+                    var selected = _preview.VertexSelection.SelectedCount;
+                    return selected == 0
+                        ? yaw + " のキー: 形を変えたい頂点を、クリックかブラシで選びます。"
+                        : yaw + " のキー: " + selected.ToString("N0", CultureInfo.InvariantCulture) + " 頂点を選んでいます。3 を押すと、ドラッグで動かせます。";
+                case VlatEditorTool.Move:
+                    if (_preview.IsDragging) return "ドラッグ中です。手を離すと確定し、Esc で中止します。";
+                    return _preview.VertexSelection.SelectedCount == 0
+                        ? yaw + " のキー: 先に 2 を押して、動かす頂点を選びます。"
+                        : yaw + " のキー: 選んだ頂点をドラッグして形を変えます。";
+                default:
+                    return yaw + " のキーを選んでいます。2 で頂点を選び、3 で動かします。← → でとなりのキーへ移ります。";
+            }
+        }
+
+        // 編集ビューの上の表示（何の形を見ているか）、比較ビューの見出し、VRMがないときの案内。
+        private void RefreshViewportUi()
+        {
+            if (_viewTag == null || _preview == null || _controller?.Document == null) return;
+            var hasAvatar = _preview.HasAvatar;
+            _viewportPlaceholder.style.display = hasAvatar ? DisplayStyle.None : DisplayStyle.Flex;
+            SetTextIfChanged(_viewportPlaceholderLabel, _preview.IsLoading
+                ? "VRM を読み込んでいます…"
+                : _preview.State == VlatPreviewState.AvatarLoadError
+                    ? "VRM を読み込めませんでした。VRM 1.0 のファイルか確かめて、もう一度開いてください。"
+                    : "VRM を開くと、ここにアバターが表示されます。元のファイルは書き換えません。");
+            RequireElement<Button>("viewport-open-vrm-button").SetEnabled(!_preview.IsLoading);
+            _compareViews.style.display = CompareViewsVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            RequireElement<Button>("reset-main-view-button").style.display = hasAvatar ? DisplayStyle.Flex : DisplayStyle.None;
+
+            var stale = _preview.IsDragging;
+            SetCompareLabel(_compareALabel, "比較 A", VlatPreviewView.SubA, stale);
+            SetCompareLabel(_compareBLabel, "比較 B", VlatPreviewView.SubB, stale);
+
+            var document = _controller.Document;
+            var g = DisplayGroupIndex();
+            var showTag = hasAvatar && g >= 0;
+            _viewTag.style.display = showTag ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showTag) BuildViewTag(document.KeyformGroups[g]);
+
+            var message = string.Empty;
+            if (hasAvatar && _preview.State == VlatPreviewState.VLatUnavailable)
+                message = "補正を表示できません。「詳細」の検証結果とプレビューの詳細を確かめてください。";
+            SetTextIfChanged(_viewportMessage, message);
+            _viewportMessage.style.display = message.Length == 0 ? DisplayStyle.None : DisplayStyle.Flex;
+        }
+
+        private void SetCompareLabel(Label label, string name, VlatPreviewView view, bool stale)
+        {
+            var text = name + "  " + FormatYaw(Math.Round(_preview.GetViewState(view).Yaw));
+            SetTextIfChanged(label, stale ? text + "（手を離すと更新）" : text);
+            label.EnableInClassList("vlat-compare-stale", stale);
+        }
+
+        private void BuildViewTag(VlatAuthoringKeyformGroup group)
+        {
+            var tool = CurrentTool;
+            var k = _controller.Selection.FindKeyformIndex(_controller.Document);
+            if (tool != VlatEditorTool.View && k >= 0)
+            {
+                SetTextIfChanged(_viewTagTitle, FormatYaw(group.Keys[k].Yaw) + " のキー");
+                SetTextIfChanged(_viewTagDetail, tool == VlatEditorTool.Select
+                    ? "頂点を選ぶ（補正前の形で表示）"
+                    : "形を動かす（このキーの形で表示）");
                 return;
             }
 
-            var groupIndex = _controller.Selection.FindKeyformGroupIndex(document);
-            if (groupIndex < 0 && document.KeyformGroups.Count != 0) groupIndex = 0;
-            var group = groupIndex < 0 ? null : document.KeyformGroups[groupIndex];
-            _workflowDone[0] = _preview.HasAvatar;
-            _workflowDone[1] = group != null;
-            _workflowDone[2] = group != null && group.MeshBinding >= 0 &&
-                group.MeshBinding < document.Metadata.MeshBindings.Count;
-            _workflowDone[3] = _controller.Selection.FindKeyformIndex(document) >= 0;
-            _workflowDone[4] = _preview.GeometrySelectionEnabled && _preview.VertexSelection.SelectedCount > 0;
-            _workflowDone[5] = _preview.KeyformDragEnabled;
-            var current = -1;
-            for (var index = 0; index < _workflowSteps.Length; index++)
-            {
-                var done = _workflowDone[index];
-                if (!done && current < 0) current = index;
-                _workflowSteps[index].EnableInClassList("vlat-step-done", done);
-                _workflowSteps[index].EnableInClassList("vlat-step-current", index == current);
-            }
-
-            SetTextIfChanged(_workflowHint, current < 0 ? WorkflowDoneHint : WorkflowHints[current]);
+            var yaw = (double)_preview.GetViewState(VlatPreviewView.Main).Yaw;
+            var rounded = Math.Round(yaw);
+            SetTextIfChanged(_viewTagTitle, FormatYaw(rounded));
+            string detail;
+            if (!_preview.ApplicationEnabled)
+                detail = _spaceHeld ? "補正前の形（Space を離すと戻ります）" : "補正前の形（「補正を表示」がオフ）";
+            else if (yaw <= group.SupportStart || yaw >= group.SupportEnd)
+                detail = "効く範囲の外なので、補正はかかりません";
+            else
+                detail = DescribeBetweenKeys(group, yaw);
+            SetTextIfChanged(_viewTagDetail, detail);
         }
 
-        // 空のメッセージ行は高さを取らないよう非表示にし、Previewの描画面積を確保する。
+        private static string DescribeBetweenKeys(VlatAuthoringKeyformGroup group, double yaw)
+        {
+            VlatAuthoringKeyform before = null;
+            VlatAuthoringKeyform after = null;
+            foreach (var key in group.Keys)
+            {
+                if (Math.Abs(key.Yaw - yaw) < 0.5) return FormatYaw(key.Yaw) + " のキーの形";
+                if (key.Yaw < yaw) before = key;
+                else if (after == null) after = key;
+            }
+
+            if (before != null && after != null)
+                return FormatYaw(before.Yaw) + " と " + FormatYaw(after.Yaw) + " のあいだの形（見るだけ）";
+            var nearest = before ?? after;
+            return nearest == null ? "補正なし" : FormatYaw(nearest.Yaw) + " のキーの形（いちばん近いキー）";
+        }
+
+        // 空のメッセージ行は高さを取らないように隠す。ツールの設定は、選んでいるツールの分だけ出す。
         private void RefreshPreviewMessages()
         {
             if (_messageLabels == null) return;
             foreach (var label in _messageLabels)
                 label.style.display = string.IsNullOrEmpty(label.text) ? DisplayStyle.None : DisplayStyle.Flex;
-            if (_selectionControlGroup != null && _preview != null)
-                _selectionControlGroup.style.display =
-                    _preview.GeometrySelectionEnabled ? DisplayStyle.Flex : DisplayStyle.None;
+            if (_preview == null || _controller?.Document == null) return;
+            var legacy = IsLegacyDocument(_controller.Document);
+            var tool = CurrentTool;
+            _viewControlGroup.style.display = legacy || tool == VlatEditorTool.View ? DisplayStyle.Flex : DisplayStyle.None;
+            _selectionControlGroup.style.display = !legacy && tool == VlatEditorTool.Select ? DisplayStyle.Flex : DisplayStyle.None;
+            _moveControlGroup.style.display = !legacy && tool == VlatEditorTool.Move ? DisplayStyle.Flex : DisplayStyle.None;
+            var selected = _preview.VertexSelection.SelectedCount;
+            SetTextIfChanged(_moveSelectionStatus, selected == 0
+                ? "まだ頂点を選んでいません。2 を押して選びます。"
+                : selected.ToString("N0", CultureInfo.InvariantCulture) + " 頂点を選んでいます。");
+            RefreshStatusLine();
         }
 
         private static void SetTextIfChanged(Label label, string text)
         {
-            if (label != null && !string.Equals(label.text, text, System.StringComparison.Ordinal)) label.text = text;
+            if (label != null && !string.Equals(label.text, text, StringComparison.Ordinal)) label.text = text;
         }
 
         // 検証結果の表示用項目(D-012)。Coreの診断は変更せず、表示だけを整理する。
@@ -156,7 +328,7 @@ namespace VLat.Editor.Authoring
         }
 
         private const string KeyformVersionNote =
-            "Keyform v0.2文書です。Keyform対応のKakudollで編集できます（Keyform非対応の旧Runtime・旧Editorでは読み込めません）。";
+            "Keyform v0.2 のファイルです。Keyform に対応した Kakudoll で編集できます（対応していない古い Runtime・Editor では読み込めません）。";
 
         // 同じ内容の重複を1件にまとめ、Keyform v0.2文書のnewer-minor警告（仕様上の旧backend向け注意）は情報表示にする。
         private void RebuildDiagnosticItems()
@@ -202,7 +374,7 @@ namespace VLat.Editor.Authoring
         {
             var label = new Label(text);
             label.AddToClassList("vlat-inspector-section");
-            _inspector.Add(label);
+            _buildTarget.Add(label);
         }
     }
 }

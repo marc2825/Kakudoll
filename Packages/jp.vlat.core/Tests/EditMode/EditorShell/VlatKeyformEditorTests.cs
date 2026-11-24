@@ -396,7 +396,7 @@ namespace VLat.Tests.Edit
             _window.rootVisualElement.Q<ObjectField>("keyform-renderer").value = _renderer;
             Click("bind-keyform-target-button");
             Assert.That(session.Document.KeyformGroups[0].MeshBinding, Is.Zero);
-            _window.rootVisualElement.Q<ListView>("keyform-list").SetSelection(0);
+            _window.SelectKey(0);
             _window.rootVisualElement.Q<DoubleField>("keyform-yaw").value = -45;
             _window.rootVisualElement.Q<DropdownField>("keyform-shape").index = 1;
             Click("import-keyform-button");
@@ -422,8 +422,7 @@ namespace VLat.Tests.Edit
             var after = VlatAuthoringPersistence.Pack(session.Document);
             Assert.That(after.Json, Is.EqualTo(before.Json));
             CollectionAssert.AreEqual(before.Buffers[0], after.Buffers[0]);
-            _window.rootVisualElement.Q<ListView>("keyform-group-list").SetSelection(0);
-            _window.rootVisualElement.Q<ListView>("keyform-list").SetSelection(1);
+            _window.SelectKey(1);
             Click("remove-keyform-button");
             Undo.FlushUndoRecordObjects();
             Assert.That(session.Document.KeyformGroups[0].Keys.Count, Is.EqualTo(1));

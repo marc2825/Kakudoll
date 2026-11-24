@@ -39,7 +39,14 @@ namespace VLat.Tests.Edit
             Assert.That(root.Q<Image>("preview-main"), Is.Not.Null);
             Assert.That(root.Q<Image>("preview-sub-a"), Is.Not.Null);
             Assert.That(root.Q<Image>("preview-sub-b"), Is.Not.Null);
-            Assert.That(root.Q<Slider>("preview-yaw"), Is.Not.Null);
+            Assert.That(root.Q<FloatField>("preview-yaw"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>("start-screen"), Is.Not.Null);
+            Assert.That(root.Q<VisualElement>("angle-rail-host"), Is.Not.Null);
+            Assert.That(root.Q<Toggle>("tool-view-toggle"), Is.Not.Null);
+            Assert.That(root.Q<Toggle>("keyform-drag-toggle"), Is.Not.Null);
+            Assert.That(root.Q<Button>("add-keyform-button"), Is.Not.Null);
+            Assert.That(root.Q<Button>("start-editing-button"), Is.Not.Null);
+            Assert.That(root.Q<ScrollView>("details-pane"), Is.Not.Null);
             Assert.That(root.Q<Toggle>("preview-after-toggle"), Is.Not.Null);
             Assert.That(root.Q<DropdownField>("expression-dropdown"), Is.Not.Null);
             Assert.That(root.Q<Toggle>("geometry-selection-toggle"), Is.Not.Null);

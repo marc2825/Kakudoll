@@ -298,7 +298,7 @@ namespace VLat.Tests.Edit
                 var keyButton = window.rootVisualElement.Q<Button>("keyform-camera-SubA"); Assert.That(keyButton, Is.Not.Null);
                 Assert.That(keyButton.enabledSelf, Is.False);
                 f.Adopt(window.PreviewController);
-                window.rootVisualElement.Q<Slider>("preview-yaw").value = 15;
+                window.rootVisualElement.Q<FloatField>("preview-yaw").value = 15;
                 Assert.That(keyButton.enabledSelf, Is.True, "Inspector再生成なしの読込後も操作できる");
                 Click(keyButton); Assert.That(window.PreviewController.GetEvaluatedYaw(VlatPreviewView.SubA), Is.EqualTo(90).Within(.0001));
                 window.rootVisualElement.Q<Toggle>("preview-after-toggle").value = false;
@@ -308,7 +308,7 @@ namespace VLat.Tests.Edit
                 Click(window.rootVisualElement.Q<Button>("clear-vrm-button"));
                 Assert.That(clearedMesh == null, Is.True); Assert.That(keyButton.enabledSelf, Is.False);
                 f.Adopt(window.PreviewController);
-                window.rootVisualElement.Q<Slider>("preview-yaw").value = 20;
+                window.rootVisualElement.Q<FloatField>("preview-yaw").value = 20;
                 Assert.That(keyButton.enabledSelf, Is.True);
                 var generated = f.Renderer.sharedMesh; var rt = window.PreviewController.GetTexture(VlatPreviewView.Main);
                 window.DiscardChanges(); window.Close(); yield return null;

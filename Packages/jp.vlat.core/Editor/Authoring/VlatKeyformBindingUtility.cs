@@ -18,10 +18,17 @@ namespace VLat.Editor.Authoring
             return null;
         }
 
-        internal static VlatAuthoringMeshBinding Capture(GameObject avatarRoot, Renderer renderer, out string topologyHash)
+        internal static VlatAuthoringMeshBinding Capture(GameObject avatarRoot, Renderer renderer, out string topologyHash) =>
+            Capture(avatarRoot, renderer, null, out topologyHash);
+
+        /// <summary>
+        /// sourceMeshを渡すと、Rendererが今表示しているMeshの代わりにそれを基準にします。
+        /// Previewは表示用の一時Meshへ差し替えるため、Previewのパーツからは差し替え前のMeshを渡します。
+        /// </summary>
+        internal static VlatAuthoringMeshBinding Capture(GameObject avatarRoot, Renderer renderer, Mesh sourceMesh, out string topologyHash)
         {
             if (avatarRoot == null || renderer == null)
-                throw new ArgumentException("Avatar Rootと対象Rendererを指定してください。");
+                throw new ArgumentException("アバターのルートと、直すパーツの Renderer を指定してください。");
             string path;
             using (VlatEditorProfiling.Measure(VlatEditorPhase.BindingPaths))
             {
@@ -31,7 +38,8 @@ namespace VLat.Editor.Authoring
                     if (UniVrmAdapter.GetRelativeHierarchyPath(avatarRoot.transform, candidate.transform) == path) matches++;
                 if (matches != 1) throw new ArgumentException("Rendererの階層パスが一意ではありません。同名の兄弟や複数Rendererを確認してください。");
             }
-            var mesh = GetSourceMesh(renderer);
+            var mesh = sourceMesh != null ? sourceMesh : GetSourceMesh(renderer);
+            if (mesh == null) throw new ArgumentException("このパーツのメッシュを読めません。SkinnedMeshRenderer か MeshFilter のあるパーツを選んでください。");
             using (VlatEditorProfiling.Measure(VlatEditorPhase.BindingTopology))
                 topologyHash = VlatBlendShapeKeyformImporter.CalculateTopologyHash(mesh);
             string positionHash;
@@ -60,9 +68,9 @@ namespace VLat.Editor.Authoring
         }
 
         internal static void RequireMatch(GameObject avatarRoot, Renderer renderer,
-            VlatAuthoringMeshBinding expected, string topologyHash)
+            VlatAuthoringMeshBinding expected, string topologyHash, Mesh sourceMesh = null)
         {
-            var actual = Capture(avatarRoot, renderer, out var actualTopology);
+            var actual = Capture(avatarRoot, renderer, sourceMesh, out var actualTopology);
             if (expected == null || actual.HierarchyPath != expected.HierarchyPath ||
                 actual.MeshName != expected.MeshName || actual.VertexCount != expected.VertexCount ||
                 !string.Equals(actual.PositionHash, expected.PositionHash, StringComparison.OrdinalIgnoreCase) ||

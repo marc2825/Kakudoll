@@ -1,40 +1,156 @@
 /*
-  Kakudoll Editor Window
-  色はUnity Editorのテーマ変数を使い、Personal(ライト)/Pro(ダーク)の両方で読めるようにする。
-  強調色だけは .vlat-light でライトテーマ用に上書きする。
+  Kakudoll Editor Window（K-037）
+  背景・枠・文字はUnity Editorのテーマ変数を使い、Personal(ライト)/Pro(ダーク)の両方で読めるようにする。
+  足す色は1つだけ: オレンジはキーと補正の効く範囲だけに使う。青はUnityと同じく選択とフォーカスに使う。
+  文字は11px以上にし、不透明度で薄くしない（読みにくくなるため）。.vlat-light でライトテーマ用に上書きする。
 */
 
 .vlat-root {
     flex-grow: 1;
     min-width: 760px;
     background-color: var(--unity-colors-window-background, rgb(56, 56, 56));
+    color: var(--unity-colors-label-text, rgb(210, 210, 210));
 }
 
-/* ---------- Toolbar ---------- */
+/* ---------- 共通 ---------- */
+
+.vlat-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.vlat-wrap {
+    flex-wrap: wrap;
+}
+
+.vlat-row > Button {
+    margin: 2px 4px 2px 0;
+}
+
+.vlat-row-caption {
+    margin: 4px 6px 0 0;
+    font-size: 11px;
+    color: rgb(180, 180, 180);
+}
+
+.vlat-note {
+    white-space: normal;
+    font-size: 11px;
+    margin: 2px 0 6px 0;
+    color: rgb(180, 180, 180);
+}
+
+.vlat-emphasis {
+    -unity-font-style: bold;
+    color: var(--unity-colors-label-text, rgb(220, 220, 220));
+}
+
+.vlat-light .vlat-note,
+.vlat-light .vlat-row-caption {
+    color: rgb(72, 72, 72);
+}
+
+.vlat-light .vlat-emphasis {
+    color: rgb(24, 24, 24);
+}
+
+.vlat-primary {
+    height: 26px;
+    padding: 0 16px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgb(58, 121, 187);
+    border-color: rgb(46, 98, 153);
+}
+
+.vlat-primary:hover {
+    background-color: rgb(72, 136, 204);
+}
+
+.vlat-danger {
+    margin-top: 8px;
+    color: rgb(240, 120, 120);
+}
+
+.vlat-light .vlat-danger {
+    color: rgb(160, 30, 30);
+}
+
+.vlat-small-button {
+    height: 18px;
+    margin: 0;
+    padding: 0 6px;
+    font-size: 11px;
+}
+
+.vlat-message {
+    white-space: normal;
+    font-size: 11px;
+    padding: 3px 8px;
+    margin: 4px 0;
+    border-left-width: 3px;
+    border-radius: 2px;
+}
+
+.vlat-message-warning {
+    color: rgb(232, 200, 110);
+    border-left-color: rgb(210, 160, 40);
+    background-color: rgba(210, 160, 40, 0.12);
+}
+
+.vlat-message-error {
+    color: rgb(245, 140, 140);
+    border-left-color: rgb(205, 75, 75);
+    background-color: rgba(205, 75, 75, 0.14);
+}
+
+.vlat-light .vlat-message-warning {
+    color: rgb(105, 70, 0);
+}
+
+.vlat-light .vlat-message-error {
+    color: rgb(150, 25, 25);
+}
+
+/* ツールのトグルはボタンの見た目にする。チェックの印は出さず、選んでいる間だけ色を付ける。 */
+.vlat-tool {
+    margin: 0;
+}
+
+.vlat-tool .unity-toggle__checkmark {
+    display: none;
+}
+
+/* 「詳細」を開いている間のボタン。 */
+.vlat-toolbar > Button.vlat-toggle-on {
+    color: rgb(255, 255, 255);
+    background-color: rgb(58, 121, 187);
+    border-color: rgb(46, 98, 153);
+}
+
+/* ---------- 上のバー ---------- */
 
 .vlat-toolbar {
     flex-direction: row;
     align-items: center;
     flex-shrink: 0;
-    min-height: 30px;
-    padding: 3px 6px;
+    height: 32px;
+    padding: 0 8px;
     background-color: var(--unity-colors-toolbar-background, rgb(60, 60, 60));
     border-bottom-width: 1px;
     border-bottom-color: var(--unity-colors-toolbar-border, rgb(35, 35, 35));
 }
 
 .vlat-toolbar > Button {
-    min-width: 56px;
     height: 22px;
-    margin-left: 0;
-    margin-right: 3px;
+    margin: 0 3px 0 0;
+    padding: 0 8px;
 }
 
 .vlat-toolbar-separator {
     width: 1px;
     height: 18px;
-    margin-left: 5px;
-    margin-right: 8px;
+    margin: 0 8px 0 5px;
     background-color: var(--unity-colors-toolbar-border, rgb(35, 35, 35));
 }
 
@@ -44,304 +160,291 @@
 
 .vlat-document-title {
     -unity-font-style: bold;
-    margin-right: 8px;
+    margin-right: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 420px;
+    white-space: nowrap;
+    flex-shrink: 1;
+    min-width: 110px;
+    max-width: 360px;
 }
 
-.vlat-dirty-label {
-    padding: 2px 8px;
-    border-radius: 9px;
-    margin-right: 2px;
-    -unity-font-style: bold;
-    font-size: 11px;
-    color: var(--unity-colors-label-text, rgb(196, 196, 196));
-    background-color: rgba(128, 128, 128, 0.18);
-}
-
-.vlat-dirty-label.vlat-dirty-modified {
-    color: rgb(255, 255, 255);
-    background-color: rgb(196, 120, 40);
-}
-
-/* ---------- Workflow guide ---------- */
-
-.vlat-workflow {
-    flex-direction: row;
-    align-items: center;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    padding: 4px 6px;
-    border-bottom-width: 1px;
-    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
-}
-
-.vlat-workflow-steps {
-    flex-direction: row;
-    align-items: center;
-    margin-right: 10px;
-}
-
-.vlat-step {
-    padding: 2px 8px;
-    margin-right: 4px;
-    border-radius: 9px;
-    font-size: 11px;
-    color: var(--unity-colors-label-text, rgb(196, 196, 196));
-    opacity: 0.55;
+.vlat-chip {
+    height: 20px;
+    padding: 0 9px;
+    margin: 0 6px 0 0;
+    border-radius: 10px;
     border-width: 1px;
-    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+    border-color: rgba(128, 128, 128, 0.6);
+    font-size: 11px;
+    -unity-text-align: middle-center;
 }
 
-.vlat-step.vlat-step-done {
-    opacity: 1;
-    background-color: rgba(76, 160, 90, 0.30);
-    border-color: rgba(76, 160, 90, 0.75);
+.vlat-chip-clickable:hover {
+    background-color: rgba(128, 128, 128, 0.2);
 }
 
-.vlat-step.vlat-step-current {
-    opacity: 1;
-    -unity-font-style: bold;
+.vlat-chip.vlat-dirty-modified,
+.vlat-chip.vlat-validation-warning {
+    color: rgb(232, 200, 110);
+    border-color: rgb(210, 160, 40);
+}
+
+.vlat-chip.vlat-validation-error {
     color: rgb(255, 255, 255);
-    background-color: rgb(58, 121, 187);
-    border-color: rgb(58, 121, 187);
+    background-color: rgb(185, 55, 55);
+    border-color: rgb(185, 55, 55);
 }
 
-.vlat-workflow-hint {
+.vlat-light .vlat-chip.vlat-dirty-modified,
+.vlat-light .vlat-chip.vlat-validation-warning {
+    color: rgb(105, 70, 0);
+    border-color: rgb(150, 105, 0);
+}
+
+/* ---------- 本体 ---------- */
+
+.vlat-body {
+    flex-direction: row;
     flex-grow: 1;
     flex-shrink: 1;
-    white-space: normal;
+    min-height: 0;
 }
 
-/* ---------- Main split / document pane ---------- */
-
-#main-split,
-#content-split {
-    flex-grow: 1;
-    min-height: 320px;
-}
-
-.vlat-hierarchy {
-    padding: 6px;
+.vlat-tool-strip {
+    width: 62px;
+    flex-shrink: 0;
+    padding: 8px 6px;
+    background-color: var(--unity-colors-toolbar-background, rgb(60, 60, 60));
     border-right-width: 1px;
     border-right-color: var(--unity-colors-default-border, rgb(36, 36, 36));
 }
 
-.vlat-document-button {
-    height: 24px;
-    margin-left: 0;
-    margin-right: 0;
+.vlat-tool {
     margin-bottom: 4px;
-    -unity-text-align: middle-left;
 }
 
-.vlat-section {
-    margin-top: 4px;
-}
-
-.vlat-section > Toggle {
-    -unity-font-style: bold;
-}
-
-.vlat-section-header {
-    flex-direction: row;
-    align-items: center;
-    margin-top: 6px;
-    margin-bottom: 2px;
-}
-
-.vlat-section-title {
+.vlat-tool > .unity-toggle__input {
     flex-grow: 1;
-    -unity-font-style: bold;
-}
-
-.vlat-section-header > Button {
-    width: 24px;
-    min-width: 24px;
-    height: 20px;
-    margin-left: 2px;
-    margin-right: 0;
-}
-
-.vlat-section ListView {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
     border-width: 1px;
-    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
-    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    border-color: rgba(0, 0, 0, 0);
 }
 
-#keyform-group-list { height: 48px; }
-#keyform-list { height: 132px; }
-#band-list { height: 96px; }
-#layer-list { height: 110px; }
-#modifier-list { height: 110px; }
-
-.vlat-list-label {
-    padding-left: 5px;
-    -unity-text-align: middle-left;
-}
-
-/* ---------- Inspector ---------- */
-
-.vlat-inspector {
-    padding: 8px 10px;
-    border-left-width: 1px;
-    border-left-color: var(--unity-colors-default-border, rgb(36, 36, 36));
-}
-
-.vlat-inspector-heading {
-    font-size: 14px;
+.vlat-tool .unity-toggle__text {
+    margin: 0;
+    font-size: 12px;
     -unity-font-style: bold;
-    margin-bottom: 6px;
+    -unity-text-align: middle-center;
 }
 
-.vlat-inspector-section {
-    margin-top: 12px;
-    margin-bottom: 3px;
-    padding-bottom: 2px;
-    -unity-font-style: bold;
-    border-bottom-width: 1px;
-    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
-}
-
-.vlat-inspector-note {
-    white-space: normal;
-    margin-top: 4px;
-    margin-bottom: 2px;
+.vlat-tool-key {
+    margin-top: 2px;
     font-size: 11px;
-    color: var(--unity-colors-label-text, rgb(196, 196, 196));
-    opacity: 0.75;
+    color: rgb(170, 170, 170);
 }
 
-.vlat-inspector-row {
+.vlat-tool:hover > .unity-toggle__input {
+    background-color: rgba(128, 128, 128, 0.18);
+}
+
+.vlat-tool.vlat-tool-active > .unity-toggle__input {
+    background-color: rgb(58, 121, 187);
+    border-color: rgb(46, 98, 153);
+}
+
+.vlat-tool.vlat-tool-active .unity-toggle__text,
+.vlat-tool.vlat-tool-active .vlat-tool-key {
+    color: rgb(255, 255, 255);
+}
+
+.vlat-light .vlat-tool-key {
+    color: rgb(72, 72, 72);
+}
+
+.vlat-stage {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 240px;
+}
+
+.vlat-editor-stage {
+    flex-grow: 1;
+}
+
+/* ---------- はじめる画面 ---------- */
+
+.vlat-start {
+    flex-grow: 1;
+}
+
+.vlat-start .unity-scroll-view__content-container {
+    align-items: center;
+    padding: 28px 16px;
+}
+
+.vlat-start-card {
+    width: 600px;
+    max-width: 100%;
+    padding: 22px 26px 18px 26px;
+    border-width: 1px;
+    border-radius: 6px;
+    border-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.vlat-light .vlat-start-card {
+    background-color: rgba(255, 255, 255, 0.35);
+}
+
+.vlat-start-title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.vlat-start-lead {
+    white-space: normal;
+    margin-bottom: 18px;
+    color: rgb(190, 190, 190);
+}
+
+.vlat-light .vlat-start-lead {
+    color: rgb(60, 60, 60);
+}
+
+.vlat-start-step {
+    flex-direction: row;
+    margin-bottom: 16px;
+}
+
+.vlat-start-step-number {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgba(128, 128, 128, 0.3);
+}
+
+.vlat-start-step-done > .vlat-start-step-number {
+    color: rgb(255, 255, 255);
+    background-color: rgb(60, 140, 76);
+}
+
+.vlat-start-step-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.vlat-start-step-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.vlat-choice-list,
+.vlat-choice-row {
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: center;
     margin-top: 2px;
 }
 
-.vlat-inspector-row > Label {
-    margin-right: 4px;
-}
-
-.vlat-inspector-row > Button {
-    margin-left: 0;
-    margin-right: 3px;
-}
-
-.vlat-inspector-primary {
-    height: 24px;
-    margin-top: 4px;
-    -unity-font-style: bold;
-}
-
-.vlat-keyform-warning {
-    white-space: normal;
-    margin-top: 10px;
-}
-
-/* ---------- Preview ---------- */
-
-.vlat-preview {
-    flex-grow: 1;
-    padding: 4px 6px;
-}
-
-.vlat-preview-toolbar,
-.vlat-preview-views,
-.vlat-preview-view-header,
-.vlat-control-row {
-    flex-direction: row;
-    align-items: center;
-}
-
-.vlat-preview-toolbar {
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    margin-bottom: 4px;
-}
-
-.vlat-preview-toolbar > Button {
-    margin-left: 0;
-    margin-right: 3px;
-}
-
-.vlat-preview-avatar-label {
-    margin-left: 4px;
-    -unity-font-style: bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 260px;
-}
-
-.vlat-mode-caption {
-    margin-right: 4px;
-    opacity: 0.75;
-}
-
-.vlat-mode-toggle {
-    margin-right: 8px;
-}
-
-.vlat-preview-views {
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-height: 240px;
-    align-items: stretch;
-}
-
-.vlat-preview-side {
-    flex-grow: 1;
-    flex-basis: 0;
-    min-width: 140px;
-}
-
-.vlat-preview-view {
-    flex-grow: 1;
-    flex-basis: 0;
-    min-width: 140px;
-    min-height: 100px;
-    margin: 0 4px 4px 0;
+.vlat-choice {
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 150px;
+    margin: 0 6px 6px 0;
+    padding: 6px 10px;
     border-width: 1px;
-    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+    border-radius: 4px;
+    border-color: rgba(255, 255, 255, 0.22);
 }
 
-.vlat-preview-view-main {
-    flex-grow: 2;
-    border-color: rgb(58, 121, 187);
+.vlat-light .vlat-choice {
+    border-color: rgba(0, 0, 0, 0.32);
 }
 
-.vlat-preview-view-header {
-    height: 22px;
-    flex-shrink: 0;
-    padding-left: 5px;
-    padding-right: 2px;
-    background-color: rgba(128, 128, 128, 0.12);
-}
-
-.vlat-preview-view-header > Label {
-    flex-grow: 1;
-    flex-shrink: 1;
+.vlat-choice-title {
     -unity-font-style: bold;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
-.vlat-preview-view-header > Button {
-    flex-shrink: 0;
-    height: 18px;
-    font-size: 10px;
-    margin: 0;
+.vlat-choice-detail {
+    font-size: 11px;
+    color: rgb(185, 185, 185);
 }
 
-.vlat-preview-image {
+.vlat-light .vlat-choice-detail {
+    color: rgb(60, 60, 60);
+}
+
+.vlat-choice.vlat-choice-selected,
+.vlat-choice-toggle.vlat-choice-selected > .unity-toggle__input {
+    border-color: rgb(76, 143, 214);
+    background-color: rgba(58, 121, 187, 0.3);
+}
+
+.vlat-choice-toggle {
+    margin: 0 6px 6px 0;
+}
+
+.vlat-choice-toggle > .unity-toggle__input {
+    padding: 5px 10px 5px 8px;
+    border-width: 1px;
+    border-radius: 4px;
+    border-color: rgba(255, 255, 255, 0.22);
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.vlat-light .vlat-choice-toggle > .unity-toggle__input {
+    border-color: rgba(0, 0, 0, 0.32);
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.vlat-choice-toggle .unity-toggle__text {
+    margin-left: 4px;
+    -unity-text-align: middle-left;
+}
+
+.vlat-start-actions {
+    margin: 4px 0 18px 36px;
+}
+
+.vlat-start-actions > .vlat-message {
+    flex-shrink: 1;
+    margin-left: 8px;
+}
+
+.vlat-start-other {
+    padding-top: 12px;
+    border-top-width: 1px;
+    border-top-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+/* ---------- 編集ビュー ---------- */
+
+.vlat-viewport {
     flex-grow: 1;
-    background-color: rgb(30, 30, 30);
+    min-height: 200px;
+    overflow: hidden;
+    background-color: rgb(32, 32, 32);
 }
 
 .vlat-preview-image-stack {
-    position: relative;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.vlat-preview-image {
     flex-grow: 1;
 }
 
@@ -353,178 +456,463 @@
     bottom: 0;
 }
 
-.vlat-preview-help {
-    flex-shrink: 0;
-    font-size: 10px;
-    opacity: 0.7;
-    margin-bottom: 2px;
+/* ビューの上に重ねる表示は、テーマによらず3D画面の上で読める濃い地にする。 */
+.vlat-view-tag {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    max-width: 55%;
+    padding: 5px 10px 6px 10px;
+    border-radius: 4px;
+    background-color: rgba(18, 18, 18, 0.84);
 }
 
-/* 操作群とメッセージは専用scroll領域へ置き、小さいWindowでも3視点の描画面積を確保する。 */
-.vlat-preview-controls-scroll {
-    flex-grow: 0;
-    flex-shrink: 1;
-    max-height: 48%;
-    margin-top: 2px;
+.vlat-view-tag-title {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(245, 245, 245);
 }
 
-.vlat-preview-messages {
-    flex-shrink: 0;
-}
-
-.vlat-message {
+.vlat-view-tag-detail {
     white-space: normal;
     font-size: 11px;
-    padding: 2px 6px;
-    margin-bottom: 2px;
-    border-left-width: 3px;
+    color: rgb(215, 215, 215);
 }
 
-.vlat-message-active {
-    border-left-color: rgb(58, 121, 187);
-    background-color: rgba(58, 121, 187, 0.12);
+.vlat-compare-views {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 156px;
 }
 
-.vlat-message-info {
-    border-left-color: var(--unity-colors-default-border, rgb(110, 110, 110));
-    background-color: rgba(128, 128, 128, 0.10);
+.vlat-compare-view {
+    height: 168px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border-width: 1px;
+    border-radius: 4px;
+    border-color: rgba(255, 255, 255, 0.16);
+    background-color: rgb(40, 40, 40);
 }
 
-.vlat-message-warning {
-    color: rgb(230, 196, 100);
-    border-left-color: rgb(210, 160, 40);
-    background-color: rgba(210, 160, 40, 0.10);
-}
-
-.vlat-light .vlat-message-warning {
-    color: rgb(120, 80, 0);
-}
-
-.vlat-control-groups {
+.vlat-compare-header {
     flex-direction: row;
-    flex-wrap: wrap;
-    flex-shrink: 0;
+    align-items: center;
+    height: 22px;
+    padding: 0 3px 0 8px;
+    background-color: rgba(18, 18, 18, 0.88);
+}
+
+.vlat-compare-label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgb(150, 190, 240);
+}
+
+.vlat-compare-label.vlat-compare-stale {
+    color: rgb(232, 200, 110);
+}
+
+.vlat-viewport-placeholder {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+}
+
+.vlat-viewport-placeholder-label {
+    white-space: normal;
+    max-width: 360px;
+    margin-bottom: 10px;
+    -unity-text-align: middle-center;
+    color: rgb(215, 215, 215);
+}
+
+.vlat-viewport-footer {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    right: 110px;
     align-items: flex-start;
 }
 
-.vlat-control-group {
-    flex-grow: 1;
-    flex-basis: 260px;
-    min-width: 240px;
-    max-width: 420px;
-    padding: 4px 6px 6px 6px;
-    margin: 0 4px 4px 0;
-    border-width: 1px;
+.vlat-viewport-help {
+    white-space: normal;
+    padding: 2px 6px;
     border-radius: 3px;
-    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
-    background-color: rgba(128, 128, 128, 0.06);
-}
-
-.vlat-control-group-title {
-    -unity-font-style: bold;
-    margin-bottom: 2px;
-}
-
-.vlat-control-group .unity-base-field__label {
-    min-width: 72px;
-    width: 72px;
-}
-
-.vlat-control-row > Button {
-    margin-left: 0;
-    margin-right: 3px;
-}
-
-.vlat-selection-status {
-    white-space: normal;
     font-size: 11px;
-    margin-top: 2px;
-    color: rgb(150, 200, 235);
+    color: rgb(220, 220, 220);
+    background-color: rgba(18, 18, 18, 0.72);
 }
 
-.vlat-light .vlat-selection-status {
-    color: rgb(20, 90, 150);
-}
-
-.vlat-preview-details {
-    flex-shrink: 0;
-}
-
-.vlat-preview-instrumentation {
+.vlat-viewport-message {
     white-space: normal;
-    font-size: 10px;
-    opacity: 0.7;
+    margin-top: 4px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: rgb(240, 210, 120);
+    background-color: rgba(18, 18, 18, 0.84);
 }
 
-/* ---------- Validation / status ---------- */
+.vlat-viewport-reset {
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+}
 
-.vlat-validation {
+.vlat-viewport-narrow .vlat-compare-views {
+    width: 118px;
+}
+
+.vlat-viewport-narrow .vlat-compare-view {
+    height: 126px;
+}
+
+.vlat-viewport-tiny .vlat-view-tag {
+    max-width: 85%;
+}
+
+/* ---------- 角度レール ---------- */
+
+.vlat-rail-panel {
     flex-shrink: 0;
-    height: 112px;
-    padding: 4px 8px;
+    padding: 6px 10px 8px 10px;
+    background-color: var(--unity-colors-toolbar-background, rgb(60, 60, 60));
     border-top-width: 1px;
     border-top-color: var(--unity-colors-default-border, rgb(36, 36, 36));
 }
 
-.vlat-validation-header {
+.vlat-rail-header {
     flex-direction: row;
     align-items: center;
+    min-height: 24px;
 }
 
-.vlat-validation-summary {
+.vlat-rail-header > Button {
+    height: 22px;
+    margin: 0 4px 0 0;
+}
+
+.vlat-rail-caption {
+    -unity-font-style: bold;
+    margin-right: 4px;
+}
+
+.vlat-rail-yaw {
+    width: 56px;
+    margin: 0;
+}
+
+.vlat-rail-unit {
+    margin: 0 10px 0 2px;
+}
+
+.vlat-rail-host {
+    height: 66px;
+    margin-top: 4px;
+}
+
+.vlat-angle-rail {
+    flex-grow: 1;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.22);
+    cursor: resize-horizontal;
+    --rail-track-color: rgb(120, 120, 120);
+    --rail-tick-color: rgb(165, 165, 165);
+    --rail-key-color: rgb(255, 138, 61);
+    --rail-key-hollow-color: rgb(46, 46, 46);
+    --rail-band-color: rgba(255, 138, 61, 0.2);
+    --rail-playhead-color: rgb(245, 245, 245);
+    --rail-compare-color: rgb(140, 185, 240);
+}
+
+.vlat-angle-rail:focus {
+    border-width: 1px;
+    border-color: rgb(58, 121, 187);
+}
+
+.vlat-light .vlat-angle-rail {
+    background-color: rgba(0, 0, 0, 0.08);
+    --rail-track-color: rgb(110, 110, 110);
+    --rail-tick-color: rgb(80, 80, 80);
+    --rail-key-color: rgb(168, 74, 16);
+    --rail-key-hollow-color: rgb(225, 225, 225);
+    --rail-band-color: rgba(168, 74, 16, 0.16);
+    --rail-playhead-color: rgb(20, 20, 20);
+    --rail-compare-color: rgb(30, 90, 160);
+}
+
+.vlat-rail-tick-label,
+.vlat-rail-drag-label {
+    position: absolute;
+    top: 47px;
+    width: 48px;
     font-size: 11px;
-    padding: 1px 8px;
-    border-radius: 8px;
-    background-color: rgba(76, 160, 90, 0.30);
+    -unity-text-align: upper-center;
+    color: rgb(180, 180, 180);
 }
 
-.vlat-validation-summary.vlat-validation-warning {
-    background-color: rgba(210, 160, 40, 0.35);
+.vlat-rail-drag-label {
+    -unity-font-style: bold;
+    color: rgb(255, 165, 102);
+    background-color: rgba(18, 18, 18, 0.9);
+    border-radius: 3px;
 }
 
-.vlat-validation-summary.vlat-validation-error {
-    color: rgb(255, 255, 255);
-    background-color: rgb(190, 60, 60);
+.vlat-light .vlat-rail-tick-label {
+    color: rgb(60, 60, 60);
+}
+
+.vlat-rail-marker {
+    position: absolute;
+    top: 0;
+    width: 14px;
+    height: 13px;
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: rgb(140, 185, 240);
+}
+
+.vlat-light .vlat-rail-marker {
+    color: rgb(30, 90, 160);
+}
+
+/* ---------- 右の列 ---------- */
+
+.vlat-side {
+    width: 272px;
+    flex-shrink: 0;
+    border-left-width: 1px;
+    border-left-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-tool-options {
+    flex-shrink: 0;
+    padding: 10px 12px 8px 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-options-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.vlat-options .unity-base-field,
+.vlat-inspector .unity-base-field,
+.vlat-details .unity-base-field {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.vlat-options .unity-base-field__label {
+    min-width: 100px;
+    width: 100px;
+}
+
+.vlat-options-subgroup {
+    margin-top: 6px;
+}
+
+.vlat-options > Button,
+.vlat-options-subgroup > Button {
+    margin: 4px 0 2px 0;
+}
+
+.vlat-inspector {
+    flex-grow: 1;
+    padding: 10px 12px;
+}
+
+.vlat-inspector-heading {
+    font-size: 15px;
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+}
+
+.vlat-inspector-section {
+    margin-top: 14px;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    -unity-font-style: bold;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-inspector-foldout {
+    margin-top: 8px;
+}
+
+.vlat-inspector Button {
+    margin: 4px 4px 2px 0;
+}
+
+.vlat-avatar-section {
+    flex-shrink: 0;
+    padding: 8px 12px 10px 12px;
+    border-top-width: 1px;
+    border-top-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-section-title {
+    -unity-font-style: bold;
+}
+
+.vlat-avatar-name {
+    margin: 2px 0 4px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 旧形式（v0.1）の一覧。旧形式のファイルのときだけ出す。 */
+.vlat-legacy {
+    flex-shrink: 0;
+    padding: 10px 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-list-header {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 2px;
+}
+
+.vlat-list-title {
+    flex-grow: 1;
+    -unity-font-style: bold;
+}
+
+.vlat-list-header > Button {
+    height: 20px;
+    margin: 0 0 0 2px;
+    padding: 0 5px;
+    font-size: 11px;
+}
+
+.vlat-legacy ListView {
+    border-width: 1px;
+    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+#band-list { height: 88px; }
+#layer-list { height: 100px; }
+#modifier-list { height: 100px; }
+
+.vlat-list-label {
+    padding-left: 5px;
+    -unity-text-align: middle-left;
+}
+
+/* ---------- 詳細 ---------- */
+
+.vlat-details {
+    width: 300px;
+    min-width: 220px;
+    flex-shrink: 1;
+    padding: 6px 10px;
+    border-left-width: 1px;
+    border-left-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+}
+
+.vlat-details-section {
+    margin-bottom: 8px;
+}
+
+.vlat-details-section > Toggle {
+    -unity-font-style: bold;
 }
 
 #diagnostic-list {
-    flex-grow: 1;
-    margin-top: 3px;
+    height: 150px;
+    margin-top: 2px;
+    border-width: 1px;
+    border-color: var(--unity-colors-default-border, rgb(36, 36, 36));
+    background-color: rgba(0, 0, 0, 0.06);
 }
 
 .vlat-diagnostic-label {
     padding-left: 4px;
     -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .vlat-diagnostic-error {
-    color: rgb(240, 110, 110);
+    color: rgb(245, 130, 130);
 }
 
 .vlat-diagnostic-warning {
-    color: rgb(230, 196, 100);
-}
-
-.vlat-diagnostic-info {
-    opacity: 0.85;
+    color: rgb(232, 200, 110);
 }
 
 .vlat-light .vlat-diagnostic-error {
-    color: rgb(170, 30, 30);
+    color: rgb(150, 25, 25);
 }
 
 .vlat-light .vlat-diagnostic-warning {
-    color: rgb(120, 80, 0);
+    color: rgb(105, 70, 0);
 }
 
-.vlat-status {
+.vlat-instrumentation {
+    white-space: normal;
+    font-size: 11px;
+    margin-top: 4px;
+    color: rgb(180, 180, 180);
+}
+
+.vlat-light .vlat-instrumentation {
+    color: rgb(72, 72, 72);
+}
+
+/* ---------- ステータス行 ---------- */
+
+.vlat-status-bar {
+    flex-direction: row;
+    align-items: center;
     flex-shrink: 0;
-    min-height: 22px;
-    padding: 3px 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    height: 24px;
+    padding: 0 10px;
     background-color: var(--unity-colors-toolbar-background, rgb(60, 60, 60));
     border-top-width: 1px;
     border-top-color: var(--unity-colors-toolbar-border, rgb(35, 35, 35));
+}
+
+.vlat-status-hint {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vlat-status {
+    flex-shrink: 1;
+    max-width: 45%;
+    margin-left: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -unity-text-align: middle-right;
+    color: rgb(180, 180, 180);
+}
+
+.vlat-light .vlat-status {
+    color: rgb(60, 60, 60);
 }
